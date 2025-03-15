@@ -1,0 +1,47 @@
+@use 'media-size.mixins' as m;
+
+
+//Components
+@mixin components {
+  :where([base-input]) {
+    border: none;
+    background: transparent;
+    padding: 0;
+    position: absolute;
+    inset: 0;
+  }
+
+  :where([input]) {
+    box-sizing: border-box;
+    height: 2.25rem;
+    color: var(--input-clr);
+    padding: 0 1rem;
+  }
+
+  :where([btn]) {
+    position: relative;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    text-align: inherit;
+    cursor: pointer;
+    &:before {
+      content: "";
+      display: block;
+      inset: 0 -.25rem;
+      position: absolute;
+    }
+    &:hover { background-color: inherit; }
+  }
+
+  :where([text-btn]) {
+    background-color: transparent;
+    border: none;
+    color: var(--label);
+    transition: filter .25s;
+    @include m.tabletUp {
+      &:hover {
+        filter: brightness(1.5);
+      }
+    }
+  }
+}
