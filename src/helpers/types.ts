@@ -1,3 +1,4 @@
+import { FormControl, FormGroup } from "@angular/forms";
 import { IconEnum, Language } from "./enum";
 
 export type actionButton = {
@@ -36,6 +37,11 @@ export type Question = {
   requires?: string[];
 }
 
+export type QuestionTree = {
+  [key: string]: QuestionTree | string;
+};
+
+
 export type Section = {
   id: string;
   title: Translations;
@@ -47,3 +53,6 @@ export type Questionare = {
   title: Translations;
   sections: Section[];
 }
+
+export type FormTranslations = FormGroup<Record<Language, FormControl<string>>>;
+export type TranslationCollection = FormGroup<Record<string, FormTranslations>>

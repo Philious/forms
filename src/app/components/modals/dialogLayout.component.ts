@@ -11,15 +11,15 @@ import { CommonModule } from '@angular/common';
     <div class="header">
       <ng-content select="[slot=header]"> {{ headerString() }} </ng-content>
     </div>
-    <div class="header">
+    <div class="content">
       <ng-content select="[slot=content]"> {{ contentString() }} </ng-content>
     </div>
     <div class="footer">
-      <ng-container select="[slot=footer]">
+      <ng-content select="[slot=footer]">
         @for (button of footerButtons(); track button.id) {
           <text-button [label]="button.label" (onClick)="button.action()"/>
         }
-      </ng-container>
+      </ng-content>
     </div>
   `,
   styles: [
@@ -29,9 +29,10 @@ import { CommonModule } from '@angular/common';
       :host {
         background: var(--overlay-bg-clr);
         color: var(--overlay-clr);
-        border-radius: 8px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        box-shadow: 0px 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
         min-width: 18rem;
+        padding: 1.5rem;
         display: grid;
         gap: 1.5rem;
         box-sizing: border-box;
@@ -40,15 +41,6 @@ import { CommonModule } from '@angular/common';
           inset: auto 1rem 1rem 1rem;
           width: auto;
         }
-      }
-      .close-btn {
-        margin-top: 15px;
-        padding: 5px 10px;
-        background-color: #f44336;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
       }
       .footer {
         margin-top: 1.5rem;

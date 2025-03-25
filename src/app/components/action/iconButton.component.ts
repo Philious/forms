@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, output, Output } from "@angular/core";
 import { IconComponent } from "../icons/icon.component";
 import { CommonModule } from "@angular/common";
 import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
@@ -7,8 +7,8 @@ import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
   selector: 'icon-button',
   imports: [IconComponent, CommonModule],
   template: `
-    <div [ngClass]="['bg', buttonStyle]">
-      <button class="icn-btn" (click)="onButtonClick($event)" [type]="type" base-input>
+    <div class="bg" [class]="buttonStyle">
+      <button class="icn-btn" (click)="onClick.emit($event)" [type]="type" base-input>
         <icon [icon]="icon" class="icn"/>
       </button>
     </div>
@@ -16,8 +16,8 @@ import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
   `,
   styles: `
     .bg {
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
       margin: .125rem;
       border-radius: 50%;
       position: relative;
@@ -61,9 +61,5 @@ export class IconButtonComponent {
   @Input() icon!: IconEnum;
   @Input() buttonStyle = ButtonStyleEnum.Transparent;
 
-  @Output() onClick = new EventEmitter<MouseEvent>();
-
-  onButtonClick(event: MouseEvent): void {
-    this.onClick.emit(event);
-  }
+  onClick = output<MouseEvent>();
 }

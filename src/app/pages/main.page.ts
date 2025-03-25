@@ -3,14 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MainTabs } from '../../helpers/enum';
 import { TabViewComponent } from '../components/action/tabView.component';
-import { Questions } from '../components/questions/questions.component';
+import { Questions } from './questions.page';
 import { Sections } from './sections.page';
 import { Forms } from './forms.page';
 import { Test } from './test.page';
 import { Switch } from '../components/action/switch.component'
 import { TranslationService } from '../../services/translation.service';
 import { Pages } from "./pages.page";
-import { ManageQuestionDialogComponent } from '../components/modals/manageQuestiondialog.component';
 import { Dialog } from '@angular/cdk/dialog';
 
 @Component({
