@@ -25,7 +25,9 @@ export class QuestionService {
   setLanguage(lang: Language) {
     this._currentLanguage.set(lang);
   }
-
+  filteredQuestions(filterString: string) {
+    return this.questions().map(q => q.translationPath).filter(q => q.includes(filterString))
+  }
   getLanguageFormGroup(id: string): FormTranslations {
     console.log(id, this.questionsFormGroup);
     const translationKey = id as keyof TranslationCollection;
@@ -34,11 +36,10 @@ export class QuestionService {
     return formGroup as FormTranslations
   }
 
-  addQuestion(question: Question): void {
-    this._questions.update((data) => {
-      data.push(question);
-      return data;
-    })
+
+
+  addQuestion(group: TranslationCollection): void {
+    console.log(group);
   }
 
   updateQuestion(updatedQuestion: Question): void {

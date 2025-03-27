@@ -1,4 +1,4 @@
-import { Component, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { TextButton } from "../action/textButton.component";
 import { InputLayoutComponent } from "../action/input.layout.component";
 import { DialogComponent } from "../modals/dialogLayout.component";
@@ -17,11 +17,16 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
   template: `
     <dialog-layout>
       <div class="header" slot="header">
-        {{ translationId() ? 'Update tranlation' : 'New translation'}}
+        {{ false ? 'Update tranlation' : 'New translation'}}
       </div>
       <div class="content" slot="content">
         <input-layout [label]="'Translation id'">
-          <input type="text" [(ngModel)]="translationId"/>
+          <input type="text" [(ngModel)]="inputModel" list="languages"/>
+          <datalist id="languages">
+            @for (path of filteredData(); track path) {
+            <option [value]="path" ></option>
+            }
+          </datalist>
         </input-layout>
         <div class="content" [formGroup]="translationFormGroup">
         @for (trans of translationArray; track trans) {
@@ -52,20 +57,29 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 })
 export class ManageQuestionDialogComponent {
   dialogRef = inject<DialogRef<string>>(DialogRef<string>);
-  data = inject(DIALOG_DATA);
+  data = inject<string[]>(DIALOG_DATA);
 
   id = input<string | null>(null);
-  translationId = model<string | null>(null);
   translations = input<Translations>(createEmptyTranslations());
   needs = input<string[]>([]);
   requires = input<string[]>([]);
+
+  inputModel = model<string | null>(null);
+
+  filteredData = computed(() => {
+    const filter = this.inputModel() ?? ''
+    const letterCount = filter.length;
+
+    return letterCount > 0 ? this.data.filter(t => t.slice(0, letterCount) === filter) : this.data
+  })
 
   translationArray = Object.keys(this.translations());
   translationFormGroup = translationsToFormGroup(this.translations());
 
   constructor() {
-    console.log(this.translationFormGroup);
+    console.log(this.data);
   }
+
 
   add() { }
   cancel = output.bind(close);

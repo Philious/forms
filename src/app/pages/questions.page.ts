@@ -6,7 +6,7 @@ import { ManageQuestionDialogComponent } from "../components/questions/manageQue
 import { Dialog } from "@angular/cdk/dialog";
 import { QuestionService } from "../components/questions/question.service";
 import { FolderComponent } from "../components/folder.component";
-import { FormTranslations } from "../../helpers/types";
+import { FormTranslations, TranslationCollection } from "../../helpers/types";
 import { ToolBarComponent } from "../components/toolbar.component";
 import { IconButtonComponent } from "../components/action/iconButton.component";
 
@@ -15,19 +15,16 @@ import { IconButtonComponent } from "../components/action/iconButton.component";
   imports: [CommonModule, ReactiveFormsModule, FormsModule, FolderComponent, ToolBarComponent, IconButtonComponent],
   template: `
     <tool-bar [(filter)]="searchFilter"/>
-    <ul [formGroup]="questionService.questionsFormGroup">
-      @for (data of questionService.treeQuestions() | keyvalue; track data) {
-        @let key = data.key;
-        @let value = data.value;
-        <li>
-          <folder [data]="value" [title]="key" (state)="updateChildState($event)"/>
-        </li>
-      }
+    <ul>
+      <li>
+        <folder [data]="questionService.treeQuestions()" [title]="'root'" (state)="updateChildState($event)"/>
+      </li>
       @if (!childState()) {
         <li class="list-item-add">
           <icon-button [icon]="IconEnum.Add" (onClick)="add()" [buttonStyle]="ButtonStyleEnum.Border"/>
         </li>
       }
+
     </ul>
     
   `,
@@ -96,8 +93,11 @@ export class Questions implements OnInit {
   }
 
   add() {
+
+    // this.questionService.addQuestion(group);
+
     const dialogRef = this.dialog.open(ManageQuestionDialogComponent, {
-      data: { translationGroup: this.newQuestionData }
+      data: this.questionService.filteredQuestions('')
     });
 
     dialogRef.closed.subscribe(result => {
@@ -107,6 +107,7 @@ export class Questions implements OnInit {
 
 
   constructor() {
+    console.log(this.questionService.questions());
     console.log(this.questionService.treeQuestions());
     console.log(this.questionService.questionsFormGroup);
   }

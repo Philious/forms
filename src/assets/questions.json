@@ -1,7 +1,7 @@
 [
   {
     "id": "bea0b45b-48d3-4b4e-8610-819d6ff8ac1e",
-    "translationId": "banana.apple.82f8712ba4d42",
+    "translationPath": "banana.apple.82f8712ba4d42",
     "translations": {
       "sv": "Veniam aliqua nulla mollit nisi excepteur adipisicing esse dolore esse.",
       "en": "Sit cillum pariatur magna deserunt non velit voluptate."
@@ -11,7 +11,7 @@
   },
   {
     "id": "0a0a0318-42ab-413f-bde1-4cbf47b3da71",
-    "translationId": "apple.apple.35ad8205959a6",
+    "translationPath": "apple.apple.35ad8205959a6",
     "translations": {
       "sv": "Sint eu adipisicing id veniam eiusmod qui consectetur ullamco.",
       "en": "Proident non do irure nisi nulla cupidatat elit."
@@ -21,7 +21,7 @@
   },
   {
     "id": "70e9cf4d-614e-4e04-af08-fa3e7bd77a85",
-    "translationId": "strawberry.strawberry.410418d385fc9",
+    "translationPath": "strawberry.strawberry.410418d385fc9",
     "translations": {
       "sv": "Nisi eu exercitation sunt fugiat sint velit.",
       "en": "In laborum duis nisi Lorem ea laboris labore consequat ad magna enim enim."
@@ -31,7 +31,7 @@
   },
   {
     "id": "e6e5461d-a035-4b85-9975-dc08a1cf8b88",
-    "translationId": "banana.apple.0d31d51f2afee",
+    "translationPath": "banana.apple.0d31d51f2afee",
     "translations": {
       "sv": "Veniam mollit qui deserunt irure eu anim Lorem aliqua nulla ea ullamco eiusmod consequat proident.",
       "en": "Veniam do dolor tempor minim dolor sint."
@@ -41,7 +41,7 @@
   },
   {
     "id": "a11713df-44d7-4cf9-bb10-98fe31e51801",
-    "translationId": "banana.strawberry.forrest.c5a3a22ee42c4",
+    "translationPath": "banana.strawberry.forrest.c5a3a22ee42c4",
     "translations": {
       "sv": "Do laborum excepteur reprehenderit veniam officia officia cupidatat sunt aliquip ut tempor ut.",
       "en": "Duis ullamco incididunt et sit dolore."
@@ -51,7 +51,7 @@
   },
   {
     "id": "461ccc30-975c-4076-8842-edc57d48148c",
-    "translationId": "strawberry.apple.9831e4fb6d7a1",
+    "translationPath": "strawberry.apple.9831e4fb6d7a1",
     "translations": {
       "sv": "Ut exercitation id cupidatat excepteur aliquip consectetur exercitation et ad.",
       "en": "Excepteur cillum voluptate consequat duis ipsum veniam."
@@ -61,7 +61,7 @@
   },
   {
     "id": "9f1ed9d4-50b7-470b-9c7f-46ed7aab3fd6",
-    "translationId": "strawberry.strawberry.80d74fe6ed3dd",
+    "translationPath": "strawberry.strawberry.80d74fe6ed3dd",
     "translations": {
       "sv": "Nostrud amet et duis fugiat fugiat commodo exercitation ullamco.",
       "en": "Elit proident voluptate laborum labore eu mollit officia magna deserunt reprehenderit elit."
@@ -71,7 +71,7 @@
   },
   {
     "id": "4f805396-02bf-4ea9-a6de-3d76d03aea1f",
-    "translationId": "banana.strawberry.85dfb95490cf9",
+    "translationPath": "banana.strawberry.85dfb95490cf9",
     "translations": {
       "sv": "Velit sit culpa ea anim sunt quis fugiat mollit nulla cillum enim excepteur aute.",
       "en": "Aute mollit ad ea sit aliquip veniam cupidatat ut cupidatat irure ullamco fugiat."
@@ -81,7 +81,7 @@
   },
   {
     "id": "e101cf5a-d071-436d-90db-182076d311ab",
-    "translationId": "apple.apple.fc53430297f16",
+    "translationPath": "apple.apple.fc53430297f16",
     "translations": {
       "sv": "Esse aliquip anim mollit ut in.",
       "en": "Non ut elit labore incididunt eu aliquip duis voluptate qui nostrud adipisicing."
@@ -91,7 +91,7 @@
   },
   {
     "id": "7dc08415-6911-44e7-b88a-613ca3d5d535",
-    "translationId": "apple.apple.c70851f2747d1",
+    "translationPath": "apple.apple.c70851f2747d1",
     "translations": {
       "sv": "Elit ex dolor exercitation tempor aliquip elit culpa veniam ea culpa occaecat consectetur fugiat.",
       "en": "Reprehenderit qui sunt tempor pariatur laborum laborum non excepteur dolore consequat minim mollit qui ea."
@@ -101,7 +101,7 @@
   },
   {
     "id": "5732da20-76d4-4a5c-8b8f-5b4a6e3d52d5",
-    "translationId": "strawberry.apple.943542d6a575b",
+    "translationPath": "strawberry.apple.943542d6a575b",
     "translations": {
       "sv": "Non ex duis cupidatat deserunt quis tempor irure voluptate dolore aute esse.",
       "en": "Pariatur sit dolore nostrud nulla sit ea."
@@ -111,7 +111,7 @@
   },
   {
     "id": "89c0d991-8617-47a4-a7ef-4d75bc6a2915",
-    "translationId": "banana.banana.e812fa5406e9d",
+    "translationPath": "banana.banana.e812fa5406e9d",
     "translations": {
       "sv": "Elit occaecat consectetur occaecat nulla voluptate ullamco.",
       "en": "Ullamco esse commodo excepteur aliquip do pariatur anim."
@@ -121,7 +121,7 @@
   },
   {
     "id": "eb852308-76f3-4a3b-b4c2-bca82068cddf",
-    "translationId": "strawberry.apple.4c6a977e2a5e5",
+    "translationPath": "strawberry.apple.4c6a977e2a5e5",
     "translations": {
       "sv": "Adipisicing nulla qui in sint amet fugiat esse pariatur incididunt amet qui consectetur.",
       "en": "Incididunt anim fugiat quis duis incididunt in pariatur ipsum voluptate officia velit officia."
@@ -131,7 +131,7 @@
   },
   {
     "id": "76f45785-9df9-4ccc-8976-780f74077257",
-    "translationId": "banana.strawberry.3b90593572612",
+    "translationPath": "banana.strawberry.3b90593572612",
     "translations": {
       "sv": "Labore id sunt ut ad.",
       "en": "Elit labore do eiusmod enim quis ut exercitation fugiat cupidatat nisi."
@@ -141,7 +141,7 @@
   },
   {
     "id": "9bc02366-e4c1-44ed-b543-061e87fc063b",
-    "translationId": "apple.apple.c9a5c7c6b0594",
+    "translationPath": "apple.apple.c9a5c7c6b0594",
     "translations": {
       "sv": "Anim dolor et est ea laborum enim tempor.",
       "en": "Eiusmod nulla sunt ex ullamco."
@@ -151,7 +151,7 @@
   },
   {
     "id": "85365df1-5ddf-4e65-9ae2-8607cdc1ba92",
-    "translationId": "apple.strawberry.d0c9a00280b4d",
+    "translationPath": "apple.strawberry.d0c9a00280b4d",
     "translations": {
       "sv": "Do officia consectetur adipisicing duis nulla occaecat aliqua nostrud.",
       "en": "Aute est velit anim mollit sint eiusmod commodo nisi quis laborum ex."
@@ -161,7 +161,7 @@
   },
   {
     "id": "c14b9aeb-0ed2-4676-b54d-95296ed5ab60",
-    "translationId": "apple.strawberry.e7211a28db6c1",
+    "translationPath": "apple.strawberry.e7211a28db6c1",
     "translations": {
       "sv": "Do duis exercitation dolore do magna eiusmod magna.",
       "en": "Magna aute enim esse reprehenderit."
@@ -171,7 +171,7 @@
   },
   {
     "id": "302c6abd-1246-4eec-adf8-1c69fb7b7c03",
-    "translationId": "apple.strawberry.ed4dce1c0a08c",
+    "translationPath": "apple.strawberry.ed4dce1c0a08c",
     "translations": {
       "sv": "Ut nisi fugiat minim occaecat ullamco sit sit pariatur consectetur sint cupidatat laboris sint.",
       "en": "Minim mollit fugiat cupidatat aliqua elit magna enim."
@@ -181,7 +181,7 @@
   },
   {
     "id": "ce72dc43-0414-4189-b3f9-7a7ae1ba4f91",
-    "translationId": "apple.strawberry.bb00cc616a361",
+    "translationPath": "apple.strawberry.bb00cc616a361",
     "translations": {
       "sv": "Cupidatat aliquip aliquip fugiat ut exercitation Lorem proident ex dolore sint ex.",
       "en": "Ex velit quis ipsum enim tempor enim amet adipisicing."
@@ -191,7 +191,7 @@
   },
   {
     "id": "5ea73a2c-4388-4bd0-b795-9596c119c644",
-    "translationId": "apple.apple.a351b9474bdfa",
+    "translationPath": "apple.apple.a351b9474bdfa",
     "translations": {
       "sv": "Adipisicing officia labore in ut deserunt occaecat elit in ad.",
       "en": "Officia aute do occaecat commodo minim dolore cupidatat elit sint laboris exercitation."

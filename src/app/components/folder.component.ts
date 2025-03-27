@@ -5,7 +5,7 @@ import { QuestionTree } from "../../helpers/types";
 import { QuestionService } from "./questions/question.service";
 import { IconComponent } from "./icons/icon.component";
 import { FolderComponent as DuplicateFoldComponent } from "./folder.component";
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValue } from '@angular/common';
 import { QuestionsItemComponent } from "./questions/questionItem.component";
 
 @Component({
@@ -22,8 +22,8 @@ import { QuestionsItemComponent } from "./questions/questionItem.component";
       }
     </div>
       @if (foldData() && isOpen()) {
-        <ul>
-          @for (d of foldData() | keyvalue; track d) {
+        <ul >
+          @for (d of foldData() | keyvalue; let idx = $index; track d) {
             <li class="list-item">
               <folder [data]="d.value" [title]="d.key" (state)="updateChildState($event)"/>
             </li>
@@ -76,8 +76,11 @@ export class FolderComponent {
   questionService = inject(QuestionService);
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;
+
   title = input<string>();
+  parent = input<string>();
   data = input.required<QuestionTree | string>();
+
   isOpen = signal<boolean>(false);
   childState = signal<number>(0);
   state = output<boolean>();
@@ -101,5 +104,5 @@ export class FolderComponent {
     })
   }
 
-  add() { }
+  add() { console.log('title: ', this.title(), '\nfold: ', this.foldData()) }
 }

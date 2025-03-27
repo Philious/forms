@@ -29,12 +29,13 @@ export function createEmptyTranslations(): Record<Language, string> {
 
 }
 
+
 export function buildTree(questions: Question[]): QuestionTree {
   const tree: Record<string, any> = {};
-  const paths = questions.map(q => q.translationId);
+  const paths = questions.map(q => q.translationPath);
 
   for (const question of questions) {
-    const parts = question.translationId.split(".");
+    const parts = question.translationPath.split(".");
     let current = tree;
 
     for (let i = 0; i < parts.length; i++) {

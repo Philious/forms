@@ -31,7 +31,7 @@ export type AdditionalText = {
 
 export type Question = {
   id: string;
-  translationId: string;
+  translationPath: string;
   translations: Translations;
   needs?: string[];
   requires?: string[];
