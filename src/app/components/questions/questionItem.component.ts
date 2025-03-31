@@ -1,9 +1,9 @@
 import { Component, input } from "@angular/core";
 import { InputLayoutComponent } from "../action/input.layout.component";
 import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
-import { FormTranslations } from "../../../helpers/types";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
+import { FormTranslationGroup } from "./types";
 
 @Component({
   selector: 'question-item',
@@ -49,7 +49,7 @@ import { CommonModule } from "@angular/common";
 export class QuestionsItemComponent {
   ButtonStyleEnum = ButtonStyleEnum
   IconEnum = IconEnum;
-  formGroup = input.required<FormTranslations>()
+  formGroup = input.required<FormTranslationGroup>()
 
 
 }

@@ -7,14 +7,12 @@ import { Questions } from './questions.page';
 import { Sections } from './sections.page';
 import { Forms } from './forms.page';
 import { Test } from './test.page';
-import { Switch } from '../components/action/switch.component'
-import { TranslationService } from '../../services/translation.service';
 import { Pages } from "./pages.page";
 import { Dialog } from '@angular/cdk/dialog';
 
 @Component({
   selector: 'mainView',
-  imports: [ReactiveFormsModule, CommonModule, TabViewComponent, Questions, Sections, Forms, Test, FormsModule, Switch, Pages],
+  imports: [ReactiveFormsModule, CommonModule, TabViewComponent, Questions, Sections, Forms, Test, FormsModule, Pages],
   template: `
     <div class="top-section">
       <div class="title">Form name</div>
@@ -25,9 +23,6 @@ import { Dialog } from '@angular/cdk/dialog';
       <pages-page *ngIf="selected() === MainTabs.Pages" />
       <forms-page *ngIf="selected() === MainTabs.Forms"/>
       <test-page *ngIf="selected() === MainTabs.Test"/>
-      <div class="toggle-translations">
-        <switch  [label]="'Toggle ids'" (onChange)="translationService.updateShowTranslations($event)"/>
-      </div>
   `,
   styles: `
     :host {
@@ -66,7 +61,6 @@ import { Dialog } from '@angular/cdk/dialog';
 
 export class MainPage {
   dialog = inject(Dialog);
-  translationService = inject(TranslationService)
   MainTabs = MainTabs;
   selected = signal(MainTabs.Questions);
   showTranslations = signal<boolean>(false);
@@ -90,7 +84,5 @@ export class MainPage {
   tabSelect(tab: string) {
     this.selected.set(tab as MainTabs)
   };
-
-
 
 }

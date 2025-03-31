@@ -1,4 +1,4 @@
-import { Position } from "./types";
+import { Position } from "../app/components/questions/types";
 
 export const setCookie = (name: string, value: string, hours: number): void => {
   const expires = new Date();

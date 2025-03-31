@@ -4,20 +4,22 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ButtonStyleEnum, IconEnum } from '../../helpers/enum'
 import { ManageQuestionDialogComponent } from "../components/questions/manageQuestiondialog.component";
 import { Dialog } from "@angular/cdk/dialog";
-import { QuestionService } from "../components/questions/question.service";
+import { TranslationService } from "../../services/translation.service";
 import { FolderComponent } from "../components/folder.component";
-import { FormTranslations, TranslationCollection } from "../../helpers/types";
 import { ToolBarComponent } from "../components/toolbar.component";
 import { IconButtonComponent } from "../components/action/iconButton.component";
+import { FormTranslation } from "../components/questions/types";
 
 @Component({
   selector: 'questions',
   imports: [CommonModule, ReactiveFormsModule, FormsModule, FolderComponent, ToolBarComponent, IconButtonComponent],
   template: `
     <tool-bar [(filter)]="searchFilter"/>
+    @let translations = translationTree();
+    @if (!loading() && translations) { 
     <ul>
       <li>
-        <folder [data]="questionService.treeQuestions()" [title]="'root'" (state)="updateChildState($event)"/>
+        <folder [data]="translations" [title]="'root'" (state)="updateChildState($event)"/>
       </li>
       @if (!childState()) {
         <li class="list-item-add">
@@ -26,7 +28,7 @@ import { IconButtonComponent } from "../components/action/iconButton.component";
       }
 
     </ul>
-    
+    } @else { Loading ... }
   `,
   styles: `
     ul {
@@ -75,15 +77,16 @@ import { IconButtonComponent } from "../components/action/iconButton.component";
   `
 })
 export class Questions implements OnInit {
-  questionService = inject(QuestionService);
+  translationService = inject(TranslationService);
   dialog = inject(Dialog);
 
   ButtonStyleEnum = ButtonStyleEnum;
   IconEnum = IconEnum;
-
+  loading = this.translationService.loading
+  translationTree = this.translationService.translationTree;
   searchFilter = model('');
   childState = signal<number>(0);
-  newQuestionData: FormTranslations | null = null;
+  newQuestionData: FormTranslation | null = null;
 
   updateChildState(isOpen: boolean) {
     this.childState.update(update => {
@@ -97,7 +100,7 @@ export class Questions implements OnInit {
     // this.questionService.addQuestion(group);
 
     const dialogRef = this.dialog.open(ManageQuestionDialogComponent, {
-      data: this.questionService.filteredQuestions('')
+      data: this.translationService.filteredQuestions('')
     });
 
     dialogRef.closed.subscribe(result => {
@@ -107,9 +110,8 @@ export class Questions implements OnInit {
 
 
   constructor() {
-    console.log(this.questionService.questions());
-    console.log(this.questionService.treeQuestions());
-    console.log(this.questionService.questionsFormGroup);
+    console.log('entries', this.translationService.entries());
+    console.log('tree', this.translationService.translationTree());
   }
 
   ngOnInit() { }

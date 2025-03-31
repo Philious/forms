@@ -14,8 +14,9 @@ export enum MainTabs {
 }
 
 export enum Language {
-  Swedish = 'sv',
   English = 'en',
+  Norwegian = 'no',
+  Swedish = 'sv'
 }
 
 export enum ButtonStyleEnum {

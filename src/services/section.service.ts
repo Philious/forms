@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { signal } from '@angular/core';
-import { Question, Section } from '../helpers/types';
+import { Question, Section } from '../app/components/questions/types';
 
 @Injectable({
   providedIn: 'root'

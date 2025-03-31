@@ -3,10 +3,10 @@ import { TextButton } from "../action/textButton.component";
 import { InputLayoutComponent } from "../action/input.layout.component";
 import { DialogComponent } from "../modals/dialogLayout.component";
 import { CommonModule } from '@angular/common';
-import { Question, Translations } from '../../../helpers/types';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { createEmptyTranslations, translationsToFormGroup } from './questions.utils';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { TranslationSet } from './types';
+import { createEmptyTranslations, translationsToFormGroup } from '../../../helpers/translation.utils';
 
 
 @Component({
@@ -60,7 +60,7 @@ export class ManageQuestionDialogComponent {
   data = inject<string[]>(DIALOG_DATA);
 
   id = input<string | null>(null);
-  translations = input<Translations>(createEmptyTranslations());
+  translations = input<TranslationSet>(createEmptyTranslations());
   needs = input<string[]>([]);
   requires = input<string[]>([]);
 

@@ -3,7 +3,7 @@ import { ToolBarComponent } from "../components/toolbar.component";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Dialog } from "@angular/cdk/dialog";
-import { QuestionService } from "../components/questions/question.service";
+import { TranslationService } from "../../services/translation.service";
 
 @Component({
   selector: 'sections-page',
@@ -14,7 +14,7 @@ import { QuestionService } from "../components/questions/question.service";
   styles: ``
 })
 export class Sections {
-  questionService = inject(QuestionService);
+  questionService = inject(TranslationService);
   dialog = inject(Dialog);
 
   searchFilter = model('');
