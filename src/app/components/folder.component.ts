@@ -3,53 +3,46 @@ import { IconButtonComponent } from "./action/iconButton.component";
 import { ButtonStyleEnum, IconEnum } from "../../helpers/enum";
 import { IconComponent } from "./icons/icon.component";
 import { FolderComponent as DuplicateFoldComponent } from "./folder.component";
-import { CommonModule, KeyValue } from '@angular/common';
-import { QuestionsItemComponent } from "./questions/questionItem.component";
-import { TranslationTree } from "./questions/types";
+import { CommonModule } from '@angular/common';
+import { TranslationSetComponent } from "./questions/questionItem.component";
 import { TranslationService } from "../../services/translation.service";
+import { toTranslationFormGroup } from "../../helpers/translation.utils";
+import { FormGroupKey, TranslationKey, TranslationTree } from "../../helpers/translationTypes";
 
 @Component({
   selector: 'folder',
   template: `
-    @let formId = lastValue();
-    @if(!lastValue()) {
-      <div class="item-wrapper">
-        @if (!lastValue()) {
-        <button class="item" (click)="toggleFold()">
-          <icon class="icon" [icon]="IconEnum.Down" [class.open]="isOpen()" />
-          <span class="label">{{title()}}</span>
-        </button>
-        }
+        <div class="item-wrapper">
+          <button class="item" (click)="toggleFold()">
+            <icon class="icon" [icon]="IconEnum.Down" [class.open]="isOpen()" />
+            <span class="label">{{title()}}</span>
+          </button>
       </div>
+      @let fromGroup = translationsFormGroup();
+      @if (fromGroup && isOpen()) {
+        <translation-set [translationformGroup]="fromGroup"/>
+      } @else {
       <ul class="list">
-        @if (foldData() && isOpen()) {
-        
-            @for (d of foldData() | keyvalue; let idx = $index; track d) {
-              <li class="list-item">
-                @if (typeof d.value === 'string') {
-                  <span class="final">{{title()}}</span>
-                }@else { 
-                
+        @if (foldData() && isOpen() && !translationsFormGroup()) {
+          @for (d of foldData() | keyvalue; let idx = $index; track d) {
+            <li class="list-item">
                 <folder [data]="d.value" [title]="d.key" (state)="updateChildState($event)"/>
-                }
-              </li>
-            }
-          
-            @if(!childState()) {
-              <li class="list-item add">
-                <icon-button [icon]="IconEnum.Add" (onClick)="add()" [buttonStyle]="ButtonStyleEnum.Border"/> 
-              </li>
-            }
+            </li>
           }
-        </ul>
-        @if (typeof formId === 'string' && isOpen()) {
-          <question-item [formGroup]="questionService.getLanguageFormGroup(isString(formId))"/>
+          @if(!childState() ) {
+            <li class="list-item add">
+              <icon-button [icon]="IconEnum.Add" (onClick)="add()" [buttonStyle]="ButtonStyleEnum.Border"/> 
+            </li>
+          }
+
         }
-    }
+          
+        </ul>
+      }
   `,
   styles: `
-  :host:has(.final) {
-    .add { display: none; }
+  :host {
+    width: 100%;
   }
   .list {
     display: flex;
@@ -70,12 +63,16 @@ import { TranslationService } from "../../services/translation.service";
       justify-content: space-between;
     }
     .item {
+      cursor: pointer;
       font-size: 0.875rem;
       display: flex;
       background-color: transparent;
       border: none;
       align-items: center;
       gap: .5rem;
+      &:hover {
+        color: var(--p-500);
+      }
     }
     .icon {
       transform: rotate(-90deg);
@@ -85,10 +82,10 @@ import { TranslationService } from "../../services/translation.service";
       }
     }
   `,
-  imports: [DuplicateFoldComponent, IconComponent, CommonModule, QuestionsItemComponent, IconButtonComponent]
+  imports: [DuplicateFoldComponent, IconComponent, CommonModule, TranslationSetComponent, IconButtonComponent]
 })
 export class FolderComponent {
-  questionService = inject(TranslationService);
+  translationService = inject(TranslationService);
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;
 
@@ -101,7 +98,14 @@ export class FolderComponent {
   state = output<boolean>();
 
   foldData = computed(() => typeof this.data() === 'object' ? this.data() as TranslationTree : null)
-  lastValue = computed(() => typeof this.data() === 'string' ? this.data() : null);
+  translationsFormGroup = computed(() => {
+    if (typeof Object.values(this.data())[0] === 'string') {
+      const translationsKey = Object.values(this.data())[0] as TranslationKey;
+      const formGroup = this.translationService.getLanguageFormGroup(translationsKey);
+      return formGroup ?? null;
+    }
+    return null
+  });
 
   toggleFold() {
     this.isOpen.update((curr) => !curr)

@@ -3,18 +3,18 @@ import { InputLayoutComponent } from "../action/input.layout.component";
 import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { FormTranslationGroup } from "./types";
+import { FormGroupKey, FormTranslationGroup, TranslationKey } from "../../../helpers/translationTypes";
 
 @Component({
-  selector: 'question-item',
+  selector: 'translation-set',
   template: `
-    <ul [formGroup]="formGroup()" class="list">
-      @for (form of formGroup().controls | keyvalue; track form.key) {
+    <ul [formGroup]="translationformGroup()" class="list">
+      @for (form of translationformGroup().controls | keyvalue; track form.key) {
         <li class="list-item">
           <div class="translation-wrapper">
             <label class="translation-label">{{form.key}}</label>
             <input-layout class="text-field">
-              <input type="text" [formControlName]="form.key" base-input input/>
+              <input class="translation-input" type="text" [formControlName]="form.key" base-input input/>
             </input-layout>
           </div>
         </li>
@@ -42,14 +42,17 @@ import { FormTranslationGroup } from "./types";
       display: flex;
       
     }
+    .translation-input {
+      flex: 1;
+    }
   `,
 
   imports: [InputLayoutComponent, FormsModule, ReactiveFormsModule, CommonModule]
 })
-export class QuestionsItemComponent {
+export class TranslationSetComponent {
   ButtonStyleEnum = ButtonStyleEnum
   IconEnum = IconEnum;
-  formGroup = input.required<FormTranslationGroup>()
+  translationformGroup = input.required<FormTranslationGroup>()
 
 
 }

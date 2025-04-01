@@ -3,9 +3,9 @@ import enJson from '../assets/enUS.json';
 import noJson from '../assets/nbNO.json';
 import svJson from '../assets/svSE.json';
 import { Language } from '../helpers/enum';
-import { Entrey, FormTranslationGroup, TranslationCollectionGroup } from '../app/components/questions/types';
-import { allKeys, transformAll, buildTree, keyMultipleLanguages, saveToFile } from '../helpers/translation.utils';
-import { AllTranslationsObject, LanguageSet, TranslationKey, TranslationTree } from '../helpers/translationTypes';
+import { Entrey } from '../app/components/questions/types';
+import { allKeys, transformAll, buildTree, keyMultipleLanguages, saveToFile, toTranslationFormGroup } from '../helpers/translation.utils';
+import { AllTranslationsObject, FormTranslationGroup, LanguageSet, NamedLanguageImport, TranslationCollectionGroup, TranslationKey, TranslationTree } from '../helpers/translationTypes';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -15,7 +15,7 @@ export class TranslationService {
   private _http = inject(HttpClient);
   private _loading = signal<boolean>(false)
   loading = computed(() => this._loading())
-  translations = {
+  translations: NamedLanguageImport = {
     [Language.English]: enJson,
     [Language.Norwegian]: noJson,
     [Language.Swedish]: svJson
@@ -33,38 +33,28 @@ export class TranslationService {
   private _openTranslations = signal<Set<string>>(new Set());
   openTranslations = computed(() => this._openTranslations);
 
-  private _translatrionTree = signal<TranslationTree | null>(null)
-  translationTree = computed<TranslationTree | null>(() => this._translatrionTree())
+  private _translationTree = signal<TranslationTree | null>(null)
+  translationTree = computed<TranslationTree | null>(() => this._translationTree())
 
   translationFormGroup = transformAll(this.translations);
 
   constructor() {
     this.loadTranslations();
-    this._translatrionTree.set(buildTree(this.allTranslations))
-  }
-  t = 0;
-  afterLoad() {
-    console.log('running')
-    if (this.allTranslations.size) {
-      const tree = buildTree(this.allTranslations);
-      this._translatrionTree.set(tree);
-      this._loading.set(false);
-    } else setTimeout(() => {
-      console.log(this.t);
-      this.t++;
-      this.afterLoad()
-    }, 100)
+    this._translationTree.set(buildTree(this.allTranslations))
   }
 
   loadTranslations(): void {
     this._loading.set(true);
     this._http.get<AllTranslationsObject>('../assets/translations.json').subscribe((data) => {
       this.allTranslations.clear();
-      console.log('data', data)
-      Object.entries(data).forEach(([key, value]) => this.allTranslations.set(key as TranslationKey, value));
-      this.afterLoad();
-    });
 
+      Object.entries(data).forEach(([key, value]) => this.allTranslations.set(key as TranslationKey, value));
+      const tree = buildTree(this.allTranslations);
+      this._translationTree.set(tree);
+      this._loading.set(false);
+      console.log('data', data);
+      console.log('tree', this.translationTree())
+    });
   }
 
   setLanguage(lang: Language) {
@@ -73,23 +63,23 @@ export class TranslationService {
   filteredQuestions(filterString: string) {
     return [...this.entries()].filter(q => q.includes(filterString))
   }
-  getLanguageFormGroup(id: string): FormTranslationGroup {
-    console.log(id, this.translationFormGroup);
-    const translationKey = id as keyof TranslationCollectionGroup;
-    const formGroup = this.translationFormGroup[translationKey]
+  getLanguageFormGroup(id: TranslationKey): FormTranslationGroup {
+    const fromKey = toTranslationFormGroup(id);
+    const formGroup = this.translationFormGroup.controls[fromKey]
     if (!formGroup) throw console.log(`No formgroup with id: ${id}`)
+
     return formGroup as FormTranslationGroup
   }
 
-  addQuestion(group: TranslationCollectionGroup): void {
+  addEntry(group: TranslationCollectionGroup): void {
     console.log(group);
   }
 
-  updateQuestion(updatedQuestion: Entrey): void {
+  updateEntry(updatedQuestion: Entrey): void {
 
   }
 
-  deleteQuestion(id: string): void {
+  deleteEntry(id: string): void {
 
   }
 

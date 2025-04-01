@@ -8,7 +8,7 @@ import { TranslationService } from "../../services/translation.service";
 import { FolderComponent } from "../components/folder.component";
 import { ToolBarComponent } from "../components/toolbar.component";
 import { IconButtonComponent } from "../components/action/iconButton.component";
-import { FormTranslation } from "../components/questions/types";
+import { FormTranslation } from "../../helpers/translationTypes";
 
 @Component({
   selector: 'questions',

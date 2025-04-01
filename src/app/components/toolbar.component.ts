@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
   imports: [InputLayoutComponent, CommonModule, FormsModule, ReactiveFormsModule],
   styles: `
     .tool-bar {
+      background-color: var(--black);
       display: flex;
       position: sticky;
       top: 4.5rem;
@@ -24,6 +25,10 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
       justify-content: space-between;
       z-index: 1;
       .search { --input-width: 50rem; }
+      box-shadow: 0 2px 4px #000,
+        0 4px 8px #000,
+        0 8px 16px #000,
+        0 16px 32px #000,
     }
   `
 })

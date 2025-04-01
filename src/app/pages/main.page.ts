@@ -16,13 +16,13 @@ import { Dialog } from '@angular/cdk/dialog';
   template: `
     <div class="top-section">
       <div class="title">Form name</div>
-        <tab-view class="tabs" [tabs]="tabs" (tabSelect)="tabSelect($event)"/>
-      </div>
-      <questions *ngIf="selected() === MainTabs.Questions" />
-      <sections-page *ngIf="selected() === MainTabs.Sections"/>
-      <pages-page *ngIf="selected() === MainTabs.Pages" />
-      <forms-page *ngIf="selected() === MainTabs.Forms"/>
-      <test-page *ngIf="selected() === MainTabs.Test"/>
+      <tab-view class="tabs" [tabs]="tabs" (tabSelect)="tabSelect($event)"/>
+    </div>
+    <questions *ngIf="selected() === MainTabs.Questions" />
+    <sections-page *ngIf="selected() === MainTabs.Sections"/>
+    <pages-page *ngIf="selected() === MainTabs.Pages" />
+    <forms-page *ngIf="selected() === MainTabs.Forms"/>
+    <test-page *ngIf="selected() === MainTabs.Test"/>
   `,
   styles: `
     :host {

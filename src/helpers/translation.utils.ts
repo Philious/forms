@@ -1,7 +1,7 @@
 import { FormControl, FormGroup } from "@angular/forms";
-import { TranslationSet, FormTranslationGroup, Entrey, TranslationCollectionGroup, NamedLanguageImport, TranslationKey, FormTranslation, TranslationCollection } from "../app/components/questions/types";
+import { TranslationSet, Entrey } from "../app/components/questions/types";
 import { Language } from "./enum";
-import { AllTranslationsMap, AllTranslationsObject, TranslationTree } from "./translationTypes";
+import { AllTranslationsMap, AllTranslationsObject, FormGroupKey, FormTranslation, FormTranslationGroup, NamedLanguageImport, TranslationCollection, TranslationCollectionGroup, TranslationKey, TranslationTree } from "./translationTypes";
 
 export function translationsToFormGroup(translations: TranslationSet): FormTranslationGroup {
   const translationControls: any = {};
@@ -29,7 +29,10 @@ export function createEmptyTranslations(): TranslationSet {
 
     return prev
   }, {} as TranslationSet);
+}
 
+export function toTranslationFormGroup(key: TranslationKey) {
+  return key.split(/[.-]/).join('') as FormGroupKey;
 }
 
 export function allKeys(translation: NamedLanguageImport): Set<string> {
@@ -52,7 +55,7 @@ export function transformAll(trans: NamedLanguageImport): TranslationCollectionG
     }, {} as FormTranslation);
 
     const v = new FormGroup(translation);
-    const k = key.split(/[.-]/).join('');
+    const k = key.split(/[.-]/).join('') as FormGroupKey;
     acc[k] = v;
 
     return acc
@@ -73,7 +76,7 @@ export function buildTree(allTranslations: AllTranslationsMap): TranslationTree 
 
       if (i === parts.length - 1) {
         // If it's the last part, assign the actual value
-        currentLevel[part] = { [key]: part };
+        currentLevel[part] = { [part]: key };
       } else {
         // Ensure the current level is an object before proceeding
         if (!(part in currentLevel) || typeof currentLevel[part] === "string") {
