@@ -3,10 +3,13 @@ import { TextButton } from "../action/textButton.component";
 import { InputLayoutComponent } from "../action/input.layout.component";
 import { DialogComponent } from "../modals/dialogLayout.component";
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { TranslationSet } from './types';
 import { createEmptyTranslations, translationsToFormGroup } from '../../../helpers/translation.utils';
+import { Language } from '../../../helpers/enum';
+import { FormTranslation, LanguageSet } from '../../../helpers/translationTypes';
+import { TranslationService } from '../../../services/translation.service';
 
 
 @Component({
@@ -21,17 +24,17 @@ import { createEmptyTranslations, translationsToFormGroup } from '../../../helpe
       </div>
       <div class="content" slot="content">
         <input-layout [label]="'Translation id'">
-          <input type="text" [(ngModel)]="inputModel" list="languages"/>
+          <input type="text" [(ngModel)]="modelValue" list="languages"/>
           <datalist id="languages">
-            @for (path of filteredData(); track path) {
+            @for (path of dataList(); track path) {
             <option [value]="path" ></option>
             }
           </datalist>
         </input-layout>
-        <div class="content" [formGroup]="translationFormGroup">
-        @for (trans of translationArray; track trans) {
-          <input-layout [label]="trans" [label]="trans">
-            <input type="text" [formControlName]="trans"/>
+        <div class="content" [formGroup]="langFormGroup">
+        @for (trans of langFormGroup.controls | keyvalue; track trans) {
+          <input-layout [label]="trans.key">
+            <input type="text" [formControlName]="trans.key"/>
           </input-layout>
         }
       </div>
@@ -55,30 +58,30 @@ import { createEmptyTranslations, translationsToFormGroup } from '../../../helpe
   }
   `
 })
-export class ManageQuestionDialogComponent {
+export class AddTranslationKeyDialogComponent {
+  translationService = inject(TranslationService)
   dialogRef = inject<DialogRef<string>>(DialogRef<string>);
-  data = inject<string[]>(DIALOG_DATA);
+  data = inject<{ link: string }>(DIALOG_DATA);
 
-  id = input<string | null>(null);
-  translations = input<TranslationSet>(createEmptyTranslations());
-  needs = input<string[]>([]);
-  requires = input<string[]>([]);
+  modelValue = model<string>(this.data.link);
 
-  inputModel = model<string | null>(null);
-
-  filteredData = computed(() => {
-    const filter = this.inputModel() ?? ''
-    const letterCount = filter.length;
-
-    return letterCount > 0 ? this.data.filter(t => t.slice(0, letterCount) === filter) : this.data
-  })
-
-  translationArray = Object.keys(this.translations());
-  translationFormGroup = translationsToFormGroup(this.translations());
+  langFormGroup: FormGroup<FormTranslation>;
 
   constructor() {
-    console.log(this.data);
+    const langSet = Object.values(Language).reduce((acc, lang) => {
+      return { ...acc, [lang]: new FormControl('') }
+    }, {} as FormTranslation)
+    this.langFormGroup = new FormGroup(langSet);
   }
+
+  dataList = computed<string[]>(() => {
+    const filter = this.modelValue().valueOf() ?? ''
+    const letterCount = filter.length;
+
+    return letterCount > 0 ? [...this.translationService.allTranslations().keys()].filter(t => t.slice(0, letterCount) === filter) : [this.data.link]
+  })
+
+
 
 
   add() { }

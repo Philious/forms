@@ -6,39 +6,40 @@ import { FolderComponent as DuplicateFoldComponent } from "./folder.component";
 import { CommonModule } from '@angular/common';
 import { TranslationSetComponent } from "./questions/questionItem.component";
 import { TranslationService } from "../../services/translation.service";
-import { toTranslationFormGroup } from "../../helpers/translation.utils";
-import { FormGroupKey, TranslationKey, TranslationTree } from "../../helpers/translationTypes";
+import { TranslationKey, TranslationTree } from "../../helpers/translationTypes";
+import { Dialog } from "@angular/cdk/dialog";
+import { AddTranslationKeyDialogComponent } from "./questions/addTranslationKeyDialog.component";
 
 @Component({
   selector: 'folder',
   template: `
-        <div class="item-wrapper">
-          <button class="item" (click)="toggleFold()">
-            <icon class="icon" [icon]="IconEnum.Down" [class.open]="isOpen()" />
-            <span class="label">{{title()}}</span>
-          </button>
-      </div>
-      @let fromGroup = translationsFormGroup();
-      @if (fromGroup && isOpen()) {
-        <translation-set [translationformGroup]="fromGroup"/>
-      } @else {
-      <ul class="list">
-        @if (foldData() && isOpen() && !translationsFormGroup()) {
-          @for (d of foldData() | keyvalue; let idx = $index; track d) {
-            <li class="list-item">
-                <folder [data]="d.value" [title]="d.key" (state)="updateChildState($event)"/>
-            </li>
-          }
-          @if(!childState() ) {
-            <li class="list-item add">
-              <icon-button [icon]="IconEnum.Add" (onClick)="add()" [buttonStyle]="ButtonStyleEnum.Border"/> 
-            </li>
-          }
-
+    <div class="item-wrapper">
+      <button class="item" (click)="toggleFold()">
+        <icon class="icon" [icon]="IconEnum.Down" [class.open]="isOpen()" />
+        <span class="label">{{title()}}</span>
+      </button>
+    </div>
+    @let fromGroup = translationsFormGroup();
+    @if (fromGroup && isOpen()) {
+      <translation-set [translationformGroup]="fromGroup"/>
+    } @else {
+    <ul class="list">
+      @if (foldData() && isOpen() && !translationsFormGroup()) {
+        @for (d of foldData() | keyvalue; let idx = $index; track d) {
+          <li class="list-item">
+              <folder [data]="d.value" [title]="d.key" [parent]="parentLink()" (state)="updateChildState($event)"/>
+          </li>
         }
-          
-        </ul>
+        @if(!childState() ) {
+          <li class="list-item add">
+            <icon-button [icon]="IconEnum.Add" (onClick)="addTranslationDialog()" [buttonStyle]="ButtonStyleEnum.Border"/> 
+          </li>
+        }
+
       }
+        
+      </ul>
+    }
   `,
   styles: `
   :host {
@@ -86,11 +87,13 @@ import { FormGroupKey, TranslationKey, TranslationTree } from "../../helpers/tra
 })
 export class FolderComponent {
   translationService = inject(TranslationService);
+  dialog = inject(Dialog)
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;
 
   title = input<string>();
-  parent = input<string>();
+  parent = input<string>('');
+  parentLink = computed<string>(() => `${this.parent()}.${this.title()}`.replace(/(^[.])|(?:root)|(?:root.)/gm, ''))
   data = input.required<TranslationTree | string>();
 
   isOpen = signal<boolean>(false);
@@ -123,5 +126,10 @@ export class FolderComponent {
     })
   }
 
-  add() { console.log('title: ', this.title(), '\nfold: ', this.foldData()) }
+  addTranslationDialog() {
+    this.dialog.open(AddTranslationKeyDialogComponent, {
+      minWidth: '20rem',
+      data: { link: this.parentLink() }
+    })
+  }
 }

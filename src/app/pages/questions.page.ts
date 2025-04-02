@@ -1,8 +1,7 @@
-import { Component, inject, model, OnInit, signal } from "@angular/core";
+import { Component, inject, model, signal } from "@angular/core";
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ButtonStyleEnum, IconEnum } from '../../helpers/enum'
-import { ManageQuestionDialogComponent } from "../components/questions/manageQuestiondialog.component";
 import { Dialog } from "@angular/cdk/dialog";
 import { TranslationService } from "../../services/translation.service";
 import { FolderComponent } from "../components/folder.component";
@@ -17,17 +16,7 @@ import { FormTranslation } from "../../helpers/translationTypes";
     <tool-bar [(filter)]="searchFilter"/>
     @let translations = translationTree();
     @if (!loading() && translations) { 
-    <ul>
-      <li>
         <folder [data]="translations" [title]="'root'" (state)="updateChildState($event)"/>
-      </li>
-      @if (!childState()) {
-        <li class="list-item-add">
-          <icon-button [icon]="IconEnum.Add" (onClick)="add()" [buttonStyle]="ButtonStyleEnum.Border"/>
-        </li>
-      }
-
-    </ul>
     } @else { Loading ... }
   `,
   styles: `
@@ -76,7 +65,7 @@ import { FormTranslation } from "../../helpers/translationTypes";
     }
   `
 })
-export class Questions implements OnInit {
+export class Questions {
   translationService = inject(TranslationService);
   dialog = inject(Dialog);
 
@@ -95,24 +84,8 @@ export class Questions implements OnInit {
     })
   }
 
-  add() {
-
-    // this.questionService.addQuestion(group);
-
-    const dialogRef = this.dialog.open(ManageQuestionDialogComponent, {
-      data: this.translationService.filteredQuestions('')
-    });
-
-    dialogRef.closed.subscribe(result => {
-      console.log(result);
-    });
-  }
-
-
   constructor() {
     console.log('entries', this.translationService.entries());
     console.log('tree', this.translationService.translationTree());
   }
-
-  ngOnInit() { }
 }

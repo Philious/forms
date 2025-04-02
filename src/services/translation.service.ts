@@ -21,7 +21,8 @@ export class TranslationService {
     [Language.Swedish]: svJson
   }
 
-  private allTranslations = new Map<TranslationKey, LanguageSet>();
+  private _allTranslations = new Map<TranslationKey, LanguageSet>();
+  allTranslations = computed(() => this._allTranslations);
   private visibleTranslations = signal<AllTranslationsObject[]>([]);
 
   private _entries = signal<Set<string>>(allKeys(this.translations));
@@ -40,16 +41,16 @@ export class TranslationService {
 
   constructor() {
     this.loadTranslations();
-    this._translationTree.set(buildTree(this.allTranslations))
+    this._translationTree.set(buildTree(this.allTranslations()))
   }
 
   loadTranslations(): void {
     this._loading.set(true);
     this._http.get<AllTranslationsObject>('../assets/translations.json').subscribe((data) => {
-      this.allTranslations.clear();
+      this._allTranslations.clear();
 
-      Object.entries(data).forEach(([key, value]) => this.allTranslations.set(key as TranslationKey, value));
-      const tree = buildTree(this.allTranslations);
+      Object.entries(data).forEach(([key, value]) => this._allTranslations.set(key as TranslationKey, value));
+      const tree = buildTree(this.allTranslations());
       this._translationTree.set(tree);
       this._loading.set(false);
       console.log('data', data);
