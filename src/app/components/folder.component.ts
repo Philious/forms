@@ -111,7 +111,8 @@ export class FolderComponent {
   });
 
   toggleFold() {
-    this.isOpen.update((curr) => !curr)
+    this.isOpen.update((curr) => !curr);
+    console.log(this.title(), this.data())
     this.state.emit(this.isOpen())
   }
 

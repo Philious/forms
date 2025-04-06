@@ -2,7 +2,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import translations from '../assets/translations.json';
 import { Language } from './enum';
 
-export type TranslationKey = keyof typeof translations;
+export type TranslationKey = keyof typeof translations | string;
 export type FormGroupKey = string;
 
 export type LanguageImport = Record<TranslationKey, string>;
@@ -14,7 +14,6 @@ export type NamedLanguageImport = {
 
 export type LanguageSet = Record<Language, string>;
 
-export type AllTranslationsMap = Map<TranslationKey, LanguageSet>;
 export type AllTranslationsObject = Record<TranslationKey, LanguageSet>
 
 export type TranslationTree = {

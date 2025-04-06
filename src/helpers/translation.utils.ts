@@ -1,9 +1,9 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslationSet, Entrey } from "../app/components/questions/types";
 import { Language } from "./enum";
-import { AllTranslationsMap, AllTranslationsObject, FormGroupKey, FormTranslation, FormTranslationGroup, NamedLanguageImport, TranslationCollection, TranslationCollectionGroup, TranslationKey, TranslationTree } from "./translationTypes";
+import { AllTranslationsObject, FormGroupKey, FormTranslation, FormTranslationGroup, LanguageSet, NamedLanguageImport, TranslationCollection, TranslationCollectionGroup, TranslationKey, TranslationTree } from "./translationTypes";
 
-export function translationsToFormGroup(translations: TranslationSet): FormTranslationGroup {
+export function translationSetFormGroup(translations: TranslationSet): FormTranslationGroup {
   const translationControls: any = {};
   for (const t in translations) {
     translationControls[t] = new FormControl(translations[t as keyof TranslationSet])
@@ -14,7 +14,7 @@ export function translationsToFormGroup(translations: TranslationSet): FormTrans
 export function toTranslationsFormGroup(questions: Entrey[]): TranslationCollectionGroup {
   const groupedTranslations: any = {};
   questions.forEach((question) => {
-    groupedTranslations[question.id] = translationsToFormGroup(question.translations)
+    groupedTranslations[question.id] = translationSetFormGroup(question.translations)
   });
   const q = new FormGroup(groupedTranslations) as TranslationCollectionGroup;
 
@@ -64,10 +64,10 @@ export function transformAll(trans: NamedLanguageImport): TranslationCollectionG
   return new FormGroup(form)
 }
 
-export function buildTree(allTranslations: AllTranslationsMap): TranslationTree {
+export function buildTree(allTranslations: AllTranslationsObject): TranslationTree {
   const tree: Record<string, any> = {};
 
-  for (const [key] of allTranslations) {
+  for (const key in allTranslations) {
     const parts = key.split("."); // Split key into parts
     let currentLevel = tree;
 
@@ -90,6 +90,31 @@ export function buildTree(allTranslations: AllTranslationsMap): TranslationTree 
   return tree;
 }
 
+export function flatt(translations: AllTranslationsObject) {
+
+  if (!translations) {
+    console.log('no translation: ', translations);
+    return
+  }
+  let time = 0;
+  const timer = (i: number) => {
+    const p = Math.round(i / 16000 * 100);
+    if (p !== time) {
+      console.log(`${p}%`);
+    }
+    time = p;
+  }
+  const t = Object.entries(translations).reduce((acc, [path, langSet], i) => {
+    timer(i);
+    const entry = Object.entries(langSet).reduce((acc2, [lang, trans]) => {
+      const key = `${path}.${lang}`;
+      return { ...acc2, [key]: trans }
+    }, {} as Record<string, string>)
+    return { ...acc, ...entry }
+  }, {} as Record<string, string>)
+
+  return t;
+}
 
 export function keyMultipleLanguages(trans: NamedLanguageImport) {
   const langs = Object.keys(trans) as (keyof NamedLanguageImport)[];
@@ -110,7 +135,7 @@ export function keyMultipleLanguages(trans: NamedLanguageImport) {
 
 }
 
-export function saveToFile(translations: AllTranslationsObject): void {
+export function saveToFile(translations: any): void {
   const blob = new Blob([JSON.stringify(translations, null, 2)], {
     type: 'application/json',
   });

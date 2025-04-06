@@ -6,12 +6,11 @@ import { Dialog } from "@angular/cdk/dialog";
 import { TranslationService } from "../../services/translation.service";
 import { FolderComponent } from "../components/folder.component";
 import { ToolBarComponent } from "../components/toolbar.component";
-import { IconButtonComponent } from "../components/action/iconButton.component";
 import { FormTranslation } from "../../helpers/translationTypes";
 
 @Component({
   selector: 'questions',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FolderComponent, ToolBarComponent, IconButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FolderComponent, ToolBarComponent],
   template: `
     <tool-bar [(filter)]="searchFilter"/>
     @let translations = translationTree();
@@ -82,10 +81,5 @@ export class Questions {
       isOpen ? update++ : update--;
       return update;
     })
-  }
-
-  constructor() {
-    console.log('entries', this.translationService.entries());
-    console.log('tree', this.translationService.translationTree());
   }
 }

@@ -1,15 +1,20 @@
 {
-  "editor.parameterHints.enabled": false,
-  "editor.minimap.enabled": false,
-  "editor.acceptSuggestionOnEnter": "off",
-  "editor.inlineSuggest.suppressSuggestions": true,
   "editor.quickSuggestions": {
-    "other": "inline",
-    "comments": "off",
-    "strings": "off"
+    "other": true,
+    "comments": false,
+    "strings": false
   },
-  "emmet.useInlineCompletions": true,
-  "editor.suggestOnTriggerCharacters": false,
-  "editor.wordBasedSuggestions": "off",
-  "editor.suggest.snippetsPreventQuickSuggestions": false
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.suggestSelection": "first",
+  "editor.parameterHints.enabled": false,
+  "editor.inlineSuggest.enabled": false,
+  "editor.suggest.showIcons": false,
+  "editor.suggest.showWords": true,
+  "typescript.suggest.enabled": true,
+  "typescript.suggest.completeFunctionCalls": false,
+  "gitlens.hovers.annotations.enabled": false,
+  "gitlens.hovers.currentLine.enabled": false
 }

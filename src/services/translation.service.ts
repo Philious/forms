@@ -4,8 +4,8 @@ import noJson from '../assets/nbNO.json';
 import svJson from '../assets/svSE.json';
 import { Language } from '../helpers/enum';
 import { Entrey } from '../app/components/questions/types';
-import { allKeys, transformAll, buildTree, keyMultipleLanguages, saveToFile, toTranslationFormGroup } from '../helpers/translation.utils';
-import { AllTranslationsObject, FormTranslationGroup, LanguageSet, NamedLanguageImport, TranslationCollectionGroup, TranslationKey, TranslationTree } from '../helpers/translationTypes';
+import { allKeys, transformAll, buildTree, toTranslationFormGroup, translationSetFormGroup } from '../helpers/translation.utils';
+import { AllTranslationsObject, FormGroupKey, FormTranslationGroup, LanguageSet, NamedLanguageImport, TranslationCollectionGroup, TranslationKey, TranslationTree } from '../helpers/translationTypes';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -21,8 +21,11 @@ export class TranslationService {
     [Language.Swedish]: svJson
   }
 
-  private _allTranslations = new Map<TranslationKey, LanguageSet>();
-  allTranslations = computed(() => this._allTranslations);
+  private _allTranslations = signal<Record<TranslationKey, LanguageSet>>({});
+  allTranslations = computed(() => {
+    console.log('update all translations')
+    return this._allTranslations();
+  });
   private visibleTranslations = signal<AllTranslationsObject[]>([]);
 
   private _entries = signal<Set<string>>(allKeys(this.translations));
@@ -34,24 +37,21 @@ export class TranslationService {
   private _openTranslations = signal<Set<string>>(new Set());
   openTranslations = computed(() => this._openTranslations);
 
-  private _translationTree = signal<TranslationTree | null>(null)
-  translationTree = computed<TranslationTree | null>(() => this._translationTree())
+  translationTree = computed<TranslationTree | null>(() => {
+    console.log('update tree');
+    return buildTree(this.allTranslations())
+  })
 
   translationFormGroup = transformAll(this.translations);
 
   constructor() {
     this.loadTranslations();
-    this._translationTree.set(buildTree(this.allTranslations()))
   }
 
   loadTranslations(): void {
     this._loading.set(true);
     this._http.get<AllTranslationsObject>('../assets/translations.json').subscribe((data) => {
-      this._allTranslations.clear();
-
-      Object.entries(data).forEach(([key, value]) => this._allTranslations.set(key as TranslationKey, value));
-      const tree = buildTree(this.allTranslations());
-      this._translationTree.set(tree);
+      this._allTranslations.set(data);
       this._loading.set(false);
       console.log('data', data);
       console.log('tree', this.translationTree())
@@ -72,8 +72,11 @@ export class TranslationService {
     return formGroup as FormTranslationGroup
   }
 
-  addEntry(group: TranslationCollectionGroup): void {
-    console.log(group);
+  addEntry(path: string, langSet: LanguageSet): void {
+    console.log(langSet);
+    const key = path.split(/[.-]/).join('') as FormGroupKey;
+    this.translationFormGroup.addControl(key, translationSetFormGroup(langSet))
+    this._allTranslations.update(obj => ({ ...obj, [path]: langSet }));
   }
 
   updateEntry(updatedQuestion: Entrey): void {

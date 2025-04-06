@@ -1,12 +1,10 @@
-import { Component, computed, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, inject, model, output } from '@angular/core';
 import { TextButton } from "../action/textButton.component";
 import { InputLayoutComponent } from "../action/input.layout.component";
 import { DialogComponent } from "../modals/dialogLayout.component";
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { TranslationSet } from './types';
-import { createEmptyTranslations, translationsToFormGroup } from '../../../helpers/translation.utils';
 import { Language } from '../../../helpers/enum';
 import { FormTranslation, LanguageSet } from '../../../helpers/translationTypes';
 import { TranslationService } from '../../../services/translation.service';
@@ -41,7 +39,7 @@ import { TranslationService } from '../../../services/translation.service';
       </div>
       <div class="footer" slot="footer">
         <text-button [label]="'Cancel'" (click)="dialogRef.close()" />
-        <text-button [label]="'Add'" (click)="dialogRef.close()"/>
+        <text-button [label]="'Add'" (click)="add()"/>
       </div>
     </dialog-layout>
   `,
@@ -77,14 +75,18 @@ export class AddTranslationKeyDialogComponent {
   dataList = computed<string[]>(() => {
     const filter = this.modelValue().valueOf() ?? ''
     const letterCount = filter.length;
-
-    return letterCount > 0 ? [...this.translationService.allTranslations().keys()].filter(t => t.slice(0, letterCount) === filter) : [this.data.link]
+    const stranslationsObject = this.translationService.allTranslations();
+    return letterCount > 0 ? Object.keys(stranslationsObject).filter(t => t.slice(0, letterCount) === filter) : [this.data.link]
   })
 
 
 
 
-  add() { }
+  add() {
+    const formgroupValue = this.langFormGroup.value as LanguageSet;
+    this.translationService.addEntry(this.modelValue(), formgroupValue);
+    this.dialogRef.close()
+  }
   cancel = output.bind(close);
 
 }
