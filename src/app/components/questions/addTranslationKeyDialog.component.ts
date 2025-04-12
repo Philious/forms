@@ -1,49 +1,63 @@
-import { Component, computed, inject, model, output } from '@angular/core';
-import { TextButton } from "../action/textButton.component";
-import { InputLayoutComponent } from "../action/input.layout.component";
-import { DialogComponent } from "../modals/dialogLayout.component";
-import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, model, output } from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Language } from '../../../helpers/enum';
-import { FormTranslation, LanguageSet } from '../../../helpers/translationTypes';
+import {
+  FormTranslation,
+  LanguageSet,
+} from '../../../helpers/translationTypes';
 import { TranslationService } from '../../../services/translation.service';
-
+import { InputLayoutComponent } from '../action/input.layout.component';
+import { TextButton } from '../action/textButton.component';
+import { DialogComponent } from '../modals/dialogLayout.component';
 
 @Component({
   selector: 'manage-question-dialog',
   host: {
-    attr: 'cdkTrapFocus'
+    attr: 'cdkTrapFocus',
   },
   template: `
     <dialog-layout>
       <div class="header" slot="header">
-        {{ false ? 'Update tranlation' : 'New translation'}}
+        {{ false ? 'Update tranlation' : 'New translation' }}
       </div>
       <div class="content" slot="content">
         <input-layout [label]="'Translation id'">
-          <input type="text" [(ngModel)]="modelValue" list="languages"/>
+          <input type="text" [(ngModel)]="modelValue" list="languages" />
           <datalist id="languages">
             @for (path of dataList(); track path) {
-            <option [value]="path" ></option>
+            <option [value]="path"></option>
             }
           </datalist>
         </input-layout>
         <div class="content" [formGroup]="langFormGroup">
-        @for (trans of langFormGroup.controls | keyvalue; track trans) {
+          @for (trans of langFormGroup.controls | keyvalue; track trans) {
           <input-layout [label]="trans.key">
-            <input type="text" [formControlName]="trans.key"/>
+            <input type="text" [formControlName]="trans.key" />
           </input-layout>
-        }
-      </div>
+          }
+        </div>
       </div>
       <div class="footer" slot="footer">
         <text-button [label]="'Cancel'" (click)="dialogRef.close()" />
-        <text-button [label]="'Add'" (click)="add()"/>
+        <text-button [label]="'Add'" (click)="add()" />
       </div>
     </dialog-layout>
   `,
-  imports: [TextButton, InputLayoutComponent, DialogComponent, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    TextButton,
+    InputLayoutComponent,
+    DialogComponent,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   styles: `:host {
    padding: 1.5rem;
   }
@@ -54,10 +68,10 @@ import { TranslationService } from '../../../services/translation.service';
     justify-content: flex-end;
     gap: .5rem;
   }
-  `
+  `,
 })
 export class AddTranslationKeyDialogComponent {
-  translationService = inject(TranslationService)
+  translationService = inject(TranslationService);
   dialogRef = inject<DialogRef<string>>(DialogRef<string>);
   data = inject<{ link: string }>(DIALOG_DATA);
 
@@ -67,26 +81,26 @@ export class AddTranslationKeyDialogComponent {
 
   constructor() {
     const langSet = Object.values(Language).reduce((acc, lang) => {
-      return { ...acc, [lang]: new FormControl('') }
-    }, {} as FormTranslation)
+      return { ...acc, [lang]: new FormControl('') };
+    }, {} as FormTranslation);
     this.langFormGroup = new FormGroup(langSet);
   }
 
   dataList = computed<string[]>(() => {
-    const filter = this.modelValue().valueOf() ?? ''
+    const filter = this.modelValue().valueOf() ?? '';
     const letterCount = filter.length;
     const stranslationsObject = this.translationService.allTranslations();
-    return letterCount > 0 ? Object.keys(stranslationsObject).filter(t => t.slice(0, letterCount) === filter) : [this.data.link]
-  })
-
-
-
+    return letterCount > 0
+      ? Object.keys(stranslationsObject).filter(
+          (t) => t.slice(0, letterCount) === filter
+        )
+      : [this.data.link];
+  });
 
   add() {
     const formgroupValue = this.langFormGroup.value as LanguageSet;
     this.translationService.addEntry(this.modelValue(), formgroupValue);
-    this.dialogRef.close()
+    this.dialogRef.close();
   }
   cancel = output.bind(close);
-
 }

@@ -6,7 +6,7 @@
   },
   "editor.suggestOnTriggerCharacters": true,
   "editor.suggest.snippetsPreventQuickSuggestions": false,
-  "editor.acceptSuggestionOnEnter": "off",
+  "editor.acceptSuggestionOnEnter": "on",
   "editor.acceptSuggestionOnCommitCharacter": false,
   "editor.suggestSelection": "first",
   "editor.parameterHints.enabled": false,
@@ -16,5 +16,28 @@
   "typescript.suggest.enabled": true,
   "typescript.suggest.completeFunctionCalls": false,
   "gitlens.hovers.annotations.enabled": false,
-  "gitlens.hovers.currentLine.enabled": false
+  "gitlens.hovers.currentLine.enabled": false,
+
+  "angular-schematics.schematicsDefaultOptions": {
+    "angular-*": {
+      "style": "scss"
+    }
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "editor.formatOnSave": false
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.tslint": "explicit",
+      "source.fixAll.stylelint": "explicit"
+    },
+    "editor.formatOnSave": true
+  }
 }

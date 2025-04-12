@@ -14,6 +14,7 @@ import { ArrowRightIconComponent } from './arrowRight.icon.component';
 import { ArrowUpIconComponent } from './arrowUp.icon.component';
 import { ArrowDownIconComponent } from './arrowDown.icon.component';
 import { DownIconComponent } from './down.icon.component';
+import { PlayIconComponent } from './play.icon.component';
 
 @Component({
   selector: 'icon',
@@ -37,19 +38,20 @@ export class IconComponent {
   // Map the enum to the corresponding icon components
   private readonly icons: Record<IconEnum, any> = {
     [IconEnum.Add]: AddIconComponent,
-    [IconEnum.Down]: DownIconComponent,
-    [IconEnum.Cancel]: RemoveIconComponent,
-    [IconEnum.Remove]: RemoveIconComponent,
-    [IconEnum.ArrowLeft]: ArrowLeftIconComponent,
-    [IconEnum.List]: ListIconComponent,
-    [IconEnum.Options]: OptionsIconComponent,
-    [IconEnum.ArrowRight]: ArrowRightIconComponent,
-    [IconEnum.Setting]: SettingsIconComponent,
-    [IconEnum.ArrowUp]: ArrowUpIconComponent,
-    [IconEnum.Check]: CheckIconComponent,
-    [IconEnum.LetterSize]: LetterSizeIconComponent,
-    [IconEnum.LogOut]: LogoutIconComponent,
     [IconEnum.ArrowDown]: ArrowDownIconComponent,
+    [IconEnum.ArrowLeft]: ArrowLeftIconComponent,
+    [IconEnum.ArrowRight]: ArrowRightIconComponent,
+    [IconEnum.ArrowUp]: ArrowUpIconComponent,
+    [IconEnum.Cancel]: RemoveIconComponent,
+    [IconEnum.Check]: CheckIconComponent,
+    [IconEnum.Down]: DownIconComponent,
+    [IconEnum.LetterSize]: LetterSizeIconComponent,
+    [IconEnum.List]: ListIconComponent,
+    [IconEnum.LogOut]: LogoutIconComponent,
+    [IconEnum.Options]: OptionsIconComponent,
+    [IconEnum.Play]: PlayIconComponent,
+    [IconEnum.Remove]: RemoveIconComponent,
+    [IconEnum.Setting]: SettingsIconComponent,
   };
 
   getComponent() {

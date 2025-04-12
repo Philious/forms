@@ -1,23 +1,30 @@
-import { Component, input } from "@angular/core";
-import { InputLayoutComponent } from "../action/input.layout.component";
-import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-import { FormGroupKey, FormTranslationGroup, TranslationKey } from "../../../helpers/translationTypes";
+import { CommonModule } from '@angular/common';
+import { Component, input } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
+import { FormTranslationGroup } from '../../../helpers/translationTypes';
+import { InputLayoutComponent } from '../action/input.layout.component';
 
 @Component({
   selector: 'translation-set',
   template: `
     <ul [formGroup]="translationformGroup()" class="list">
-      @for (form of translationformGroup().controls | keyvalue; track form.key) {
-        <li class="list-item">
-          <div class="translation-wrapper">
-            <label class="translation-label">{{form.key}}</label>
-            <input-layout class="text-field">
-              <input class="translation-input" type="text" [formControlName]="form.key" base-input input/>
-            </input-layout>
-          </div>
-        </li>
+      @for (form of translationformGroup().controls | keyvalue; track form.key)
+      {
+      <li class="list-item">
+        <div class="translation-wrapper">
+          <label class="translation-label">{{ form.key }}</label>
+          <input-layout class="text-field">
+            <input
+              class="translation-input"
+              type="text"
+              [formControlName]="form.key"
+              base-input
+              input
+            />
+          </input-layout>
+        </div>
+      </li>
       }
     </ul>
   `,
@@ -47,12 +54,15 @@ import { FormGroupKey, FormTranslationGroup, TranslationKey } from "../../../hel
     }
   `,
 
-  imports: [InputLayoutComponent, FormsModule, ReactiveFormsModule, CommonModule]
+  imports: [
+    InputLayoutComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+  ],
 })
 export class TranslationSetComponent {
-  ButtonStyleEnum = ButtonStyleEnum
+  ButtonStyleEnum = ButtonStyleEnum;
   IconEnum = IconEnum;
-  translationformGroup = input.required<FormTranslationGroup>()
-
-
+  translationformGroup = input.required<FormTranslationGroup>();
 }

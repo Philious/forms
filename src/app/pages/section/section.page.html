@@ -1,0 +1,71 @@
+<!-- Left side -->
+<ng-template #leftHeaderRef>
+  <div class="header-container">
+    <h1 class="h1">Section details</h1>
+    <div class="options">
+      <icon-button [icon]="IconEnum.Add" />
+      <icon-button [icon]="IconEnum.Options" />
+      <icon-button [icon]="IconEnum.Play" />
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #generalRef>
+
+</ng-template>
+
+<ng-template #questionListRef>
+
+</ng-template>
+
+<!-- Right side -->
+<ng-template #questionRef>
+  <div class="container">
+    <h2 class="h2">Question</h2>
+    <text-field [control]="sendControlAs(currentQuestion, 'question')" />
+  </div>
+</ng-template>
+
+<ng-template #answersRef>
+  <div class="container">
+    <h2 class="h2">Answers</h2>
+    <drop-down [options]="awnserTypeOptions" slim [control]="sendControlAs(currentQuestion, 'answerType')"/>
+    <ul>
+      <li></li>
+    </ul>
+    @if (answerTypeSelected()) {
+      <icon-button [icon]="IconEnum.Add" [buttonStyle]="ButtonStyleEnum.Border" (onClick)="addAnswer()"/>
+    }
+  </div>
+</ng-template>
+
+<ng-template #validationRef>
+  <div class="container">
+    <h2 class="h2">Validation</h2>
+  </div>
+</ng-template>
+
+<ng-template #allowsRef>
+  <div class="container">
+    <h2 class="h2">Allowes</h2>
+  </div>
+</ng-template>
+
+<!-- Rendered -->
+<main class="section-main">
+  <div class="left-section">
+    <ng-container *ngTemplateOutlet="leftHeaderRef" />
+    <ng-container *ngTemplateOutlet="generalRef" />
+    <ng-container *ngTemplateOutlet="questionListRef" />
+  </div>
+  <form [formGroup]="currentQuestion" class="right-section">
+    <ng-container *ngTemplateOutlet="questionRef" />
+    <div class="divider"></div>
+    <ng-container *ngTemplateOutlet="answersRef" />
+    <div class="divider"></div>
+    <ng-container *ngTemplateOutlet="validationRef" />
+    <div class="divider"></div>
+    <ng-container *ngTemplateOutlet="allowsRef" />
+  </form>
+
+</main>

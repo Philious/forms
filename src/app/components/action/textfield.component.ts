@@ -1,32 +1,42 @@
-import { Component, input, model, OnInit } from '@angular/core';
-import { IconEnum, InputState } from '../../../helpers/enum';
+import { Component, computed, input, model } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CustomFormControl } from '../../../helpers/types';
+import { handleValue } from '../../../helpers/utils';
 import { IconComponent } from '../icons/icon.component';
 
 let uid = 0;
 
 @Component({
-  selector: 'input-layout',
-  imports: [IconComponent],
+  selector: 'text-field',
+  imports: [IconComponent, ReactiveFormsModule, FormsModule],
   host: {
     class: 'input-container',
-    '[class]': 'type()',
-    '[class.prefix]': 'prefix()',
-    '[class.sufix]': 'sufix()',
+    '[class]': 'meta()?.type',
+    '[class.prefix]': 'meta()?.prefix',
+    '[class.sufix]': 'meta()?.sufix',
   },
   template: `
-    @let lprefix = prefix(); @let lsufix = sufix(); @let lhelp = helpText();
-    <label class="label" [for]="id()">{{ label() }}</label>
+    @let label = meta().label; @let prefixVar = meta().prefix; @let sufixVar =
+    meta().sufix; @let helpVar = helpText();
+    <label class="label" [for]="id()">{{ label }}</label>
     <div class="input-wrapper">
-      @if (lprefix) {
-      <icon class="prefix" [icon]="lprefix" />
+      @if (prefixVar) {
+      <icon class="prefix" [icon]="prefixVar" />
       }
-      <ng-content />
-      @if (lsufix) {
-      <icon class="sufix" [icon]="lsufix" />
+      <input
+        [attr.aria-invalid]="ariaInvalid()"
+        [attr.aria-describedby]="id() + '-error'"
+        base-input
+        input
+        [id]="id()"
+        [formControl]="control()"
+      />
+      @if (sufixVar) {
+      <icon class="sufix" [icon]="sufixVar" />
       }
     </div>
-    @if (lhelp) {
-    <div class="help-text">{{ lhelp }}</div>
+    @if (helpVar) {
+    <div class="help-text">{{ helpVar }}</div>
     }
   `,
   styles: `
@@ -82,15 +92,16 @@ let uid = 0;
     
   `,
 })
-export class InputLayoutComponent implements OnInit {
-  protected InputState = InputState;
+export class TextFieldComponent {
+  handleValue = handleValue;
   id = input(`input-${uid++}`);
-
-  type = input<string>('text');
+  control = input.required<CustomFormControl>();
+  meta = computed(() => this.control()?.metadata);
+  ariaInvalid = computed(
+    () => this.control().invalid && this.control().touched
+  );
   helpText = model<string>('');
-  label = input<string>('');
-  prefix = input<IconEnum>();
-  sufix = input<IconEnum>();
 
-  ngOnInit(): void {}
+  value: string | null = null;
+  disabled = false;
 }

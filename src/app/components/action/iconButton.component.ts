@@ -1,18 +1,22 @@
-import { Component, EventEmitter, Input, output, Output } from "@angular/core";
-import { IconComponent } from "../icons/icon.component";
-import { CommonModule } from "@angular/common";
-import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
+import { CommonModule } from '@angular/common';
+import { Component, Input, output } from '@angular/core';
+import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
+import { IconComponent } from '../icons/icon.component';
 
 @Component({
   selector: 'icon-button',
   imports: [IconComponent, CommonModule],
   template: `
     <div class="bg" [class]="buttonStyle">
-      <button class="icn-btn" (click)="onClick.emit($event)" [type]="type" base-input>
-        <icon [icon]="icon" class="icn"/>
+      <button
+        class="icn-btn"
+        (click)="onClick.emit($event)"
+        [type]="type"
+        base-input
+      >
+        <icon [icon]="icon" class="icn" />
       </button>
     </div>
-    
   `,
   styles: `
     .bg {
@@ -50,9 +54,8 @@ import { ButtonStyleEnum, IconEnum } from "../../../helpers/enum";
       display: grid;
       place-items: center;
     }
-  `
+  `,
 })
-
 export class IconButtonComponent {
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;

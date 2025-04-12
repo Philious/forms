@@ -38,6 +38,7 @@ export enum IconEnum {
   List = 'list',
   LogOut = 'logout',
   Options = 'options',
+  Play = 'play',
   Remove = 'remove',
-  Setting = 'setting'
+  Setting = 'setting',
 }

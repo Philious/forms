@@ -13,11 +13,15 @@
 
   :where([input]) {
     box-sizing: border-box;
-    height: 2.25rem;
+    height: 2.5rem;
     color: var(--input-clr);
     padding: 0 1rem;
   }
-
+  :where([slim]) {
+    height: 2rem;
+    padding: 0 .5rem;
+  }
+  
   :where([btn]) {
     position: relative;
     min-height: 2.5rem;

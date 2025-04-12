@@ -1,34 +1,48 @@
-import { Component, inject, signal } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
+import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MainTabs } from '../../helpers/enum';
 import { TabViewComponent } from '../components/action/tabView.component';
-import { Questions } from './questions.page';
-import { Sections } from './sections.page';
+import { ToolBarComponent } from '../components/toolbar.component';
 import { Forms } from './forms.page';
+import { Pages } from './pages.page';
+import { Questions } from './questions.page';
+import { Sections } from './section/sections.page';
 import { Test } from './test.page';
-import { Pages } from "./pages.page";
-import { Dialog } from '@angular/cdk/dialog';
 
 @Component({
   selector: 'mainView',
-  imports: [ReactiveFormsModule, CommonModule, TabViewComponent, Questions, Sections, Forms, Test, FormsModule, Pages],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    TabViewComponent,
+    Questions,
+    Sections,
+    Forms,
+    Test,
+    FormsModule,
+    Pages,
+    ToolBarComponent,
+  ],
   template: `
     <div class="top-section">
       <div class="title">Form name</div>
-      <tab-view class="tabs" [tabs]="tabs" (tabSelect)="tabSelect($event)"/>
+      <tab-view class="tabs" [tabs]="tabs" (tabSelect)="tabSelect($event)" />
+      <tool-bar [(filter)]="searchFilter" />
     </div>
     <questions *ngIf="selected() === MainTabs.Questions" />
-    <sections-page *ngIf="selected() === MainTabs.Sections"/>
+    <sections-page *ngIf="selected() === MainTabs.Sections" />
     <pages-page *ngIf="selected() === MainTabs.Pages" />
-    <forms-page *ngIf="selected() === MainTabs.Forms"/>
-    <test-page *ngIf="selected() === MainTabs.Test"/>
+    <forms-page *ngIf="selected() === MainTabs.Forms" />
+    <test-page *ngIf="selected() === MainTabs.Test" />
   `,
   styles: `
     :host {
       box-sizing: border-box;
       display: grid;
       width: 100%;
+      max-width: 80rem;
       height: 100%;
       min-height: 100vh;
       padding: 4rem;
@@ -56,22 +70,18 @@ import { Dialog } from '@angular/cdk/dialog';
       align-items: center;
       
     }
-  `
+  `,
 })
-
 export class MainPage {
   dialog = inject(Dialog);
   MainTabs = MainTabs;
-  selected = signal(MainTabs.Questions);
+  selected = signal(MainTabs.Sections);
   showTranslations = signal<boolean>(false);
-
+  searchFilter = model<string>('');
   transUpdate(update: boolean) {
-    console.log('emited', update)
-
+    console.log('emited', update);
   }
-  constructor() {
-
-  }
+  constructor() {}
 
   tabs = [
     { label: 'Questions', value: MainTabs.Questions },
@@ -82,7 +92,6 @@ export class MainPage {
   ];
 
   tabSelect(tab: string) {
-    this.selected.set(tab as MainTabs)
-  };
-
+    this.selected.set(tab as MainTabs);
+  }
 }
