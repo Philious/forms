@@ -4,9 +4,13 @@
   height: 100%;
   gap:2.5rem;
 }
+.container {
+  display: grid;
+  gap: 1rem;
+}
 .divider {
   background-color: var(--n-400);
-  height: 1px;
+  height: 0.0625rem;
   width: 100%;
 }
 .left-section {
@@ -30,4 +34,9 @@
   flex: 1;
   display: grid;
   gap: 2.5rem 0
+}
+
+.answer-list {
+  display: grid;
+  gap: 1rem;
 }

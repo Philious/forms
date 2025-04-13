@@ -22,18 +22,25 @@
 <ng-template #questionRef>
   <div class="container">
     <h2 class="h2">Question</h2>
-    <text-field [control]="sendControlAs(currentQuestion, 'question')" />
+    <text-field [control]="fetchFormGroupAs(currentQuestion, 'question')" />
   </div>
 </ng-template>
 
 <ng-template #answersRef>
   <div class="container">
     <h2 class="h2">Answers</h2>
-    <drop-down [options]="awnserTypeOptions" slim [control]="sendControlAs(currentQuestion, 'answerType')"/>
-    <ul>
-      <li></li>
+    <drop-down [options]="awnserTypeOptions" slim [control]="fetchFormGroupAs(currentQuestion, 'answerType')"/>
+    <ul class="answer-list">
+      @let answers = fetchFormArrayAs(currentQuestion.get('answers'));
+      @if (answers && answers.controls.length && answerTypeSelected() === AnswerTypeEnum.RadioButton) {
+        @for(answer of answers.controls; let idx = $index; track answer) {
+          <li class="answer-item">
+            <text-field [control]="fetchFormControlAs(answer)" slim [label]="`Option ${idx + 1 }`"/>
+          </li>
+        }
+      }
     </ul>
-    @if (answerTypeSelected()) {
+    @if (answerTypeSelected() === AnswerTypeEnum.RadioButton) {
       <icon-button [icon]="IconEnum.Add" [buttonStyle]="ButtonStyleEnum.Border" (onClick)="addAnswer()"/>
     }
   </div>

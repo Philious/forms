@@ -1,55 +1,44 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, inject, model, OnInit, signal } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
-import { addMetadata, sendControlAs } from '../../../helpers/form.utils';
+import { addMetadata, fetchFormArrayAs, fetchFormControlAs, fetchFormGroupAs } from '../../../helpers/form.utils';
+import { QuestionProps, TextFieldMetaData } from '../../../helpers/types';
 import { TranslationService } from '../../../services/translation.service';
-import { Dropdown } from '../../components/action/dropdown.component';
+import { DropdownComponent } from '../../components/action/dropdown.component';
 import { IconButtonComponent } from '../../components/action/iconButton.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';
 import { SlimDirective } from '../../directives/slim.directive';
-import { awnserTypeOptions } from './section.data';
+import { AnswerTypeEnum, awnserTypeOptions } from './section.data';
 
 @Component({
   selector: 'sections-page',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    IconButtonComponent,
-    Dropdown,
-    SlimDirective,
-    TextFieldComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, IconButtonComponent, DropdownComponent, SlimDirective, TextFieldComponent],
   templateUrl: 'section.page.html',
   styleUrl: 'section.page.scss',
 })
-export class Sections {
+export class SectionComponent implements OnInit {
   ButtonStyleEnum = ButtonStyleEnum;
+  AnswerTypeEnum = AnswerTypeEnum;
   awnserTypeOptions = awnserTypeOptions;
-  sendControlAs = sendControlAs;
+  fetchFormGroupAs = fetchFormGroupAs;
+  fetchFormArrayAs = fetchFormArrayAs;
+  fetchFormControlAs = fetchFormControlAs;
   IconEnum = IconEnum;
   questionService = inject(TranslationService);
   dialog = inject(Dialog);
   currentQuestion: FormGroup;
 
   constructor(private fb: FormBuilder) {
-    this.currentQuestion = this.fb.group({
-      question: '',
-      answerType: '',
-      answers: new FormArray<AbstractControl<string>>([]),
-      validators: [],
-      allows: [],
-    });
-    addMetadata(this.currentQuestion, {
+    const currentQuestion: FormGroup = this.fb.group({
+      question: new FormControl(''),
+      answerType: new FormControl(null),
+      answers: new FormArray([new FormControl('')]),
+      validators: new FormControl([]),
+      allows: new FormControl([]),
+    } as QuestionProps);
+    this.currentQuestion = addMetadata<TextFieldMetaData>(currentQuestion, {
       question: {
         type: 'text',
       },
@@ -61,12 +50,16 @@ export class Sections {
 
   questionValue = model('');
 
-  answerTypeSelected = computed(() => {
-    return !!this.currentQuestion.controls['answerType']?.value;
-  });
+  answerTypeSelected = signal<AnswerTypeEnum | null>(null);
   answers = new FormGroup({});
+
+  ngOnInit(): void {
+    this.currentQuestion.controls['answerType'].valueChanges.subscribe(v => this.answerTypeSelected.set(v));
+  }
 
   newSection() {}
 
-  addAnswer() {}
+  addAnswer() {
+    (this.currentQuestion.get('answers') as FormArray)?.push(new FormControl(''));
+  }
 }

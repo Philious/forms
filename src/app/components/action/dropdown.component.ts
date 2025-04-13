@@ -1,16 +1,9 @@
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  input,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, ElementRef, input, OnInit, signal, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconEnum } from '../../../helpers/enum';
-import { CustomFormControl } from '../../../helpers/types';
+import { CustomFormControl, TextFieldMetaData } from '../../../helpers/types';
 import { handleValue } from '../../../helpers/utils';
 import { InputLayoutComponent } from './input.layout.component';
 
@@ -23,56 +16,31 @@ let index = 0;
 
 @Component({
   selector: 'drop-down',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    InputLayoutComponent,
-    CdkMenuTrigger,
-    CdkMenu,
-    CdkMenuItem,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputLayoutComponent, CdkMenuTrigger, CdkMenu, CdkMenuItem],
   template: `
-    <input-layout
-      class="layout"
-      [label]="control().metadata.label ?? ''"
-      [sufix]="IconEnum.Down"
-      [id]="uid"
-    >
-      <input
-        class="input"
-        base-input
-        input
-        [id]="uid"
-        [cdkMenuTriggerFor]="menu"
-        [ngModel]="selected()"
-        [attr.readonly]="filter()"
-      />
+    <input-layout class="layout" [label]="meta().label ?? ''" [sufix]="IconEnum.Down" [id]="uid">
+      <input class="input" base-input input [id]="uid" [cdkMenuTriggerFor]="menu" [ngModel]="selected()" [attr.readonly]="filter()" />
     </input-layout>
     <ng-template #menu focusFirstItem>
       <div class="menu" cdkMenu>
         @for (option of options(); track option.label) {
-        <button
-          class="menu-item"
-          cdkMenuItem
-          (click)="control().setValue(option.value)"
-        >
-          {{ option.label }}
-        </button>
+          <button class="menu-item" cdkMenuItem (click)="control().setValue(option.value)">
+            {{ option.label }}
+          </button>
         }
       </div>
     </ng-template>
   `,
   styles: `
-  :host {
-    &.slim {
-
+    :host {
+      min-height: 3rem;
+      &.slim {
+      }
     }
-  }
     .label {
       font-size: 0.75rem;
     }
-    .input { 
+    .input {
       position: absolute;
       inset: 0;
     }
@@ -94,23 +62,21 @@ let index = 0;
     }
   `,
 })
-export class Dropdown implements OnInit {
+export class DropdownComponent implements OnInit {
   IconEnum = IconEnum;
   handleValue = handleValue;
   uid = `dropdown-${index++}`;
   menuRef = viewChild<ElementRef<HTMLInputElement> | null>('menu');
-  control = input.required<CustomFormControl>();
+  control = input.required<CustomFormControl<TextFieldMetaData>>();
 
   filter = input<boolean>(false);
   options = input<Option[]>([]);
   selected = signal<string>('Nothing selected');
+  meta = computed(() => this.control()?.metadata ?? {});
 
   ngOnInit(): void {
-    this.control().valueChanges.subscribe((value) => {
-      this.selected.set(
-        this.options().find((o) => o.value === value)?.label ??
-          'Nothing selected'
-      );
+    this.control().valueChanges.subscribe(value => {
+      this.selected.set(this.options().find(o => o.value === value)?.label ?? 'Nothing selected');
     });
   }
 }

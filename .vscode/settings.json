@@ -13,6 +13,9 @@
   "editor.inlineSuggest.enabled": false,
   "editor.suggest.showIcons": false,
   "editor.suggest.showWords": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
   "typescript.suggest.enabled": true,
   "typescript.suggest.completeFunctionCalls": false,
   "gitlens.hovers.annotations.enabled": false,

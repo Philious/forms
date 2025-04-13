@@ -18,8 +18,11 @@
     padding: 0 1rem;
   }
   :where([slim]) {
-    height: 2rem;
-    padding: 0 .5rem;
+    
+    .input {
+      height: 2rem;
+      padding: 0 2.5rem 0 0.5rem;
+    }
   }
   
   :where([btn]) {

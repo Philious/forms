@@ -1,4 +1,5 @@
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl } from '@angular/forms';
+import { AnswerTypeEnum } from '../app/pages/section/section.data';
 import { IconEnum } from './enum';
 
 export type actionButton = {
@@ -19,8 +20,8 @@ export type Position = {
   height: number;
 };
 
-export type CustomFormControl = FormControl<string> & {
-  metadata: Partial<TextFieldMetaData>;
+export type CustomFormControl<T> = FormControl & {
+  metadata: Partial<T>;
 };
 
 export type TextFieldMetaData = {
@@ -31,3 +32,13 @@ export type TextFieldMetaData = {
   helpText: string;
   formName: string;
 };
+
+export type QuestionProps = {
+  question: CustomFormControl<string>;
+  answerType: CustomFormControl<AnswerTypeEnum | null>;
+  answers: FormArray<FormControl<string>>;
+  validators: CustomFormControl<[]>;
+  allows: FormControl<[]>;
+};
+
+export type QuestionFormGroup = AbstractControl<QuestionProps>;

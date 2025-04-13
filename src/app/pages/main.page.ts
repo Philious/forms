@@ -8,23 +8,12 @@ import { ToolBarComponent } from '../components/toolbar.component';
 import { Forms } from './forms.page';
 import { Pages } from './pages.page';
 import { Questions } from './questions.page';
-import { Sections } from './section/sections.page';
+import { SectionComponent } from './section/sections.page';
 import { Test } from './test.page';
 
 @Component({
   selector: 'mainView',
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    TabViewComponent,
-    Questions,
-    Sections,
-    Forms,
-    Test,
-    FormsModule,
-    Pages,
-    ToolBarComponent,
-  ],
+  imports: [ReactiveFormsModule, CommonModule, TabViewComponent, Questions, SectionComponent, Forms, Test, FormsModule, Pages, ToolBarComponent],
   template: `
     <div class="top-section">
       <div class="title">Form name</div>
@@ -49,16 +38,18 @@ import { Test } from './test.page';
       margin: auto;
       position: relative;
       place-content: start normal;
-      .input-layout { --input-width: 100%; }
+      .input-layout {
+        --input-width: 100%;
+      }
     }
     .top-section {
       position: sticky;
       top: 0;
-      z-index:1;
-      background-color: var(--bg-clr); 
+      z-index: 1;
+      background-color: var(--bg-clr);
     }
     .toggle-translations {
-      font-size: .825rem;
+      font-size: 0.825rem;
       display: flex;
       border-radius: 9rem;
       position: fixed;
@@ -68,11 +59,10 @@ import { Test } from './test.page';
       padding: 0 1.5rem;
       background-color: light-dark(#00000022, #ffffff22);
       align-items: center;
-      
     }
   `,
 })
-export class MainPage {
+export class MainPageComponent {
   dialog = inject(Dialog);
   MainTabs = MainTabs;
   selected = signal(MainTabs.Sections);
