@@ -1,18 +1,23 @@
 {
-  "name": "interview-apptest",
+  "name": "from-be",
   "version": "1.0.0",
-  "description": "Intervjuvuppgift",
-  "main": "server.js",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
-  },
-  "author": "tech division",
-  "license": "ISC",
-  "devDependencies": {
-    "express": "^4.19.2"
+    "start": "npx tsc && node dist/index.js",
+    "update:shared": "npm install ../packages/shared?v=1.0.4"
   },
   "dependencies": {
+    "@cs-forms/shared": "file:../packages/shared",
+    "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
-    "uuid": "^11.0.3"
+    "typescript": "^5.8.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/cookie-session": "^2.0.49",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.1",
+    "express": "^5.1.0"
   }
 }

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": false, // ✅ Must be false to emit JS
+    "module": "ESNext", // Or "ES6", depending on your Node version
+    "target": "ES2022", // Or a version compatible with your Node setup
+    "moduleResolution": "Node",
+    "rootDir": "src", // Assuming you have a "src" folder
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
