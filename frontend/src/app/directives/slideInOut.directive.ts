@@ -5,6 +5,7 @@ export class SlideInOutDirective implements OnChanges, AfterViewInit {
   slideInOut = input('slideInOut');
   visible = input<boolean>(true);
   duration = input<number>(10000);
+
   private animationId = v4();
   private el = inject(ElementRef<HTMLElement>);
   private style = document.createElement('style');
@@ -16,6 +17,7 @@ export class SlideInOutDirective implements OnChanges, AfterViewInit {
     outEnd: '',
   };
   private firstChange = true;
+
   ngOnChanges() {
     if (this.firstChange) {
       this.firstChange = false;
@@ -50,8 +52,8 @@ export class SlideInOutDirective implements OnChanges, AfterViewInit {
       }, this.duration());
     }
   }
+
   ngAfterViewInit(): void {
-    console.dir(this.el.nativeElement);
     this.steps = Object.fromEntries(Object.entries(this.steps).map(([key]) => [key, `.${key}-${this.animationId}`])) as typeof this.steps;
 
     this.style.setAttribute('id', this.animationId);

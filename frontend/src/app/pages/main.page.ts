@@ -1,8 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { QuestionService } from 'src/services/question.service';
 import { SectionService } from 'src/services/section.service';
 import { MainTabs } from '../../helpers/enum';
 import { TabViewComponent } from '../components/action/tabView.component';
@@ -37,25 +36,31 @@ import { TestComponent } from './test.page';
       </div>
       <!--<tool-bar [(filter)]="searchFilter" />-->
     </div>
-    <questions-page *ngIf="selectedTab() === MainTabs.Questions" />
-    <sections-page *ngIf="selectedTab() === MainTabs.Sections" />
-    <pages-page *ngIf="selectedTab() === MainTabs.Pages" />
-    <forms-page *ngIf="selectedTab() === MainTabs.Forms" />
-    <test-page *ngIf="selectedTab() === MainTabs.Test" />
+    @if (selectedTab() === MainTabs.Questions) {
+      <questions-page />
+    } @else if (selectedTab() === MainTabs.Sections) {
+      <sections-page />
+    } @else if (selectedTab() === MainTabs.Pages) {
+      <pages-page />
+    } @else if (selectedTab() === MainTabs.Forms) {
+      <forms-page />
+    } @else {
+      <test-page />
+    }
+    <data-view label="Section" [data]="sectionService.currentSection()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
 
-    <data-view [label]="sectionLabel()" [data]="sectionService.currentSection()" />
-
-    <data-view [label]="questionLabel()" [data]="questionService.currentQuestion()" />
+    <data-view label="Question" [data]="sectionService.currentQuestion()" [startPosition]="{ bottom: '1rem', right: '1rem' }" />
   `,
   styles: `
     :host {
       box-sizing: border-box;
-      display: grid;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       max-width: 80rem;
       height: 100%;
       min-height: 100vh;
-      padding: 4rem;
+      padding: 0.5rem;
       margin: auto;
       position: relative;
       place-content: start normal;
@@ -90,9 +95,6 @@ import { TestComponent } from './test.page';
 })
 export class MainPageComponent {
   sectionService = inject(SectionService);
-  questionService = inject(QuestionService);
-  sectionLabel = computed<string>(() => `sectionId: ${this.sectionService.currentSectionId()}`);
-  questionLabel = computed<string>(() => `questionId: ${this.questionService.currentQuestionId()}`);
 
   dialog = inject(Dialog);
   MainTabs = MainTabs;

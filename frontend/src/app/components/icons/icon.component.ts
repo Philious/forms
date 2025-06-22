@@ -26,9 +26,10 @@ import { SettingsIconComponent } from './settings.icon.component';
   styles: `
     :host {
       display: contents;
+      color: var(--icn-clr);
     }
     .icn {
-      fill: var(--icn-clr);
+      fill: currentColor;
       display: block;
       width: 1.5rem;
       height: 1.5rem;

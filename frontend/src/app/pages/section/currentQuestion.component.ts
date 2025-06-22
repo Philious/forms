@@ -1,6 +1,8 @@
-import { Component, input } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, model, output } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ButtonStyleEnum } from 'src/helpers/enum';
 import { InputLayoutComponent } from '../../components/action/input.layout.component';
+import { TextButtonComponent } from '../../components/action/textButton.component';
 
 @Component({
   selector: 'current-question',
@@ -8,23 +10,19 @@ import { InputLayoutComponent } from '../../components/action/input.layout.compo
     list: '',
   },
   template: `
-    @let control = currentQuestion();
-    <h2 class="h2">Question</h2>
-    @if (control) {
-      <input-layout>
-        <input input base-input [formControl]="control" />
-      </input-layout>
-    }
+    <div class="flex space-between">
+      <h2 class="h2">Question</h2>
+      <text-button label="Remove" (clicked)="removeQuestion.emit()" [buttonStyle]="ButtonStyleEnum.Filled" size=".75rem" />
+    </div>
+    <input-layout>
+      <input input base-input [ngModel]="modelValue()" (ngModelChange)="modelValue.set($event)" />
+    </input-layout>
   `,
   styles: '',
-  imports: [ReactiveFormsModule, InputLayoutComponent],
+  imports: [ReactiveFormsModule, InputLayoutComponent, FormsModule, TextButtonComponent],
 })
 export class CurrentQuestionsComponent {
-  currentQuestion = input(null, {
-    transform: createControl,
-  });
-}
-
-function createControl(value: string): FormControl<string | null> {
-  return new FormControl(value);
+  ButtonStyleEnum = ButtonStyleEnum;
+  modelValue = model<string>('');
+  removeQuestion = output();
 }

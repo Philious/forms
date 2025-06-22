@@ -22,15 +22,15 @@ export type Section = {
     id: SectionId;
     name: string;
     updated: number;
-    description?: string;
+    description: string;
     questions: QuestionId[];
 };
 export type SectionPayload = {
     id: SectionId;
     name: string;
     updated: number;
-    description?: string;
-    questions: Record<QuestionId, QuestionPayload>;
+    description: string;
+    questions: QuestionPayload[];
 };
 export type QuestionCore = {
     id: QuestionId;
@@ -39,14 +39,14 @@ export type QuestionCore = {
     answerType?: AnswerTypeEnum;
 };
 export type Question = QuestionCore & {
-    answers?: AnswerId[];
-    validators?: ValidatorId[];
-    conditions?: ConditionId[];
+    answers: AnswerId[];
+    validators: ValidatorId[];
+    conditions: ConditionId[];
 };
 export type QuestionPayload = QuestionCore & {
-    answers?: Answer;
-    validators?: Validator;
-    conditions?: Condition;
+    answers: Answer;
+    validators: ValidatorId[];
+    conditions: Condition;
 };
 export declare enum HttpStatusCode {
     Continue = 100,

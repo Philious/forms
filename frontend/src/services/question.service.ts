@@ -1,46 +1,74 @@
-import { inject, Injectable } from '@angular/core';
-import { Question, QuestionId, QuestionPayload } from '@cs-forms/shared';
-import { map, Observable } from 'rxjs';
-import { Store } from 'src/stores/store';
-import { QuestionStore } from '../stores/questionStore';
+/*
+import { effect, inject, Injectable } from '@angular/core';
+import { AnswerTypeEnum, Question } from '@cs-forms/shared';
+import { AnswerResource } from 'src/resources/answerResource';
+import { ConditionResource } from 'src/resources/conditionsResource';
+import { QuestionResource } from 'src/resources/questionResource';
+import { SectionResource } from 'src/resources/sectionResource';
+import { CurrentStore } from 'src/stores/currentStore';
+import { v4 as uid } from 'uuid';
+import { currentQuestionPayload } from './utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuestionService {
-  private readonly _store = inject(Store);
-  private readonly _questionStore = inject(QuestionStore);
+  private readonly _currentStore = inject(CurrentStore);
+  private readonly _sectionResource = inject(SectionResource);
+  private readonly _questionResource = inject(QuestionResource);
+  private readonly _answerResource = inject(AnswerResource);
+  private readonly _conditionResource = inject(ConditionResource);
 
-  questionIds = this._store.questionIds;
-  currentQuestionId = this._store.currentQuestionId;
-  currentQuestion = this._store.currentQuestion;
+  protected readonly _questionIds = this._currentStore.currentQuestionIds;
+  protected readonly _currentQuestionId = this._currentStore.currentQuestionId;
+  protected readonly _currentQuestion = this._currentStore.currentQuestion;
 
-  add = (payload: QuestionPayload) => {
-    this._questionStore.add(payload).subscribe({
-      next: () => this._store.question.setById(this._store.storeQuestionPayload(payload).id),
-      error: err => console.error('Error adding question', err),
+  constructor() {
+    effect(() => {
+      // this._currentStore.setCurrentQuestion(this._questionResource.questions()?.get?.(this._currentStore.currentQuestionId()) ?? null);
     });
-  };
-
-  getQuestionsByCurrentSectionId = () => {
-    const questions = this._store.section.getQuestionsBySectionId(this._store.currentSectionId() ?? '');
-    const filteredQuestions = questions.map(q => q?.id).filter(q => !q) as QuestionId[];
-
-    if (questions.length > filteredQuestions.length) {
-      return this._questionStore.getBatch(filteredQuestions).pipe(map(payloads => payloads.map(payload => this._store.payloadToQuestion(payload))));
-    } else return new Observable<Question[]>(subscriber => subscriber.next(questions as Question[]));
-  };
-
-  set(id: string): void {
-    this._store.question.setById(id);
   }
 
-  update(payload: QuestionPayload): void {
-    this._store.question.update(payload);
+  add = (entry: string) => {
+    console.log('add question');
+    const newQuestion: Question = {
+      id: `question-${uid()}`,
+      entry,
+      updated: new Date().valueOf(),
+      answerType: AnswerTypeEnum.RadioButton,
+      answers: [],
+      validators: [],
+      conditions: [],
+    };
+
+    this._questionResource.add(newQuestion);
+    this._currentStore.updateCurrentSection('questions', [newQuestion.id]);
+    /*
+    const currentSection = this._currentStore.currentSection();
+
+    if (currentSection)
+      this._sectionResource.update(
+        currentSectionPayload(
+          currentSection,
+          this._questionResource.questions(),
+          this._answerResource.answers(),
+          this._conditionResource.conditions()
+        )
+      );
+      
+  };
+
+  updateCurrentQuestion<K extends keyof Question>(key: K, update: Question[K]): void {
+    this._currentStore.updateCurrentQuestion(key, update);
   }
 
-  delete(id: QuestionId): void {
-    this._store.question.remove(id);
-    this._questionStore.remove(id);
+  saveCurrentQuestion() {
+    console.log('Save Current Question');
+    const question = this._currentQuestion();
+    if (question) {
+      const payload = currentQuestionPayload(question, this._answerResource.answers(), this._conditionResource.conditions());
+      this._questionResource.update(payload);
+    }
   }
 }
+*/

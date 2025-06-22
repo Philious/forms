@@ -61,5 +61,6 @@
   :where([list]) {
     display: grid;
     gap: 1.5rem;
+    place-content: start normal;
   }
 }

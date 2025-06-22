@@ -67,7 +67,6 @@ let uid = 0;
       width: 100%;
       min-width: fit-content;
       display: grid;
-
       box-sizing: border-box;
       position: relative;
       transition: border-color 0.15s;

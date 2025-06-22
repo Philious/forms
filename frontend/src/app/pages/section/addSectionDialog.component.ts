@@ -22,7 +22,7 @@ type AddSectionDialogData = {
       </input-layout>
     </ng-content>
     <ng-content dialog-footer>
-      <text-button [label]="'Cancel'" />
+      <text-button [label]="'Cancel'" (clicked)="close()" />
       <text-button [label]="'Add'" (clicked)="add()" />
     </ng-content>
   </dialog-layout>`,
@@ -36,6 +36,7 @@ type AddSectionDialogData = {
 export class AddSectionDialogComponent {
   dialogRef = inject<DialogRef<string>>(DialogRef);
   data = inject<AddSectionDialogData>(DIALOG_DATA);
+
   sectionNameControl = new FormControl(this.data.initialName, {
     nonNullable: true,
     validators: [Validators.required, Validators.minLength(3)],

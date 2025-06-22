@@ -8,6 +8,7 @@ import { IconComponent } from '../icons/icon.component';
     role: 'button',
     class: 'btn',
     '[class]': 'buttonStyle()',
+    '[style]': `{'font-size': size()}`,
     '(click)': 'onClickButton($event)',
   },
   template: `
@@ -16,7 +17,7 @@ import { IconComponent } from '../icons/icon.component';
     @if (left) {
       <icon class="icon-left" [icon]="left" />
     }
-    {{ label() }}
+    <span class="label">{{ label() }}</span>
     @if (right) {
       <icon class="icon-right" [icon]="right" />
     }
@@ -29,22 +30,31 @@ import { IconComponent } from '../icons/icon.component';
       align-items: center;
       gap: 0.25rem;
       justify-content: center;
-      height: 2.25rem;
-      padding: 0 1rem;
-      min-width: 5rem;
+      height: 2.25em;
+      padding: 0 1em;
+      min-width: 5em;
       color: var(--btn-clr);
-      background-color: var(--btn-bg-clr);
-      border-radius: 0.25rem;
+      border-radius: 0.25em;
       border: none;
       position: relative;
       box-sizing: border-box;
       cursor: pointer;
       border-radius: 0.25rem;
+
+      .label {
+        font-size: 1em;
+      }
+      &.transparent {
+        background-color: transparent;
+      }
+      &.filled {
+        background-color: var(--btn-bg-clr);
+      }
       &:has(.icon-left) {
-        padding-left: 0.35rem;
+        padding-left: 0.35em;
       }
       &:has(.icon-right) {
-        padding-right: 0.35rem;
+        padding-right: 0.35em;
       }
       &:before {
         content: '';
@@ -74,7 +84,7 @@ import { IconComponent } from '../icons/icon.component';
 })
 export class TextButtonComponent {
   label = input<string>('');
-
+  size = input<string>('1rem');
   buttonStyle = input<ButtonStyleEnum>(ButtonStyleEnum.Transparent);
   leftIcon = input<IconEnum | null>(null);
   rightIcon = input<IconEnum | null>(null);

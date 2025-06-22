@@ -25,7 +25,7 @@ export type Section = {
   id: SectionId;
   name: string;
   updated: number;
-  description?: string;
+  description: string;
   questions: QuestionId[];
 };
 
@@ -33,8 +33,8 @@ export type SectionPayload = {
   id: SectionId;
   name: string;
   updated: number;
-  description?: string;
-  questions: Record<QuestionId, QuestionPayload>;
+  description: string;
+  questions: QuestionPayload[];
 };
 
 export type QuestionCore = {
@@ -45,15 +45,15 @@ export type QuestionCore = {
 };
 
 export type Question = QuestionCore & {
-  answers?: AnswerId[];
-  validators?: ValidatorId[];
-  conditions?: ConditionId[];
+  answers: AnswerId[];
+  validators: ValidatorId[];
+  conditions: ConditionId[];
 };
 
 export type QuestionPayload = QuestionCore & {
-  answers?: Answer;
-  validators?: Validator;
-  conditions?: Condition;
+  answers: Answer;
+  validators: ValidatorId[];
+  conditions: Condition;
 };
 
 export enum HttpStatusCode {

@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { QuestionService } from '../../../services/question.service';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { SectionService } from '../../../services/section.service';
 import { CurrentAnswersComponent } from './currentAnswers.component';
 import { CurrentStatementsComponent } from './currentIfStatements.component';
@@ -22,16 +21,16 @@ import { SectionQuestionListComponent } from './sectionQuestionList.component';
   ],
   template: `
     <main class="section-main">
-      <div class="left-section">
+      <div class="section">
         <section-head />
         <section-general />
         @if (sectionService.currentSection()) {
           <section-question-list />
         }
       </div>
-      <div list flex>
-        @if (this.questionService.currentQuestion()) {
-          <current-question />
+      <div list flex class="question">
+        @if (sectionService.currentQuestion()) {
+          <current-question [modelValue]="currentQuestion()" (modelValueChange)="updateEntry($event)" (removeQuestion)="removeQuestion()" />
           <div class="divider"></div>
           <current-answers />
           <div class="divider"></div>
@@ -43,11 +42,18 @@ import { SectionQuestionListComponent } from './sectionQuestionList.component';
     </main>
   `,
   styles: `
+    :host {
+      background-color: var(--n-200);
+      border-radius: 0.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
     .section-main {
       display: flex;
       width: 100%;
       height: 100%;
-      gap: 2.5rem;
+      flex: 1;
     }
     .container {
       display: grid;
@@ -58,7 +64,7 @@ import { SectionQuestionListComponent } from './sectionQuestionList.component';
       height: 0.0625rem;
       width: 100%;
     }
-    .left-section {
+    .section {
       display: grid;
       align-items: start;
       align-content: start;
@@ -67,11 +73,28 @@ import { SectionQuestionListComponent } from './sectionQuestionList.component';
       width: 100%;
       padding: 1.5rem;
       border-radius: 0.25rem;
-      background: var(--n-100);
+    }
+    .question {
+      background-color: var(--n-100);
+      margin: 0.25rem;
+      padding: 1.5rem;
+      border-radius: 0.25rem;
+      &:empty {
+        place-content: center;
+        &:before {
+          content: 'Select a question';
+          margin: auto;
+          color: var(--n-400);
+        }
+      }
     }
   `,
 })
 export class SectionComponent {
-  questionService = inject(QuestionService);
-  sectionService = inject(SectionService);
+  protected sectionService = inject(SectionService);
+  currentQuestion = linkedSignal<string>(() => this.sectionService.currentQuestion()?.entry ?? '');
+  updateEntry(entry: string) {
+    this.sectionService.updateCurrentQuestion('entry', entry);
+  }
+  removeQuestion = () => {};
 }

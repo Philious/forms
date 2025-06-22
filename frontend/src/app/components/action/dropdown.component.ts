@@ -48,7 +48,7 @@ let index = 0;
       cursor: pointer;
       position: absolute;
       inset: 0;
-      padding-inline: 1rem 1.5rem;
+      padding-inline: 1rem 1rem;
     }
     .icon {
       margin-left: auto;
@@ -60,10 +60,27 @@ let index = 0;
       gap: 0.0625rem;
       border-radius: 0.25rem;
       overflow-y: auto;
+      box-shadow:
+        0 1px 2px hsla(0, 0%, 0%, 0.32),
+        0 2px 4px hsla(0, 0%, 0%, 0.24),
+        0 4px 8px hsla(0, 0%, 0%, 0.16),
+        0 8px 16px hsla(0, 0%, 0%, 0.08);
     }
     .menu-item {
-      padding: 1rem 1.5rem;
-      background-color: var(--n-200);
+      padding: 0.5rem 1.5rem;
+      width: 100%;
+      text-align: left;
+      background-color: var(--n-300);
+      position: relative;
+      &:before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: transparent;
+      }
+      &:hover {
+        background-color: hsla(0, 0%, 100%, 0.1);
+      }
       border: none;
     }
   `,

@@ -22,7 +22,7 @@ type AddQuestionDialogData = {
       </input-layout>
     </ng-content>
     <ng-content dialog-footer>
-      <text-button [label]="'Cancel'" />
+      <text-button [label]="'Cancel'" (clicked)="close()" />
       <text-button [label]="'Add'" (clicked)="add()" />
     </ng-content>
   </dialog-layout>`,
@@ -36,6 +36,7 @@ type AddQuestionDialogData = {
 export class AddQuestionDialogComponent {
   dialogRef = inject<DialogRef<string>>(DialogRef);
   data = inject<AddQuestionDialogData>(DIALOG_DATA);
+
   questionNameControl = new FormControl(this.data.initialName, {
     nonNullable: true,
     validators: [Validators.required, Validators.minLength(3)],
@@ -45,7 +46,6 @@ export class AddQuestionDialogComponent {
   add() {
     this.questionNameControl.markAsTouched();
     this.questionNameControl.updateValueAndValidity();
-
     if (this.questionNameControl.valid) {
       this.data.addQuestion(this.questionNameControl.value);
       this.dialogRef.close();

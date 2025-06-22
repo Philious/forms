@@ -5,9 +5,9 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { AnswerTypeEnum } from '@cs-forms/shared';
 import { SwitchComponent } from 'src/app/components/action/switch.component';
 import { SlideInOutDirective } from 'src/app/directives/slideInOut.directive';
+import { SectionService } from 'src/services/section.service';
 import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
 import { Option } from '../../../helpers/types';
-import { QuestionService } from '../../../services/question.service';
 import { DropdownComponent } from '../../components/action/dropdown.component';
 import { IconButtonComponent } from '../../components/action/iconButton.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';
@@ -55,7 +55,7 @@ import { TextFieldComponent } from '../../components/action/textfield.component'
 })
 export class CurrentAnswersComponent implements OnInit {
   AnswerTypeEnum = AnswerTypeEnum;
-  questionService = inject(QuestionService);
+  sectionService = inject(SectionService);
 
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;

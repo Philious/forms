@@ -42,6 +42,13 @@ input, button, textarea {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
+.flex {
+  display: flex;
+}
+.space-between {
+  justify-content: space-between;
+}
+
 ul {
   list-style-type: none;
   padding: 0;

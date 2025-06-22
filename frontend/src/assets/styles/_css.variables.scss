@@ -36,9 +36,9 @@
   
   --black: #000;
   --n-100: hsl(0,0%,10%);
-  --n-200: hsl(0deg 0% 15%);
-  --n-300: hsl(0deg 0% 30%);
-  --n-400: hsl(0deg 0% 44%);
+  --n-200: hsl(0deg 0% 13%);
+  --n-300: hsl(0deg 0% 21%);
+  --n-400: hsl(0deg 0% 56%);
   --n-500: hsl(0, 0%, 64%);
   --n-600: hsl(0, 0%, 80%);
   --n-700: hsl(0, 0%, 90%);
@@ -60,11 +60,11 @@
   --menu-border: var(--n-400);
 
   --input-clr: var(--n-600);
-  --input-bg-clr: hsla(0, 0%, 100%, .12);
-  --input-border: var(--n-300);
+  --input-bg-clr: hsla(0, 0%, 0%, .12);
+  --input-border: hsla(0, 0%, 100%, .12);
 
   --btn-clr: var(--n-700);
-  --btn-bg-clr: var(--n-100);
+  --btn-bg-clr: var(--n-300);
 
   --label: var(--n-500);
 

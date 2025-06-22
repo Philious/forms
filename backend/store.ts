@@ -21,18 +21,28 @@ const answerMap: Map<AnswerId, string> = new Map();
 const validatorMap: Map<ValidatorId, ValidatorFn> = new Map();
 const conditionMap: Map<ConditionId, ConditionFn> = new Map();
 
-export const getAllSections = () => (sectionMap.size > 0 ? [...sectionMap.values()] : []);
+export const getAllSections = () => sectionMap;
 export const getSection = (id: SectionId) => sectionMap.get(id) ?? null;
+
+export const addToSectionMap = (section: Section) => {
+  sectionMap.set(section.id, section);
+  return true;
+};
 
 export function addSection(section: SectionPayload) {
   if (!sectionMap.has(section.id)) {
     const questions: QuestionId[] = [];
     Object.values(section.questions).forEach(q => {
       const { id, entry, updated, answerType, answers, validators, conditions } = q;
-      const question: Question = { id, entry, answerType, updated };
-      if (answers) question.answers = addToMap(answerMap, answers);
-      if (validators) question.validators = addToMap(validatorMap, validators);
-      if (conditions) question.conditions = addToMap(conditionMap, conditions);
+      const question: Question = {
+        id,
+        entry,
+        answerType,
+        updated,
+        answers: addToMap(answerMap, answers),
+        validators,
+        conditions: addToMap(conditionMap, conditions),
+      };
       questions.push(id);
     });
     const { id, name, description, updated } = section;
@@ -44,7 +54,7 @@ export function addSection(section: SectionPayload) {
   }
 }
 
-export function updateSection(part: SectionPayload & { id: string }) {
+export function updateSectionPayload(part: SectionPayload & { id: string }) {
   const current = getSection(part.id);
 
   if (current) {
@@ -52,12 +62,33 @@ export function updateSection(part: SectionPayload & { id: string }) {
       Object.entries(current).map(([k, v]) => {
         if (k === 'id') return [k, v];
         else if (k === 'questions' && part[k]) {
-          return [k, Object.values(part[k]).map(q => updateQuestion(q))];
+          return [k, [...new Set(Object.values(part[k]).map(q => updateQuestion(q)))]];
         } else return [k, part[k as keyof Section] ?? v];
       })
     ) as Section;
     newSection.updated = new Date().valueOf();
     sectionMap.set(newSection.id, newSection);
+  } else {
+    return false;
+  }
+}
+
+export function updateSection(part: Section & { id: string }) {
+  const current = getSection(part.id);
+
+  if (current) {
+    const updatedSection = Object.fromEntries(
+      Object.entries(current).map(([k, v]) => {
+        console.log();
+        if (k === 'id') return [k, v];
+        else if (k === 'questions' && Array.isArray(v)) {
+          return [k, [...new Set([...v, ...part.questions])]];
+        } else return [k, part[k as keyof Section] ?? v];
+      })
+    ) as Section;
+    updatedSection.updated = new Date().valueOf();
+    sectionMap.set(updatedSection.id, updatedSection);
+    return true;
   } else {
     return false;
   }
@@ -70,13 +101,14 @@ export function deleteSection(id: SectionId) {
 /** Question Content */
 
 /**  Questions */
-export const getAllQuestions = () => [...questionMap.values()];
-export const getAllQuestionIds = () => getAllQuestions().map(q => q.id);
+export const getAllQuestions = (): Map<QuestionId, Question> => questionMap;
 
 export function getQuestionPayload(id: QuestionId): QuestionPayload | null {
   const question = questionMap.get(id);
   return question ? questionToQuestionPayload(question) : null;
 }
+
+export const addToQuestionMap = (question: Question) => questionMap.set(question.id, question);
 
 export function questionToQuestionPayload(question: Question): QuestionPayload {
   return {
@@ -89,11 +121,7 @@ export function questionToQuestionPayload(question: Question): QuestionPayload {
       if (answer) acc = { ...acc, [id]: answer };
       return acc;
     }, {} as Answer),
-    validators: question?.validators?.reduce((acc, id) => {
-      const validator = validatorMap.get(id);
-      if (validator) acc = { ...acc, [id]: validator };
-      return acc;
-    }, {} as Validator),
+    validators: question?.validators,
     conditions: question?.conditions?.reduce((acc, id) => {
       const condition = conditionMap.get(id);
       if (condition) acc = { ...acc, [id]: condition };
@@ -125,7 +153,7 @@ export function updateQuestion(question: QuestionPayload) {
       Object.entries(currentQuestion).map(([k, v]) => {
         if (k === 'id') return [k, v];
         else if (k === 'answers' && question[k]) return [k, addToMap(answerMap, question[k])];
-        else if (k === 'validators' && question[k]) return [k, addToMap(validatorMap, question[k])];
+        else if (k === 'validators' && question[k]) return [k, question[k]];
         else if (k === 'conditions' && question[k]) return [k, addToMap(conditionMap, question[k])];
         return [k, question[k as keyof Question] ?? v];
       })
@@ -135,3 +163,7 @@ export function updateQuestion(question: QuestionPayload) {
   }
   return questionMap.get(question.id)!;
 }
+
+export const getAllAnswers = (): Map<AnswerId, string> => answerMap;
+
+export const getAllConditions = (): Map<ConditionId, ConditionFn> => conditionMap;

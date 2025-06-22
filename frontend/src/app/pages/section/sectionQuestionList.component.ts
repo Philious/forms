@@ -1,11 +1,9 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { Question, QuestionId } from '@cs-forms/shared';
-import { Store } from 'src/stores/store';
+import { Component, inject } from '@angular/core';
+import { QuestionId } from '@cs-forms/shared';
 import { IconEnum } from '../../../helpers/enum';
-import { QuestionService } from '../../../services/question.service';
 import { SectionService } from '../../../services/section.service';
 import { TextButtonComponent } from '../../components/action/textButton.component';
 import { IconComponent } from '../../components/icons/icon.component';
@@ -18,12 +16,11 @@ import { AddQuestionDialogComponent } from './addQuestionDialog.component';
     list: '',
   },
   template: `
-    @let questions = sectionQuestions();
-    <text-button class="add-new" [leftIcon]="IconEnum.Add" [label]="'New question'" (clicked)="addQuestion()" />
+    <text-button class="add-new" [leftIcon]="IconEnum.Add" [label]="'New question'" (clicked)="addQuestion()" size=".75rem" />
 
-    @if (questions?.length) {
+    @if (questionLists()) {
       <ul cdkDropList (cdkDropListDropped)="dragDropQuestion($event)" class="current-question-list">
-        @for (question of questions; track question.id) {
+        @for (question of questionLists(); track question.id) {
           <li cdkDrag>
             <div class="drag-custom-placeholder current-question-list-item" *cdkDragPlaceholder>
               <icon class="drag-icon" [icon]="IconEnum.Drag" />
@@ -32,7 +29,7 @@ import { AddQuestionDialogComponent } from './addQuestionDialog.component';
               <div class="drag-icon">
                 <icon [icon]="IconEnum.Drag" />
               </div>
-              <button btn class="list-btn" (clicked)="setQuestionId(question.id)">{{ question.entry }}</button>
+              <button btn class="list-btn" (click)="setQuestionId(question.id)">{{ question.entry }}</button>
             </div>
           </li>
         }
@@ -80,6 +77,8 @@ import { AddQuestionDialogComponent } from './addQuestionDialog.component';
         align-items: center;
         background-color: transparent;
         border: none;
+        &:hover {
+        }
       }
     }
 
@@ -99,34 +98,34 @@ import { AddQuestionDialogComponent } from './addQuestionDialog.component';
 })
 export class SectionQuestionListComponent {
   protected IconEnum = IconEnum;
-  private _store = inject(Store);
-  private _sectionService = inject(SectionService);
-  private _questionService = inject(QuestionService);
-  private _dialog = inject(Dialog);
-  protected sectionQuestions = signal<Question[]>([]);
 
-  constructor() {
-    this._questionService.getQuestionsByCurrentSectionId().subscribe(sectionQuestions => this.sectionQuestions.set(sectionQuestions));
-  }
+  private _sectionService = inject(SectionService);
+  private _dialog = inject(Dialog);
+
+  protected questionLists = this._sectionService.currentSectionQuestions;
+
+  constructor() {}
 
   dragDropQuestion = (event: CdkDragDrop<string, string>) => {
-    const previousIndex = this._store.currentSection()?.questions.findIndex(d => d === event.item.data);
+    const previousIndex = this.questionLists()
+      .map(q => q.id)
+      .findIndex(d => d === event.item.data);
     const currentIndex = event.currentIndex;
     if (previousIndex && currentIndex) {
       this._sectionService.updateQuestionListOrder(previousIndex, currentIndex);
     }
   };
 
-  setQuestionId = (id: QuestionId) => {
-    this._store.question.setById(id);
-  };
+  setQuestionId(id: QuestionId) {
+    this._sectionService.setCurrentQuestionId(id);
+  }
 
-  addQuestion(): void {
+  addQuestion = (): void => {
     this._dialog.open<string>(AddQuestionDialogComponent, {
       data: {
-        initialName: `Question ${(this._store.currentSection()?.questions?.length ?? 0) + 1}`,
-        addQuestion: this._questionService.add,
+        initialName: `Question ${(this._sectionService.questions().size ?? 0) + 1}`,
+        addQuestion: (name: string) => this._sectionService.addQuestion(name),
       },
     });
-  }
+  };
 }

@@ -6,9 +6,14 @@ import { Component, input } from '@angular/core';
   imports: [CommonModule, CdkDrag],
   selector: 'data-view',
   template: `
-    <div class="container" cdkDrag>
-      <div>{{ label() }}</div>
-      {{ data() | json }}
+    <div
+      class="container"
+      cdkDrag
+      [style]="{ top: startPosition().top, right: startPosition().right, bottom: startPosition().bottom, left: startPosition().left }"
+    >
+      <span>{{ label() }}</span>
+      <br />
+      {{ data() }}
     </div>
   `,
   styles: `
@@ -25,10 +30,33 @@ import { Component, input } from '@angular/core';
       height: fit-content;
       backdrop-filter: blur(4px);
       z-index: 9999;
+      max-width: 20rem;
+      font-size: 0.75rem;
+      &,
+      &.label {
+        white-space: pre;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
   `,
 })
 export class DataViewComponent {
   label = input<string>('');
-  data = input<object | null>(null);
+  data = input(null, {
+    transform: (obj: object | null) =>
+      JSON.stringify(obj ?? '')
+        .split(',')
+        .join(',\n')
+        .split('{')
+        .join('{\n')
+        .split('}')
+        .join('\n}\n') ?? null,
+  });
+  startPosition = input<{ top?: string; right?: string; bottom?: string; left?: string }>({
+    top: 'initial',
+    right: 'initial',
+    bottom: 'initial',
+    left: 'initial',
+  });
 }
