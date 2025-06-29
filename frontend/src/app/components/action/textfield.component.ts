@@ -24,13 +24,17 @@ let uid = 0;
       }
       <input
         class="input"
+        [style.textAlign]="align()"
         [attr.aria-invalid]="ariaInvalid()"
         [(ngModel)]="modelValue"
         [attr.aria-describedby]="id()"
         base-input
         input
         [id]="id()"
+        [step]="step()"
         (blur)="blur()"
+        [min]="min()"
+        [max]="max()"
       />
 
       @if (suffix) {
@@ -47,6 +51,10 @@ let uid = 0;
       min-width: 7rem;
       display: grid;
       gap: 0.25rem;
+      font-size: 0.8333rem;
+      .input {
+        font-size: inherit;
+      }
       [slim] {
         .input-wrapper {
           height: 2rem;
@@ -72,7 +80,7 @@ let uid = 0;
       background-color: var(--input-bg-clr);
       box-shadow: 0 0 0 0.0625rem var(--input-border) inset;
       color: var(--input-clr);
-      border-radius: 0.125rem;
+      border-radius: 0.25rem;
       height: 2.5rem;
       width: 100%;
       display: grid;
@@ -109,10 +117,15 @@ export class TextFieldComponent {
   prefixIcon = input<IconEnum | null>(null);
   suffixIcon = input<IconEnum | null>(null);
   control = input<FormControl | null>(null);
-  blured = output<string | null>();
+  align = input<'left' | 'center' | 'right'>('left');
+  step = input<number | 'any'>();
+  min = input<number | null>();
+  max = input<number | null>();
+
+  blured = output<string | number | null>();
 
   ariaInvalid = computed(() => this.control()?.invalid && this.control()?.touched);
-  modelValue = model<string>('');
+  modelValue = model<string | number>('');
   contextInfo = model<string>('');
 
   value: string | null = null;

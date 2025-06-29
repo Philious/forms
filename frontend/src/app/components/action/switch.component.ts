@@ -1,16 +1,17 @@
 import { Component, input, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { v4 } from 'uuid';
+
+let uid = 0;
 
 @Component({
   selector: 'switch',
   imports: [FormsModule],
   template: `
-    <label class="label" [for]="switchId()">
+    <label class="label" [for]="id()">
       {{ label() }}
     </label>
     <div class="switch">
-      <input class="input" [id]="switchId()" type="checkbox" [(ngModel)]="isChecked" (change)="changed.emit(isChecked())" />
+      <input class="input" [id]="id()" type="checkbox" [(ngModel)]="isChecked" (change)="changed.emit(isChecked())" />
     </div>
   `,
   styles: `
@@ -60,7 +61,7 @@ import { v4 } from 'uuid';
         width: 1.5rem;
         border-radius: 9rem;
         transform: translateX(0);
-        transition: transform 0.25s;
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
         background-color: #ffffffdd;
         box-shadow:
           0 0.0313rem 0.0625rem #00000044,
@@ -83,7 +84,7 @@ import { v4 } from 'uuid';
   `,
 })
 export class SwitchComponent {
-  switchId = input(v4());
+  id = input(`input-${uid++}`);
   isChecked = model<boolean>(false);
   label = input('');
 

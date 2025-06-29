@@ -13,7 +13,15 @@ import { TextFieldComponent } from '../../components/action/textfield.component'
   },
   template: `
     @if (sectionList()) {
-      <drop-down slim [label]="'Section'" [options]="sectionList()" slim [modelValue]="selected()" (modelValueChange)="updateSelection($event)" />
+      <drop-down
+        slim
+        [label]="'Section'"
+        [options]="sectionList()"
+        slim
+        [(modelValue)]="selected"
+        [multiSelect]="false"
+        (modelValueChange)="updateSelection($event)"
+      />
       <text-field slim [label]="'Name'" [modelValue]="name()" (modelValueChange)="update('name', $event)" />
       <text-field slim [label]="'Description'" [modelValue]="description()" (modelValueChange)="update('description', $event)" />
     } @else {
@@ -37,7 +45,7 @@ export class SectionGeneralComponent {
     this._sectionService.setCurrentSectionId(selected?.value ?? '');
   }
 
-  protected update(key: keyof Section, value: string) {
+  protected update(key: keyof Section, value: string | number) {
     this._sectionService.updateCurrentSection(key, value);
   }
 }
