@@ -2,7 +2,6 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { AnswerTypeEnum, Question, QuestionId, Section, SectionId } from '@cs-forms/shared';
 import { AnswerResource } from 'src/resources/answerResource';
-import { ConditionResource } from 'src/resources/conditionsResource';
 import { QuestionResource } from 'src/resources/questionResource';
 import { SectionResource } from 'src/resources/sectionResource';
 import { v4 as uid } from 'uuid';
@@ -13,7 +12,6 @@ export class SectionService {
   private readonly _sectionResource = inject(SectionResource);
   private readonly _questionResource = inject(QuestionResource);
   private readonly _answerResource = inject(AnswerResource);
-  private readonly _conditionResource = inject(ConditionResource);
 
   private readonly _currentSectionId = signal<SectionId | null>(null);
   private readonly _currentSection = signal<Section | null>(null);
@@ -122,7 +120,7 @@ export class SectionService {
     const validators = question?.validators ?? [];
     const conditions = question?.conditions ?? [];
 
-    return question ? { ...question, answers: [...answers], validators: [...validators], conditions: [...conditions] } : question;
+    return question ? { ...question, answers: [...answers], validators: [...validators], conditions } : question;
   };
 
   addQuestion = (entry: string) => {
@@ -134,7 +132,7 @@ export class SectionService {
       answerType: AnswerTypeEnum.RadioButton,
       answers: [],
       validators: [],
-      conditions: [],
+      conditions: {},
     };
 
     this._questionResource.add(newQuestion, () => {
@@ -154,7 +152,6 @@ export class SectionService {
           ...questionUpdate,
           answers: [...(question?.answers ?? []), ...questionUpdate.answers],
           validators: [...(question?.validators ?? []), ...questionUpdate.validators],
-          conditions: [...(question?.conditions ?? []), ...questionUpdate.conditions],
         } as Question;
       return questionUpdate;
     });
@@ -164,7 +161,7 @@ export class SectionService {
     console.log('Save Current Question');
     const question = this._currentQuestion();
     if (question) {
-      const payload = currentQuestionPayload(question, this._answerResource.answers(), this._conditionResource.conditions());
+      const payload = currentQuestionPayload(question, this._answerResource.answers());
       this._questionResource.update(payload);
     }
   }

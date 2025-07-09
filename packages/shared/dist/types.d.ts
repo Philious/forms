@@ -12,12 +12,18 @@ export type SectionId = string;
 export type QuestionId = string;
 export type AnswerId = string;
 export type ValidatorId = string;
-export type ConditionId = string;
 export type ValidatorFn = <T>(v: T) => boolean;
-export type ConditionFn = <T>(v: T) => boolean;
 export type Answer = Record<AnswerId, string>;
 export type Validator = Record<ValidatorId, ValidatorFn>;
-export type Condition = Record<ConditionId, ConditionFn>;
+export type AndOr = 'and' | 'or' | 'xand' | 'xor';
+export type ConditionType = '==' | '!=' | '<=' | '>=' | '<' | '>';
+export type ConditionTuplet = [ConditionType, number];
+export type LeafCondition = {
+    [key in QuestionId]: ConditionTuplet;
+};
+export type Conditions = {
+    [key in AndOr]?: Array<LeafCondition | Conditions>;
+};
 export type Section = {
     id: SectionId;
     name: string;
@@ -38,15 +44,15 @@ export type QuestionCore = {
     updated: number;
     answerType?: AnswerTypeEnum;
 };
-export type Question = QuestionCore & {
+export type Question<C extends Conditions | string = Conditions> = QuestionCore & {
     answers: AnswerId[];
     validators: ValidatorId[];
-    conditions: ConditionId[];
+    conditions: C;
 };
 export type QuestionPayload = QuestionCore & {
     answers: Answer;
     validators: ValidatorId[];
-    conditions: Condition;
+    conditions: string;
 };
 export declare enum HttpStatusCode {
     Continue = 100,

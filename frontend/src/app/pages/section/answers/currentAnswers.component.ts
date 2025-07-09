@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, linkedSignal, model } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AnswerTypeEnum } from '@cs-forms/shared';
-import { SlideInOutDirective } from 'src/app/directives/slideInOut.directive';
 import { SectionService } from 'src/services/section.service';
 import { v4 as uid } from 'uuid';
 import { ButtonStyleEnum, IconEnum } from '../../../../helpers/enum';
 import { Option } from '../../../../helpers/types';
+import { CheckboxComponent } from '../../../components/action/checkbox.component';
 import { DropdownComponent } from '../../../components/action/dropdown.component';
-import { TextFieldComponent } from '../../../components/action/textfield.component';
 import { awnserTypeOptions } from '../static';
 import { BarometerComponent } from './barometer.component';
 import { RadioGroupComponent } from './radioGroup.component';
@@ -25,10 +24,9 @@ import { RadioGroupComponent } from './radioGroup.component';
     FormsModule,
     DropdownComponent,
     DialogModule,
-    SlideInOutDirective,
     RadioGroupComponent,
-    TextFieldComponent,
     BarometerComponent,
+    CheckboxComponent,
   ],
   template: `
     <h2 class="h2">Answers</h2>
@@ -40,6 +38,7 @@ import { RadioGroupComponent } from './radioGroup.component';
       <answer-barometer [step]="0.1" [min]="2" [max]="5" />
     } @else if (AnswerTypeEnum.Dropdown) {
     } @else if (AnswerTypeEnum.Checkbox) {
+      <check-box />
     } @else if (AnswerTypeEnum.RadioButton) {
       <answer-radio-group [radioGroup]="answerGroup" (add)="addAnswer()" (remove)="removeAnswer($event)" />
     }

@@ -1,4 +1,5 @@
 import { AnswerTypeEnum } from '@cs-forms/shared';
+import { ValidatorsType } from 'src/helpers/types';
 import { Option } from '../../../helpers/types';
 
 export const awnserTypeOptions: Option<AnswerTypeEnum>[] = [
@@ -7,7 +8,7 @@ export const awnserTypeOptions: Option<AnswerTypeEnum>[] = [
     value: AnswerTypeEnum.Barometer,
   },
   {
-    label: 'Checkbox',
+    label: 'Checkbox group',
     value: AnswerTypeEnum.Checkbox,
   },
   {
@@ -35,4 +36,16 @@ export const awnserTypeOptions: Option<AnswerTypeEnum>[] = [
     label: 'Textarea',
     value: AnswerTypeEnum.Textarea,
   },
+];
+
+export const validatiorOptions: Option<keyof ValidatorsType>[] = [
+  { label: 'Minimum', value: 'min' },
+  { label: 'Maximum', value: 'max' },
+  { label: 'Required', value: 'required' },
+  { label: 'True value required', value: 'requiredTrue' },
+  { label: 'Email', value: 'email' },
+  { label: 'Minimum length', value: 'minLength' },
+  { label: 'Maximum length', value: 'maxLength' },
+  { label: 'Pattern', value: 'pattern' },
+  { label: 'Null validator', value: 'nullValidator' },
 ];

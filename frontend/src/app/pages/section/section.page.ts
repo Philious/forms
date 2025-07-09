@@ -1,6 +1,6 @@
 import { Component, inject, linkedSignal } from '@angular/core';
 import { SectionService } from '../../../services/section.service';
-import { CurrentAnswersComponent } from './answerComponents/currentAnswers.component';
+import { CurrentAnswersComponent } from './answers/currentAnswers.component';
 import { CurrentStatementsComponent } from './currentIfStatements.component';
 import { CurrentQuestionsComponent } from './currentQuestion.component';
 import { CurrentValidatorsComponent } from './currentValidators.component';

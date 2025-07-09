@@ -17,11 +17,11 @@ let index = 0;
       <input class="input" readonly base-input input [id]="uid" [cdkMenuTriggerFor]="menu" [value]="selectedLabel()" [attr.readonly]="filter()" />
     </input-layout>
     <ng-template #menu focusFirstItem>
-      <div class="menu" cdkMenu>
+      <div class="menu" [class.multi-select]="multiSelect()" cdkMenu>
         @for (option of options(); track option.label) {
           <button class="menu-item" cdkMenuItem (click)="setOption(option)">
             @if (multiSelect()) {
-              <check-box [(modelValue)]="check" (modelValueChange)="checkChange($event)" />
+              <check-box slim [(modelValue)]="check" (modelValueChange)="checkChange($event)" />
             }
             {{ option.label }}
           </button>
@@ -67,6 +67,9 @@ let index = 0;
       text-align: left;
       background-color: var(--n-300);
       position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
       &:before {
         content: '';
         position: absolute;
@@ -77,6 +80,9 @@ let index = 0;
         background-color: hsla(0, 0%, 100%, 0.1);
       }
       border: none;
+    }
+    .menu.multi-select .menu-item {
+      padding-left: 0.5rem;
     }
   `,
 })
@@ -95,13 +101,16 @@ export class DropdownComponent<T extends boolean> {
   multiSelect = input<T>(false as T);
   check = model<boolean>(false);
   modelValue = model<(T extends true ? Option[] : Option) | null>(null);
-
+  selectedValues = computed(() => {
+    const model = this.modelValue();
+    return Array.isArray(model) ? model?.map(o => o.value) : model?.value;
+  });
   selectedLabel = computed<string>(() => {
     const value = this.modelValue();
     return (
       (Array.isArray(value)
         ? value.reduce((acc, v, idx) => {
-            acc = acc + (idx === 0 ? v : ', ' + v);
+            acc = acc + (idx === 0 ? v.label : ', ' + v.label);
             return acc;
           }, '')
         : value?.label) ?? 'Nothing selected'

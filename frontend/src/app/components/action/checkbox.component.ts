@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 let uid = 0;
@@ -8,7 +8,7 @@ let uid = 0;
   imports: [FormsModule],
   template: `
     <svg class="check-svg"><path class="check-path" /></svg>
-    <input class="input" [id]="id()" type="checkbox" [(ngModel)]="modelValue" />
+    <input class="input" [id]="id()" type="checkbox" [(ngModel)]="modelValue" (ngModelChange)="update($event)" />
   `,
   styles: `
     :host {
@@ -83,4 +83,8 @@ let uid = 0;
 export class CheckboxComponent {
   id = input(`checkbox-${uid++}`);
   modelValue = model<boolean>(false);
+  emitUpdate = output<{ id: string; value: boolean }>();
+  update(event: boolean) {
+    this.emitUpdate.emit({ id: this.id(), value: event });
+  }
 }

@@ -1,16 +1,14 @@
 import { DialogModule } from '@angular/cdk/dialog';
-import { CdkDrag } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, linkedSignal, model, Signal, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
 import { ButtonStyleEnum, IconEnum } from 'src/helpers/enum';
 import { TextFieldComponent } from '../../../components/action/textfield.component';
 
 type BarometerType = 'linear' | 'inverted-linear' | 'catenary' | 'inverted-catenary';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, IconButtonComponent, DialogModule, TextFieldComponent, CdkDrag],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DialogModule, TextFieldComponent],
   selector: 'answer-barometer',
   template: `
     <div class="row">

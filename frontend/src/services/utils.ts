@@ -1,16 +1,5 @@
 import { WritableSignal } from '@angular/core';
-import {
-  Answer,
-  AnswerId,
-  Condition,
-  ConditionId,
-  Question,
-  QuestionId,
-  QuestionPayload,
-  Section,
-  SectionPayload,
-  ValidatorId,
-} from '@cs-forms/shared';
+import { Answer, AnswerId, Question, QuestionId, QuestionPayload, Section, SectionPayload, ValidatorId } from '@cs-forms/shared';
 
 export const updateKeyInObject = <T extends object, K extends keyof T>(obj: T | null, key: K, update: T[K]): T | null => {
   console.log(obj, key, update);
@@ -51,14 +40,13 @@ export function updateWrapper<T>(writableSignal: WritableSignal<T>) {
 export const currentSectionPayload = (
   section: Section,
   questionsMap: Map<QuestionId, Question>,
-  answersMap: Map<AnswerId, Answer>,
-  conditionsMap: Map<ConditionId, Condition>
+  answersMap: Map<AnswerId, Answer>
 ): SectionPayload => {
   const { id, name, updated, description } = section;
 
   const questions: QuestionPayload[] = section.questions.reduce((acc, qid) => {
     const question = questionsMap.get(qid);
-    if (question) acc.push(currentQuestionPayload(question, answersMap, conditionsMap));
+    if (question) acc.push(currentQuestionPayload(question, answersMap));
 
     return acc;
   }, [] as QuestionPayload[]);
@@ -72,11 +60,7 @@ export const currentSectionPayload = (
   };
 };
 
-export const currentQuestionPayload = (
-  question: Question,
-  answersMap: Map<AnswerId, Answer>,
-  conditionsMap: Map<ConditionId, Condition>
-): QuestionPayload => {
+export const currentQuestionPayload = (question: Question, answersMap: Map<AnswerId, Answer>): QuestionPayload => {
   const answers: Answer =
     question.answers?.reduce((acc, a) => {
       const answer = answersMap.get(a);
@@ -86,12 +70,6 @@ export const currentQuestionPayload = (
 
   const validators: ValidatorId[] = question.validators ?? [];
 
-  const conditions: Condition = question.conditions?.reduce((acc, c) => {
-    const conditions = conditionsMap.get(c);
-    if (conditions) return { ...acc, ...conditions };
-    return acc;
-  }, {} as Condition);
-
   return {
     id: question.id,
     entry: question.entry,
@@ -99,6 +77,6 @@ export const currentQuestionPayload = (
     answerType: question.answerType,
     answers,
     validators,
-    conditions,
+    conditions: JSON.stringify(question.conditions),
   };
 };

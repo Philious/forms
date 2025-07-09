@@ -2,6 +2,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { testquestions } from 'src/assets/test.data';
 import { SectionService } from 'src/services/section.service';
 import { MainTabs } from '../../helpers/enum';
 import { TabViewComponent } from '../components/action/tabView.component';
@@ -9,6 +10,7 @@ import { DataViewComponent } from '../components/dataView.component';
 import { FormsComponent } from './forms.page';
 import { PagesComponent } from './pages.page';
 import { QuestionsComponent } from './questions/questions.page';
+import { evaluateConditions } from './section/conditions/conditions.service';
 import { SectionComponent } from './section/section.page';
 import { TestComponent } from './test.page';
 
@@ -106,7 +108,15 @@ export class MainPageComponent {
   transUpdate(update: boolean) {
     console.log('emited', update);
   }
-  constructor() {}
+  constructor() {
+    const responses = Object.fromEntries(testquestions.map(q => [q.id, q.response]));
+    console.log(responses);
+    const results = testquestions.map(q => ({
+      [q.id]: q.conditions ? evaluateConditions(q.conditions, responses) : true,
+    }));
+
+    console.log(results);
+  }
 
   tabs = [
     { label: 'Questions', value: MainTabs.Questions },
