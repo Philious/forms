@@ -1,43 +1,21 @@
-import { Component, inject, linkedSignal } from '@angular/core';
-import { SectionService } from '../../../services/section.service';
-import { CurrentAnswersComponent } from './answers/currentAnswers.component';
-import { CurrentStatementsComponent } from './currentIfStatements.component';
-import { CurrentQuestionsComponent } from './currentQuestion.component';
-import { CurrentValidatorsComponent } from './currentValidators.component';
+import { Component } from '@angular/core';
+import { ActiveQuestionsComponent } from './activeQuestion/activeQuestion.component';
 import { SectionGeneralComponent } from './sectionGeneral.component';
 import { SectionHeadComponent } from './sectionHead.component';
 import { SectionQuestionListComponent } from './sectionQuestionList.component';
 
 @Component({
   selector: 'sections-page',
-  imports: [
-    CurrentQuestionsComponent,
-    CurrentAnswersComponent,
-    CurrentValidatorsComponent,
-    CurrentStatementsComponent,
-    SectionQuestionListComponent,
-    SectionGeneralComponent,
-    SectionHeadComponent,
-  ],
+  imports: [SectionQuestionListComponent, SectionGeneralComponent, SectionHeadComponent, ActiveQuestionsComponent],
   template: `
     <main class="section-main">
       <div class="section">
         <section-head />
         <section-general />
-        @if (sectionService.currentSection()) {
-          <section-question-list />
-        }
+        <section-question-list />
       </div>
       <div list flex class="question">
-        @if (sectionService.currentQuestion()) {
-          <current-question [modelValue]="currentQuestion()" (modelValueChange)="updateEntry($event)" (removeQuestion)="removeQuestion()" />
-          <div class="divider"></div>
-          <current-answers />
-          <div class="divider"></div>
-          <current-validators />
-          <div class="divider"></div>
-          <current-statements />
-        }
+        <active-question />
       </div>
     </main>
   `,
@@ -90,11 +68,4 @@ import { SectionQuestionListComponent } from './sectionQuestionList.component';
     }
   `,
 })
-export class SectionComponent {
-  protected sectionService = inject(SectionService);
-  currentQuestion = linkedSignal<string>(() => this.sectionService.currentQuestion()?.entry ?? '');
-  updateEntry(entry: string) {
-    this.sectionService.updateCurrentQuestion('entry', entry);
-  }
-  removeQuestion = () => {};
-}
+export class SectionComponent {}

@@ -2,24 +2,38 @@ import {
   addToMap,
   Answer,
   AnswerId,
-  ConditionFn,
-  ConditionId,
+  AnswerTypeEnum,
   Question,
   QuestionId,
   QuestionPayload,
   Section,
   SectionId,
   SectionPayload,
-  Validator,
   ValidatorFn,
   ValidatorId,
 } from '@cs-forms/shared';
 
 const sectionMap: Map<string, Section> = new Map();
-const questionMap: Map<QuestionId, Question> = new Map();
+sectionMap.set('section-ea5e49d5-d292-4d49-a137-9326a0a60620', {
+  id: 'section-ea5e49d5-d292-4d49-a137-9326a0a60620',
+  name: 'Section 1',
+  description: '',
+  updated: 1754081754984,
+  questions: ['question-96e61d4d-3f48-4005-9336-cb7cbab77de1'],
+});
+const questionMap: Map<QuestionId, Question<any>> = new Map();
+questionMap.set('question-96e61d4d-3f48-4005-9336-cb7cbab77de1', {
+  id: 'question-96e61d4d-3f48-4005-9336-cb7cbab77de1',
+  entry: 'Question 1',
+  updated: 1754081754963,
+  answerType: AnswerTypeEnum.RadioButton,
+  answers: [],
+  validators: [],
+  conditions: {},
+});
 const answerMap: Map<AnswerId, string> = new Map();
 const validatorMap: Map<ValidatorId, ValidatorFn> = new Map();
-const conditionMap: Map<ConditionId, ConditionFn> = new Map();
+const conditionMap: Map<string, string> = new Map();
 
 export const getAllSections = () => sectionMap;
 export const getSection = (id: SectionId) => sectionMap.get(id) ?? null;
@@ -34,14 +48,14 @@ export function addSection(section: SectionPayload) {
     const questions: QuestionId[] = [];
     Object.values(section.questions).forEach(q => {
       const { id, entry, updated, answerType, answers, validators, conditions } = q;
-      const question: Question = {
+      const question: Question<string> = {
         id,
         entry,
         answerType,
         updated,
         answers: addToMap(answerMap, answers),
         validators,
-        conditions: addToMap(conditionMap, conditions),
+        conditions: '',
       };
       questions.push(id);
     });
@@ -122,16 +136,12 @@ export function questionToQuestionPayload(question: Question): QuestionPayload {
       return acc;
     }, {} as Answer),
     validators: question?.validators,
-    conditions: question?.conditions?.reduce((acc, id) => {
-      const condition = conditionMap.get(id);
-      if (condition) acc = { ...acc, [id]: condition };
-      return acc;
-    }, {} as Validator),
+    conditions: '',
   };
 }
 
 export function addQuestion(question: QuestionPayload) {
-  const { id, entry, answerType, answers, validators, conditions } = question;
+  const { id, entry, answerType, answers, validators } = question;
 
   questionMap.set(id, {
     id,
@@ -140,7 +150,7 @@ export function addQuestion(question: QuestionPayload) {
     answerType,
     answers: Object.keys(answers ?? {}),
     validators: Object.keys(validators ?? {}),
-    conditions: Object.keys(conditions ?? {}),
+    conditions: '',
   });
 
   return question;
@@ -154,7 +164,6 @@ export function updateQuestion(question: QuestionPayload) {
         if (k === 'id') return [k, v];
         else if (k === 'answers' && question[k]) return [k, addToMap(answerMap, question[k])];
         else if (k === 'validators' && question[k]) return [k, question[k]];
-        else if (k === 'conditions' && question[k]) return [k, addToMap(conditionMap, question[k])];
         return [k, question[k as keyof Question] ?? v];
       })
     ) as Question;
@@ -165,5 +174,3 @@ export function updateQuestion(question: QuestionPayload) {
 }
 
 export const getAllAnswers = (): Map<AnswerId, string> => answerMap;
-
-export const getAllConditions = (): Map<ConditionId, ConditionFn> => conditionMap;

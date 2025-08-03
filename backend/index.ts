@@ -8,7 +8,6 @@ import {
   addToSectionMap,
   deleteSection,
   getAllAnswers,
-  getAllConditions,
   getAllQuestions,
   getAllSections,
   getQuestionPayload,
@@ -156,7 +155,7 @@ app.get('/api/answers/all', (_: Request, res: Response, next: NextFunction) => {
 });
 
 app.get('/api/conditions/all', (_: Request, res: Response, next: NextFunction) => {
-  const a = getAllConditions();
+  const a = '';
   if (a) res.status(200).json(Array.from(a));
   else next(error(500, 'Internal server error'));
 });

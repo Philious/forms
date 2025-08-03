@@ -4,10 +4,10 @@ import { ValidatorsType } from 'src/helpers/types';
 import { Option } from '../../../helpers/types';
 import { DropdownComponent } from '../../components/action/dropdown.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';
-import { validatiorOptions } from './static';
+import { validatiorOptions } from './activeQuestion/validation.static';
 
 @Component({
-  selector: 'current-validators',
+  selector: 'validators',
   template: `
     <div class="container">
       <h2 class="h2">Validation</h2>
@@ -37,7 +37,7 @@ import { validatiorOptions } from './static';
   `,
   imports: [CommonModule, DropdownComponent, TextFieldComponent],
 })
-export class CurrentValidatorsComponent {
+export class validatorsComponent {
   validatiorOptions = validatiorOptions;
   validators = signal<Option<keyof ValidatorsType>[]>(validatiorOptions.filter(o => o.value === 'required'));
   validatorValues = model<ValidatorsType>();

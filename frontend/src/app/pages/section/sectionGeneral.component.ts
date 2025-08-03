@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { Section } from '@cs-forms/shared';
-import { Option } from '../../../helpers/types';
+import { Section, SectionId } from '@cs-forms/shared';
 import { SectionService } from '../../../services/section.service';
 import { DropdownComponent } from '../../components/action/dropdown.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';
@@ -36,16 +35,16 @@ export class SectionGeneralComponent {
   protected description = linkedSignal(() => this._sectionService.currentSection()?.description ?? '');
   protected sectionList = computed(() => Array.from(this._sectionService.sections().values()).map(s => ({ label: s.name, value: s.id })));
 
-  protected selected = linkedSignal<Option | null>(() => {
+  protected selected = linkedSignal<SectionId | null>(() => {
     const section = this._sectionService.currentSection();
-    return section ? { label: section.name, value: section.id } : null;
+    return section ? section.id : null;
   });
 
-  protected updateSelection(selected: Option | null) {
-    this._sectionService.setCurrentSectionId(selected?.value ?? '');
+  protected updateSelection(selected: SectionId | null) {
+    this._sectionService.section.set(selected ?? '');
   }
 
   protected update(key: keyof Section, value: string | number) {
-    this._sectionService.updateCurrentSection(key, value);
+    this._sectionService.section.update(key, value);
   }
 }

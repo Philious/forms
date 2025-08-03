@@ -17,7 +17,7 @@ import { IconComponent } from '../icons/icon.component';
     .bg {
       width: 1.5rem;
       height: 1.5rem;
-      margin: 0.125rem;
+
       border-radius: 50%;
       position: relative;
       &:before {
@@ -40,7 +40,7 @@ import { IconComponent } from '../icons/icon.component';
       color: var(--icn-clr-filled);
     }
     .border {
-      border: 1px solid var(--border);
+      box-shadow: 0 0 0 1px inset var(--border);
     }
     .icn-btn {
       color: inherit;
@@ -60,7 +60,6 @@ export class IconButtonComponent {
   @Input() buttonStyle = ButtonStyleEnum.Transparent;
 
   emit(event: MouseEvent) {
-    console.log('emit');
     this.clicked.emit(event);
   }
 

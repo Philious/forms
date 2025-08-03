@@ -56,12 +56,12 @@ export class SectionHeadComponent {
     this.dialog.open<string>(AddSectionDialogComponent, {
       data: {
         initialName: `Section ${this.sectionService.sections().size + 1}`,
-        addSection: this.sectionService.addSection,
+        addSection: this.sectionService.section.add,
       },
     });
   }
   save() {
-    this.sectionService.saveSection();
-    this.sectionService.saveQuestion();
+    this.sectionService.section.save();
+    this.sectionService.question.save();
   }
 }

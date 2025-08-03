@@ -13,14 +13,14 @@ export class SectionService {
   private readonly _questionResource = inject(QuestionResource);
   private readonly _answerResource = inject(AnswerResource);
 
-  private readonly _currentSectionId = signal<SectionId | null>(null);
+  private readonly _currentSectionId = signal<SectionId | null>('section-ea5e49d5-d292-4d49-a137-9326a0a60620');
   private readonly _currentSection = signal<Section | null>(null);
 
   protected readonly _canSave = signal<boolean>(false);
-  protected readonly _currentQuestionId = signal<QuestionId | null>(null);
+  protected readonly _currentQuestionId = signal<QuestionId | null>('question-96e61d4d-3f48-4005-9336-cb7cbab77de1');
   protected readonly _currentQuestion = signal<Question | null>(null);
 
-  sections = this._sectionResource.sections;
+  readonly sections = this._sectionResource.sections;
   questions = this._questionResource.questions;
 
   canSave = this._canSave.asReadonly();
@@ -38,11 +38,11 @@ export class SectionService {
   constructor() {
     effect(() => {
       const section = this.sections().get(this._currentSectionId() ?? '');
-      this._currentSection.set(section ? this.spreadSection(section) : null);
+      this._currentSection.set(section ? this._spreadSection(section) : null);
     });
     effect(() => {
       const question = this.questions().get(this._currentQuestionId() ?? '');
-      this._currentQuestion.set(question ? this.spreadQuestion(question) : null);
+      this._currentQuestion.set(question ? this._spreadQuestion(question) : null);
     });
     effect(() => {
       const section = this.currentSection();
@@ -62,16 +62,16 @@ export class SectionService {
     });
   }
 
-  setCurrentSectionId = (id: SectionId | null) => this._currentSectionId.set(id);
-  setCurrentQuestionId = (id: QuestionId | null) => this._currentQuestionId.set(id);
+  private _setCurrentSectionId = (id: SectionId | null) => this._currentSectionId.set(id);
+  private _setCurrentQuestionId = (id: QuestionId | null) => this._currentQuestionId.set(id);
 
   /** Sections */
-  spreadSection = (section: Section) => {
+  private _spreadSection = (section: Section) => {
     const questions = section?.questions ?? [];
     return section ? { ...section, questions: [...questions] } : null;
   };
 
-  addSection = (name: string): void => {
+  private _addSection = (name: string): void => {
     const section: Section = {
       id: `section-${uid()}`,
       name,
@@ -80,16 +80,17 @@ export class SectionService {
       questions: [],
     };
 
-    this._sectionResource.add(section, () => this.setCurrentSectionId(section.id));
+    this._sectionResource.add(section, () => this._setCurrentSectionId(section.id));
   };
 
-  saveSection = () => {
+  private _saveSection = () => {
     const section = this._currentSection();
     console.log('Save Current Section', section);
     if (section) this._sectionResource.update(section);
+    else console.log('no section');
   };
 
-  updateCurrentSection<K extends keyof Section>(key: K, update: Section[K], updateStrategy: 'replace' | 'add' = 'add'): void {
+  private _updateCurrentSection<K extends keyof Section>(key: K, update: Section[K], updateStrategy: 'replace' | 'add' = 'add'): void {
     console.log('updateCurrentSection', key, update);
     this._currentSection.update(section => {
       const sectionUpdate = updateStrategy === 'add' ? updateKeyInObject(section, key, update) : replaceKeyInObject(section, key, update);
@@ -98,24 +99,24 @@ export class SectionService {
     });
   }
 
-  updateQuestionListOrder(prevIndex: number, currIndex: number): void {
+  private updateQuestionListOrder(prevIndex: number, currIndex: number): void {
     console.log('updateQuestionListOrder');
     const section = this._currentSection();
     if (section) {
       moveItemInArray([...section.questions], prevIndex, currIndex);
-      this.updateCurrentSection('questions', section.questions);
+      this._updateCurrentSection('questions', section.questions);
     }
   }
 
-  updateSection() {
-    console.log('save Current Section');
-    const section = this._currentSection();
-    if (section) this._sectionResource.update(section);
-    else console.log('no section');
-  }
+  section = {
+    add: this._addSection,
+    update: this._updateCurrentSection,
+    save: this._saveSection,
+    set: this._setCurrentSectionId,
+  };
 
   /** Questions */
-  spreadQuestion = (question: Question) => {
+  private _spreadQuestion = (question: Question) => {
     const answers = question?.answers ?? [];
     const validators = question?.validators ?? [];
     const conditions = question?.conditions ?? [];
@@ -123,7 +124,7 @@ export class SectionService {
     return question ? { ...question, answers: [...answers], validators: [...validators], conditions } : question;
   };
 
-  addQuestion = (entry: string) => {
+  private _addQuestion = (entry: string) => {
     console.log('add question');
     const newQuestion: Question = {
       id: `question-${uid()}`,
@@ -136,13 +137,13 @@ export class SectionService {
     };
 
     this._questionResource.add(newQuestion, () => {
-      this.updateCurrentSection('questions', [newQuestion.id]);
-      this.setCurrentQuestionId(newQuestion.id);
-      this.saveSection();
+      this._updateCurrentSection('questions', [newQuestion.id]);
+      this._setCurrentQuestionId(newQuestion.id);
+      this._saveSection();
     });
   };
 
-  updateCurrentQuestion<K extends keyof Question>(key: K, update: Question[K], updateStrategy: 'replace' | 'add' = 'add'): void {
+  private _updateCurrentQuestion<K extends keyof Question>(key: K, update: Question[K], updateStrategy: 'replace' | 'add' = 'add'): void {
     console.log('update current question');
     this._currentQuestion.update(question => {
       const questionUpdate = updateStrategy === 'add' ? updateKeyInObject(question, key, update) : replaceKeyInObject(question, key, update);
@@ -157,7 +158,7 @@ export class SectionService {
     });
   }
 
-  saveQuestion() {
+  private _saveQuestion() {
     console.log('Save Current Question');
     const question = this._currentQuestion();
     if (question) {
@@ -165,4 +166,12 @@ export class SectionService {
       this._questionResource.update(payload);
     }
   }
+
+  question = {
+    add: this._addQuestion,
+    update: this._updateCurrentQuestion,
+    save: this._saveQuestion,
+    set: this._setCurrentQuestionId,
+    updateOrder: this.updateQuestionListOrder,
+  };
 }

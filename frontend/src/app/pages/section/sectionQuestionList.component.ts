@@ -16,24 +16,26 @@ import { AddQuestionDialogComponent } from './addQuestionDialog.component';
     list: '',
   },
   template: `
-    <text-button class="add-new" [leftIcon]="IconEnum.Add" [label]="'New question'" (clicked)="addQuestion()" size=".75rem" />
+    @if (currentSection()) {
+      <text-button class="add-new" [leftIcon]="IconEnum.Add" [label]="'New question'" (clicked)="addQuestion()" size=".75rem" />
 
-    @if (questionLists()) {
-      <ul cdkDropList (cdkDropListDropped)="dragDropQuestion($event)" class="current-question-list">
-        @for (question of questionLists(); track question.id) {
-          <li cdkDrag>
-            <div class="drag-custom-placeholder current-question-list-item" *cdkDragPlaceholder>
-              <icon class="drag-icon" [icon]="IconEnum.Drag" />
-            </div>
-            <div class="current-question-list-item">
-              <div class="drag-icon">
-                <icon [icon]="IconEnum.Drag" />
+      @if (questionLists()) {
+        <ul cdkDropList (cdkDropListDropped)="dragDropQuestion($event)" class="current-question-list">
+          @for (question of questionLists(); track question.id) {
+            <li cdkDrag>
+              <div class="drag-custom-placeholder current-question-list-item" *cdkDragPlaceholder>
+                <icon class="drag-icon" [icon]="IconEnum.Drag" />
               </div>
-              <button btn class="list-btn" (click)="setQuestionId(question.id)">{{ question.entry }}</button>
-            </div>
-          </li>
-        }
-      </ul>
+              <div class="current-question-list-item">
+                <div class="drag-icon">
+                  <icon [icon]="IconEnum.Drag" />
+                </div>
+                <button btn class="list-btn" (click)="setQuestionId(question.id)">{{ question.entry }}</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
     }
   `,
   styles: `
@@ -101,7 +103,7 @@ export class SectionQuestionListComponent {
 
   private _sectionService = inject(SectionService);
   private _dialog = inject(Dialog);
-
+  protected currentSection = this._sectionService.currentSection;
   protected questionLists = this._sectionService.currentSectionQuestions;
 
   constructor() {}
@@ -112,19 +114,19 @@ export class SectionQuestionListComponent {
       .findIndex(d => d === event.item.data);
     const currentIndex = event.currentIndex;
     if (previousIndex && currentIndex) {
-      this._sectionService.updateQuestionListOrder(previousIndex, currentIndex);
+      this._sectionService.question.updateOrder(previousIndex, currentIndex);
     }
   };
 
   setQuestionId(id: QuestionId) {
-    this._sectionService.setCurrentQuestionId(id);
+    this._sectionService.question.set(id);
   }
 
   addQuestion = (): void => {
     this._dialog.open<string>(AddQuestionDialogComponent, {
       data: {
         initialName: `Question ${(this._sectionService.questions().size ?? 0) + 1}`,
-        addQuestion: (name: string) => this._sectionService.addQuestion(name),
+        addQuestion: (name: string) => this._sectionService.question.add(name),
       },
     });
   };

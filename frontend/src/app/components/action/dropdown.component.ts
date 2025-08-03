@@ -1,6 +1,6 @@
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, input, model, ModelSignal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, input, model, ModelSignal, OnInit, viewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconEnum } from '../../../helpers/enum';
 import { Option } from '../../../helpers/types';
@@ -86,7 +86,7 @@ let index = 0;
     }
   `,
 })
-export class DropdownComponent<T extends boolean> {
+export class DropdownComponent<T extends boolean> implements OnInit {
   IconEnum = IconEnum;
   uid = `dropdown-${index++}`;
 
@@ -100,20 +100,20 @@ export class DropdownComponent<T extends boolean> {
 
   multiSelect = input<T>(false as T);
   check = model<boolean>(false);
-  modelValue = model<(T extends true ? Option[] : Option) | null>(null);
-  selectedValues = computed(() => {
-    const model = this.modelValue();
-    return Array.isArray(model) ? model?.map(o => o.value) : model?.value;
-  });
-  selectedLabel = computed<string>(() => {
-    const value = this.modelValue();
+  modelValue = model<(T extends true ? Option['value'][] : Option['value']) | null>(null);
+
+  ngOnInit(): void {
+    console.log('run');
+  }
+
+  selectedLabel = computed<string | null>(() => {
+    const selected = this.modelValue();
+    console.log('Selected: ', selected, this.options());
     return (
-      (Array.isArray(value)
-        ? value.reduce((acc, v, idx) => {
-            acc = acc + (idx === 0 ? v.label : ', ' + v.label);
-            return acc;
-          }, '')
-        : value?.label) ?? 'Nothing selected'
+      this.options()
+        ?.filter(o => (Array.isArray(selected) ? !!selected.includes(o.value) : o.value === selected))
+        .map(o => o.label)
+        .join(', ') ?? null
     );
   });
 
@@ -121,10 +121,6 @@ export class DropdownComponent<T extends boolean> {
     console.log(state);
   }
 
-  isSelected(val: Option): boolean {
-    const selected = this.modelValue();
-    return Array.isArray(selected) ? !!selected.find(o => o.value === val.value) : false;
-  }
   setOption(update: Option) {
     this.control()?.setValue(update);
     const multiSelect = this.multiSelect();

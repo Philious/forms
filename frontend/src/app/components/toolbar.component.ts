@@ -33,6 +33,6 @@ export class ToolBarComponent {
   add = output();
 
   save() {
-    this.sectionService.saveSection();
+    this.sectionService.section.save();
   }
 }

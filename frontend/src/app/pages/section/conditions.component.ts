@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'current-statements',
+  selector: 'statements',
   template: `
     <div class="container">
       <h2 class="h2">Allowes</h2>
@@ -9,4 +9,4 @@ import { Component } from '@angular/core';
   `,
   styles: '',
 })
-export class CurrentStatementsComponent {}
+export class StatementsComponent {}
