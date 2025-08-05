@@ -1,7 +1,9 @@
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
+import { CdkConnectedOverlay, ConnectedPosition } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, input, model, ModelSignal, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, input, OnInit, signal, viewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { extendedArray, ExtendedArray } from 'src/helpers/utils';
 import { IconEnum } from '../../../helpers/enum';
 import { Option } from '../../../helpers/types';
 import { CheckboxComponent } from './checkbox.component';
@@ -11,17 +13,45 @@ let index = 0;
 
 @Component({
   selector: 'drop-down',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputLayoutComponent, CdkMenuTrigger, CdkMenu, CdkMenuItem, CheckboxComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    InputLayoutComponent,
+    CdkConnectedOverlay,
+    CdkMenuTrigger,
+    CdkMenu,
+    CdkMenuItem,
+    CheckboxComponent,
+  ],
   template: `
     <input-layout class="layout" [label]="label()" [sufix]="IconEnum.Down" [id]="uid">
-      <input class="input" readonly base-input input [id]="uid" [cdkMenuTriggerFor]="menu" [value]="selectedLabel()" [attr.readonly]="filter()" />
+      <input
+        class="input"
+        #trigger
+        readonly
+        base-input
+        input
+        [id]="uid"
+        [cdkMenuTriggerFor]="menu"
+        [value]="selectedLabel()"
+        [attr.readonly]="filter()"
+        (click)="toggleMenu()"
+      />
     </input-layout>
-    <ng-template #menu focusFirstItem>
-      <div class="menu" [class.multi-select]="multiSelect()" cdkMenu>
+    <ng-template
+      #menu
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="trigger"
+      [cdkConnectedOverlayOpen]="isOpen()"
+      (overlayOutsideClick)="isOpen.set(false)"
+      (detach)="isOpen.set(false)"
+    >
+      <div class="menu" cdkMenu>
         @for (option of options(); track option.label) {
-          <button class="menu-item" cdkMenuItem (click)="setOption(option)">
+          <button class="menu-item" cdkMenuItem (click)="toggleOption($event, option)">
             @if (multiSelect()) {
-              <check-box slim [(modelValue)]="check" (modelValueChange)="checkChange($event)" />
+              <check-box slim [modelValue]="!!this.control().value?.includes(option.value)" />
             }
             {{ option.label }}
           </button>
@@ -86,54 +116,64 @@ let index = 0;
     }
   `,
 })
-export class DropdownComponent<T extends boolean> implements OnInit {
-  IconEnum = IconEnum;
-  uid = `dropdown-${index++}`;
-
+export class DropdownComponent<T extends boolean, V> implements OnInit {
   menuRef = viewChild<ElementRef<HTMLInputElement> | null>('menu');
+  IconEnum = IconEnum;
+  uid: string;
+  positions: ConnectedPosition[];
 
-  control = input<FormControl>();
+  control = input.required<FormControl<ExtendedArray<V> | null>>();
+
   label = input<string>('');
   filter = input<boolean>(false);
-
-  options = input<Option[] | null>([]);
-
+  options = input<Option<V>[] | null>([]);
   multiSelect = input<T>(false as T);
-  check = model<boolean>(false);
-  modelValue = model<(T extends true ? Option['value'][] : Option['value']) | null>(null);
 
-  ngOnInit(): void {
-    console.log('run');
-  }
+  isOpen = signal<boolean>(false);
 
-  selectedLabel = computed<string | null>(() => {
-    const selected = this.modelValue();
-    console.log('Selected: ', selected, this.options());
-    return (
+  selectedLabel = signal<string | null>(null);
+
+  updateLabel() {
+    const selected = this.control()?.value;
+
+    if (!selected) return;
+    this.selectedLabel.set(
       this.options()
-        ?.filter(o => (Array.isArray(selected) ? !!selected.includes(o.value) : o.value === selected))
+        ?.filter(o => selected?.includes(o.value))
         .map(o => o.label)
         .join(', ') ?? null
     );
-  });
-
-  checkChange(state: boolean) {
-    console.log(state);
   }
 
-  setOption(update: Option) {
-    this.control()?.setValue(update);
-    const multiSelect = this.multiSelect();
-    if (multiSelect)
-      (this.modelValue as ModelSignal<Option[] | null>).update(value => {
-        if (!value) return null;
-        else {
-          const index = value.findIndex(v => v.value === update.value) ?? 1;
-          return index < 0 ? [...(value ?? []), update] : ((value?.splice(index, 1) ?? null) as Option[] | null);
-        }
-      });
-    else {
-      (this.modelValue as ModelSignal<Option | null>).update(() => update);
+  constructor() {
+    this.uid = `dropdown-${index++}`;
+    this.positions = [
+      {
+        originX: 'start',
+        originY: 'bottom',
+        overlayX: 'start',
+        overlayY: 'top',
+      },
+    ];
+  }
+
+  ngOnInit(): void {
+    this.updateLabel();
+  }
+
+  toggleMenu() {
+    this.isOpen.update(v => !v);
+  }
+
+  toggleOption(event: MouseEvent, update: Option<V>) {
+    if (this.multiSelect()) {
+      this.control().setValue(this.control().value?.toggle(update.value) ?? null);
+    } else {
+      this.control().setValue(extendedArray([update.value]));
+      this.toggleMenu();
     }
+    this.control().markAsDirty();
+    this.control().markAllAsTouched();
+    this.updateLabel();
   }
 }

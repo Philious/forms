@@ -5,6 +5,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { AnswerTypeEnum } from '@cs-forms/shared';
 import { SwitchComponent } from 'src/app/components/action/switch.component';
 import { SlideInOutDirective } from 'src/app/directives/slideInOut.directive';
+import { extendedArray } from 'src/helpers/utils';
 import { v4 as uid } from 'uuid';
 import { ButtonStyleEnum, IconEnum } from '../../../../helpers/enum';
 import { DropdownComponent } from '../../../components/action/dropdown.component';
@@ -31,27 +32,22 @@ import { RadioGroupItemsComponent } from './radioGroupItems.component';
     SlideInOutDirective,
   ],
   template: `
+    @let seleced = answerDropdownControl.value?.[0];
     <h2 class="h2">Answers</h2>
     <span>
-      <drop-down
-        [label]="'Answer type'"
-        [options]="awnserTypeOptions"
-        slim
-        [modelValue]="selectedAnswerType()"
-        (modelValueChange)="changeType(reType($event))"
-      />
+      <drop-down [label]="'Answer type'" [options]="awnserTypeOptions" slim [control]="answerDropdownControl" />
       @if (displayYesOrNoOption()) {
         <switch [label]="'Binary question'" [(isChecked)]="yesOrNoAnswer" slim slideInOut />
       }
     </span>
 
-    @if (AnswerTypeEnum.Barometer === selectedAnswerType()) {
+    @if (AnswerTypeEnum.Barometer === seleced) {
       <answer-barometer [step]="0.1" [min]="2" [max]="5" />
-    } @else if (AnswerTypeEnum.Checkbox === selectedAnswerType()) {
+    } @else if (AnswerTypeEnum.Checkbox === seleced) {
       <answer-check-group-items [radioGroup]="formGroup" />
-    } @else if (AnswerTypeEnum.Dropdown === selectedAnswerType()) {
+    } @else if (AnswerTypeEnum.Dropdown === seleced) {
       Dropdown
-    } @else if (AnswerTypeEnum.RadioButton === selectedAnswerType()) {
+    } @else if (AnswerTypeEnum.RadioButton === seleced) {
       <answer-radio-group-items [radioGroup]="formGroup" (add)="addAnswer()" (remove)="removeAnswer($event)" />
     }
   `,
@@ -81,6 +77,8 @@ export class AnswersComponent {
 
   yesOrNoAnswer = model<boolean>(false);
   displayYesOrNoOption = computed<boolean>(() => this.selectedAnswerType() === this.AnswerTypeEnum.RadioButton);
+
+  answerDropdownControl = new FormControl(extendedArray([this.selectedAnswerType()]));
 
   formGroup = new FormGroup({});
 

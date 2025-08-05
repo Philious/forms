@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, model, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { ValidatorsType } from 'src/helpers/types';
-import { Option } from '../../../helpers/types';
+import { ExtendedArray, extendedArray } from 'src/helpers/utils';
 import { DropdownComponent } from '../../components/action/dropdown.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';
 import { validatiorOptions } from './activeQuestion/validation.static';
@@ -11,7 +12,7 @@ import { validatiorOptions } from './activeQuestion/validation.static';
   template: `
     <div class="container">
       <h2 class="h2">Validation</h2>
-      <drop-down [options]="validatiorOptions" [(modelValue)]="validators" [multiSelect]="true" (modelValueChange)="updateValidators($event)" />
+      <drop-down [options]="validatiorOptions" [control]="validatorValueControl" slim [multiSelect]="true" />
       @if (hasValidator('min')) {
         <text-field [label]="'Minimum'" />
       }
@@ -39,18 +40,10 @@ import { validatiorOptions } from './activeQuestion/validation.static';
 })
 export class validatorsComponent {
   validatiorOptions = validatiorOptions;
-  validators = signal<Option<keyof ValidatorsType>[]>(validatiorOptions.filter(o => o.value === 'required'));
-  validatorValues = model<ValidatorsType>();
+  validators = signal<(keyof ValidatorsType)[]>(['required']);
+  validatorValueControl = new FormControl<ExtendedArray<string>>(extendedArray<string>([])) as FormControl<ExtendedArray<string>>;
 
   hasValidator(validator: keyof ValidatorsType) {
-    const value = this.validatorValues();
-    return value && Object.keys(value).includes(validator);
-  }
-
-  updateValidators(validatorOption: Option[] | null) {
-    this.validatorValues.update(validatorSet => {
-      validatorOption?.map(o => o.value);
-      return validatorSet;
-    });
+    return !!this.validatorValueControl.value?.includes(validator);
   }
 }

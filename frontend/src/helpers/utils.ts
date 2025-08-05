@@ -31,8 +31,25 @@ export function relateKeyValue<O extends object, K extends keyof O>(obj: O, key:
   return value ?? obj[key];
 }
 
-/*
-function relate<K extends keyof typeof o>(key: K, value: typeof o[K]) {
-  console.log(key, value);
+export type ExtendedArray<T> = T[] & { remove: (item: T) => ExtendedArray<T>; toggle: (item: T) => ExtendedArray<T> };
+export function extendedArray<T>(array?: T[]) {
+  array = array ? array : [];
+  Object.defineProperty(array, 'remove', {
+    value: (item: T): T[] => {
+      array.splice(array.findIndex(storedItem => storedItem === item, 1));
+      return array;
+    },
+    writable: false,
+  });
+
+  Object.defineProperty(array, 'toggle', {
+    value: (item: T): T[] => {
+      if (array.includes(item)) array.splice(array.findIndex(storedItem => storedItem === item, 1));
+      else array.push(item);
+      return array;
+    },
+    writable: false,
+  });
+
+  return array as ExtendedArray<T>;
 }
-*/
