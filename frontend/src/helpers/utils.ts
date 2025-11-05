@@ -31,7 +31,42 @@ export function relateKeyValue<O extends object, K extends keyof O>(obj: O, key:
   return value ?? obj[key];
 }
 
-export type ExtendedArray<T> = T[] & { remove: (item: T) => ExtendedArray<T>; toggle: (item: T) => ExtendedArray<T> };
+export const array = {
+  remove: <T = unknown>(item: T, array: T[]): T[] => {
+    const index = array.findIndex(storedItem => storedItem === item);
+    if (index !== -1) {
+      array.splice(index, 1);
+    }
+    return array;
+  },
+  toggle: <T = unknown>(item: T, array: T[]): T[] => {
+    const index = array.findIndex(storedItem => storedItem === item);
+    if (index !== -1) {
+      array.splice(index, 1);
+    } else {
+      array.push(item);
+    }
+    return array;
+  },
+  clear: <T = unknown>(array: T[]): T[] => {
+    array.length = 0;
+    return array;
+  },
+  unique: <T = unknown>(item: T, array: T[]): T[] => {
+    const seen = new Set<T>();
+    const uniqueItems = array.filter(i => !seen.has(i) && seen.add(i));
+    array.splice(0, array.length, ...uniqueItems);
+    return array;
+  },
+};
+
+export type ExtendedArrayType<T> = T[] & {
+  remove: (item: T) => ExtendedArrayType<T>;
+  toggle: (item: T) => ExtendedArrayType<T>;
+  clear: () => ExtendedArrayType<T>;
+  unique: () => ExtendedArrayType<T>;
+};
+
 export function extendedArray<T>(array?: T[]) {
   array = array ? array : [];
   Object.defineProperty(array, 'remove', {
@@ -51,5 +86,51 @@ export function extendedArray<T>(array?: T[]) {
     writable: false,
   });
 
-  return array as ExtendedArray<T>;
+  return array as ExtendedArrayType<T>;
+}
+
+export class ExtendedArray<T> extends Array<T> {
+  constructor(initialItems: T[] = []) {
+    super(...initialItems);
+  }
+
+  static override get [Symbol.species](): ArrayConstructor {
+    return Array;
+  }
+
+  remove(item: T): this {
+    const index = this.findIndex(storedItem => storedItem === item);
+    if (index !== -1) {
+      this.splice(index, 1);
+    }
+    return this;
+  }
+
+  toggle(item: T): this {
+    const index = this.findIndex(storedItem => storedItem === item);
+    if (index !== -1) {
+      this.splice(index, 1);
+    } else {
+      this.push(item);
+    }
+    return this;
+  }
+
+  clear(): this {
+    this.length = 0;
+    return this;
+  }
+
+  unique(): this {
+    const seen = new Set<T>();
+    const uniqueItems = this.filter(i => !seen.has(i) && seen.add(i));
+    this.splice(0, this.length, ...uniqueItems);
+    return this;
+  }
+}
+
+export function svgCircleAsPath(cx: number, cy: number, r: number) {
+  return `M${cx - r},${cy}
+        a${r},${r} 0 1,0${r * 2},0
+        a${r},${r} 0 1,0-${r * 2},0`;
 }

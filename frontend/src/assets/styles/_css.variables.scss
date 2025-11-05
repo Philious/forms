@@ -60,8 +60,10 @@
   --menu-border: var(--n-400);
 
   --input-clr: var(--n-600);
-  --input-bg-clr: hsla(0, 0%, 0%, .12);
+  --input-bg-clr: hsla(0, 0%, 0%, .12);  
   --input-border: hsla(0, 0%, 100%, .12);
+  --input-bg-clr-hover: hsla(0, 0%, 100%, .06);
+  --input-border-hover: hsla(0, 0%, 100%, .18);
 
   --btn-clr: var(--n-700);
   --btn-bg-clr: var(--n-300);

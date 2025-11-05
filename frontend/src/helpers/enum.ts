@@ -6,7 +6,7 @@ export enum InputState {
 }
 
 export enum MainTabs {
-  Questions = 'questions',
+  Entries = 'entries',
   Sections = 'sections',
   Pages = 'pages',
   Forms = 'forms',
@@ -43,4 +43,6 @@ export enum IconEnum {
   Remove = 'remove',
   Setting = 'setting',
   Save = 'save',
+  Search = 'search',
+  Toggle = 'toggle',
 }

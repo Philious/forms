@@ -1,18 +1,18 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, effect, inject, model, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { testquestions } from 'src/assets/test.data';
-import { SectionService } from 'src/services/section.service';
-import { MainTabs } from '../../helpers/enum';
+import { IconEnum, MainTabs } from '../../helpers/enum';
+import { IconButtonComponent } from '../components/action/iconButton.component';
 import { TabViewComponent } from '../components/action/tabView.component';
 import { DataViewComponent } from '../components/dataView.component';
-import { FormsComponent } from './forms.page';
-import { PagesComponent } from './pages.page';
-import { QuestionsComponent } from './questions/questions.page';
-import { evaluateConditions } from './section/conditions/conditions.service';
+import { ApiService } from '../services/api.service';
+import { Store } from '../store/store';
+import { EntriesComponent } from './entries/entries.page';
+import { FormPageComponent } from './forms.component';
+import { PagePageComponent } from './pages.component';
 import { SectionComponent } from './section/section.page';
-import { TestComponent } from './test.page';
+import { TestPageComponent } from './test.component';
 
 @Component({
   selector: 'main-view',
@@ -20,26 +20,24 @@ import { TestComponent } from './test.page';
     ReactiveFormsModule,
     CommonModule,
     TabViewComponent,
-    QuestionsComponent,
+    EntriesComponent,
     SectionComponent,
-    FormsComponent,
-    TestComponent,
+    FormPageComponent,
+    TestPageComponent,
     FormsModule,
-    PagesComponent,
+    PagePageComponent,
     DataViewComponent,
+    IconButtonComponent,
   ],
   template: `
     <div class="top-section">
       <div class="row">
-        <tab-view class="tabs" [tabs]="tabs" [selected]="MainTabs.Sections" (selectedEmitter)="tabSelect($event)" />
-        <!--
-        <drop-down class="survey-selector" flex [(modelValue)]="selectedSurvey" [label]="'Current survey'" />
-        --->
+        <tab-view class="tabs" [tabs]="tabs" [selected]="selectedTab()" (selectedEmitter)="tabSelect($event)" />
+        <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
       </div>
-      <!--<tool-bar [(filter)]="searchFilter" />-->
     </div>
-    @if (selectedTab() === MainTabs.Questions) {
-      <questions-page />
+    @if (selectedTab() === MainTabs.Entries) {
+      <entries-page />
     } @else if (selectedTab() === MainTabs.Sections) {
       <sections-page />
     } @else if (selectedTab() === MainTabs.Pages) {
@@ -49,9 +47,9 @@ import { TestComponent } from './test.page';
     } @else {
       <test-page />
     }
-    <data-view label="Section" [data]="sectionService.currentSection()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
 
-    <data-view label="Question" [data]="sectionService.currentQuestion()" [startPosition]="{ bottom: '1rem', right: '1rem' }" />
+    <data-view label="Entries" [data]="store.entries()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
+    <data-view label="Forms" [data]="store.currentEntry()" [startPosition]="{ bottom: '1rem', right: '50%' }" />
   `,
   styles: `
     :host {
@@ -79,6 +77,7 @@ import { TestComponent } from './test.page';
     .row {
       display: flex;
       justify-content: space-between;
+
       gap: 3rem;
     }
     .toggle-translations {
@@ -93,33 +92,30 @@ import { TestComponent } from './test.page';
       background-color: light-dark(#00000022, #ffffff22);
       align-items: center;
     }
+    .play {
+      width: 3rem;
+      height: 3rem;
+    }
   `,
 })
 export class MainPageComponent {
-  sectionService = inject(SectionService);
-
+  apiService = inject(ApiService);
+  store = inject(Store);
   dialog = inject(Dialog);
+
+  IconEnum = IconEnum;
   MainTabs = MainTabs;
   selectedSurvey = signal({ label: 'Mother of all Surveys', value: 'moas' });
-  selectedTab = signal(MainTabs.Sections);
+  selectedTab = signal(MainTabs.Entries);
   showTranslations = signal<boolean>(false);
   searchFilter = model<string>('');
 
-  transUpdate(update: boolean) {
-    console.log('emited', update);
-  }
   constructor() {
-    const responses = Object.fromEntries(testquestions.map(q => [q.id, q.response]));
-    console.log(responses);
-    const results = testquestions.map(q => ({
-      [q.id]: q.conditions ? evaluateConditions(q.conditions, responses) : true,
-    }));
-
-    console.log(results);
+    effect(() => console.log(this.store.entries(), this.store.currentEntry()));
   }
 
   tabs = [
-    { label: 'Questions', value: MainTabs.Questions },
+    { label: 'Entries', value: MainTabs.Entries },
     { label: 'Sections', value: MainTabs.Sections },
     { label: 'Pages', value: MainTabs.Pages },
     { label: 'Forms', value: MainTabs.Forms },

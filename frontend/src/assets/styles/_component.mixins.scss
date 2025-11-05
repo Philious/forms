@@ -14,16 +14,36 @@
   :where([input]) {
     box-sizing: border-box;
     height: 2.5rem;
+    background-color: var(--input-bg-clr);
     color: var(--input-clr);
     padding: 0 1rem;
+    transition: background-color .25s, border-color .25s;
+
+    &:hover {
+      background-color: var(--input-bg-clr-hover);
+      border-color: var(--input-border-hover);
+    }
+    &[slim] {
+      height: 2rem;
+      .input {
+      padding: 0 .75rem;
+    }
+    }
   }
   
   [slim] {
     min-height: auto;
-    .input-wrapper {
-      &, * {
-      height: 1.5rem;
+      & .input-wrapper,
+      .input {
+      height: 2rem;
       }
+      .input-wrapper {
+      .prefix + .input { padding-left: 2rem; }
+      &:has(.sufix)  .input { padding-right: 2rem; }
+      .prefix, .sufix {
+        width: 2rem;
+      }
+      .icn { height: 1rem;  }
     }
     .input {
       padding: 0 .75rem;
@@ -32,10 +52,16 @@
   }
   :where([flex]) { flex: 1; }
   :where([btn]) {
+    display: inline-flex;
     position: relative;
     min-height: 2.5rem;
     padding: 0 0.75rem;
+    align-items: center;
     text-align: inherit;
+    border: none;
+    background-color: transparent;
+    border-radius: 0.25rem;
+    width: fit-content;
     cursor: pointer;
     &:before {
       content: "";
@@ -62,5 +88,9 @@
     display: grid;
     gap: 1.5rem;
     place-content: start normal;
+  }
+
+  :where(.row) {
+    display: flex;
   }
 }

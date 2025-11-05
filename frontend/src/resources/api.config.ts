@@ -1,6 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable, InjectionToken } from '@angular/core';
-
+/*
 @Injectable({ providedIn: 'root' })
 export class Api {
   protected readonly _http = inject(HttpClient);
@@ -25,8 +23,8 @@ export class Api {
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       if (res.statusText === 'No Content') return true;
       const response = res.json();
-      // response.then(v => console.log('HTTP: ', v));
       return response;
     });
   }
 }
+*/

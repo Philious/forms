@@ -1,44 +1,40 @@
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { CdkConnectedOverlay, ConnectedPosition } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, input, OnInit, signal, viewChild } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { extendedArray, ExtendedArray } from 'src/helpers/utils';
+import { Component, ElementRef, forwardRef, input, model, signal, viewChild } from '@angular/core';
+import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { array } from 'src/helpers/utils';
 import { IconEnum } from '../../../helpers/enum';
-import { Option } from '../../../helpers/types';
 import { CheckboxComponent } from './checkbox.component';
-import { InputLayoutComponent } from './input.layout.component';
+
+export type SelectorItem<O = unknown> = { id: string; label: string; options?: O };
 
 let index = 0;
 
 @Component({
   selector: 'drop-down',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    InputLayoutComponent,
-    CdkConnectedOverlay,
-    CdkMenuTrigger,
-    CdkMenu,
-    CdkMenuItem,
-    CheckboxComponent,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, CdkConnectedOverlay, CdkMenuTrigger, CdkMenu, CdkMenuItem, CheckboxComponent],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DropdownComponent),
+      multi: true,
+    },
   ],
   template: `
-    <input-layout class="layout" [label]="label()" [sufix]="IconEnum.Down" [id]="uid">
-      <input
-        class="input"
-        #trigger
-        readonly
-        base-input
-        input
-        [id]="uid"
-        [cdkMenuTriggerFor]="menu"
-        [value]="selectedLabel()"
-        [attr.readonly]="filter()"
-        (click)="toggleMenu()"
-      />
-    </input-layout>
+    <input
+      class="input"
+      #trigger
+      readonly
+      base-input
+      input
+      [id]="uid"
+      [cdkMenuTriggerFor]="menu"
+      [value]="selectedLabel(selected())"
+      [attr.readonly]="filter()"
+      [disabled]="isDisabled"
+      (click)="toggleMenu()"
+    />
     <ng-template
       #menu
       cdkConnectedOverlay
@@ -47,13 +43,13 @@ let index = 0;
       (overlayOutsideClick)="isOpen.set(false)"
       (detach)="isOpen.set(false)"
     >
-      <div class="menu" cdkMenu>
-        @for (option of options(); track option.label) {
-          <button class="menu-item" cdkMenuItem (click)="toggleOption($event, option)">
+      <div class="menu" [class.multi-select]="multiSelect()" cdkMenu>
+        @for (item of items(); track item.id) {
+          <button class="menu-item" [class.selected]="isSelected(item.id)" cdkMenuItem (click)="selectOption(item)">
             @if (multiSelect()) {
-              <check-box slim [modelValue]="!!this.control().value?.includes(option.value)" />
+              <check-box slim [modelValue]="isSelected(item.id)" />
             }
-            {{ option.label }}
+            {{ item.label }}
           </button>
         }
       </div>
@@ -90,6 +86,9 @@ let index = 0;
         0 2px 4px hsla(0, 0%, 0%, 0.24),
         0 4px 8px hsla(0, 0%, 0%, 0.16),
         0 8px 16px hsla(0, 0%, 0%, 0.08);
+      .multi-select .menu-item {
+        padding-left: 0.5rem;
+      }
     }
     .menu-item {
       padding: 0.5rem 1.5rem;
@@ -116,33 +115,39 @@ let index = 0;
     }
   `,
 })
-export class DropdownComponent<T extends boolean, V> implements OnInit {
+export class DropdownComponent<T = unknown> {
   menuRef = viewChild<ElementRef<HTMLInputElement> | null>('menu');
   IconEnum = IconEnum;
   uid: string;
   positions: ConnectedPosition[];
 
-  control = input.required<FormControl<ExtendedArray<V> | null>>();
-
-  label = input<string>('');
   filter = input<boolean>(false);
-  options = input<Option<V>[] | null>([]);
-  multiSelect = input<T>(false as T);
+  multiSelect = input<boolean>(false);
+  items = input<SelectorItem<T>[]>([]);
 
+  selected = model<SelectorItem<T>[]>([]);
+  selectedIds = model<SelectorItem['id'][]>([]);
+  selectedLabel = (selected: SelectorItem<T>[]): string => {
+    return selected.map(s => s.label).join(', ');
+  };
   isOpen = signal<boolean>(false);
 
-  selectedLabel = signal<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private _onChange = (_: SelectorItem<T>[]) => {};
+  private _onTouch = () => {};
+  protected isDisabled: boolean = false;
 
-  updateLabel() {
-    const selected = this.control()?.value;
-
-    if (!selected) return;
-    this.selectedLabel.set(
-      this.options()
-        ?.filter(o => selected?.includes(o.value))
-        .map(o => o.label)
-        .join(', ') ?? null
-    );
+  writeValue(items: SelectorItem<T>[]): void {
+    this.selected.set(items);
+  }
+  registerOnChange(fn: (items: SelectorItem<T>[]) => void): void {
+    this._onChange = fn;
+  }
+  registerOnTouched(fn: () => void): void {
+    this._onTouch = fn;
+  }
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled = isDisabled;
   }
 
   constructor() {
@@ -157,23 +162,23 @@ export class DropdownComponent<T extends boolean, V> implements OnInit {
     ];
   }
 
-  ngOnInit(): void {
-    this.updateLabel();
-  }
-
   toggleMenu() {
     this.isOpen.update(v => !v);
+    console.log(this.items());
   }
+  protected isSelected(id: string): boolean {
+    return this.selected().filter(s => s.id === id).length > 0;
+  }
+  selectOption(update: SelectorItem<T>) {
+    this.selected.update(arr => {
+      if (this.multiSelect()) return array.toggle(update, arr);
+      return [update];
+    });
 
-  toggleOption(event: MouseEvent, update: Option<V>) {
-    if (this.multiSelect()) {
-      this.control().setValue(this.control().value?.toggle(update.value) ?? null);
-    } else {
-      this.control().setValue(extendedArray([update.value]));
-      this.toggleMenu();
-    }
-    this.control().markAsDirty();
-    this.control().markAllAsTouched();
-    this.updateLabel();
+    this.selectedIds.set(this.selected().map(item => item.id));
+    console.log(this.selectedIds());
+    if (!this.multiSelect()) this.isOpen.set(false);
+    this._onChange(this.selected());
+    this._onTouch();
   }
 }

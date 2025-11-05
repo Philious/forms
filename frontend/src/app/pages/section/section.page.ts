@@ -1,71 +1,89 @@
-import { Component } from '@angular/core';
-import { ActiveQuestionsComponent } from './activeQuestion/activeQuestion.component';
-import { SectionGeneralComponent } from './sectionGeneral.component';
-import { SectionHeadComponent } from './sectionHead.component';
-import { SectionQuestionListComponent } from './sectionQuestionList.component';
+import { Dialog } from '@angular/cdk/dialog';
+import { Component, inject, signal } from '@angular/core';
+import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
+import { ContextMenuComponent } from 'src/app/components/modals/contextMenu.component';
+import { IconEnum } from 'src/helpers/enum';
+import { SectionService } from 'src/services/section.service';
+import { Option } from '../../../helpers/types';
+import { LayoutComponent } from '../common/layout.component';
+
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
+import { InputLayoutComponent } from 'src/app/components/action/input.layout.component';
+import { TextFieldComponent } from 'src/app/components/action/textfield.component';
+import { ExtendedArray } from 'src/helpers/utils';
+import { AddSectionDialogComponent } from './addSectionDialog.component';
 
 @Component({
   selector: 'sections-page',
-  imports: [SectionQuestionListComponent, SectionGeneralComponent, SectionHeadComponent, ActiveQuestionsComponent],
+  imports: [
+    IconButtonComponent,
+    ContextMenuComponent,
+    LayoutComponent,
+    DropdownComponent,
+    TextFieldComponent,
+    ReactiveFormsModule,
+    InputLayoutComponent,
+  ],
   template: `
-    <main class="section-main">
-      <div class="section">
-        <section-head />
-        <section-general />
-        <section-question-list />
-      </div>
-      <div list flex class="question">
-        <active-question />
-      </div>
-    </main>
+    <layout [contentTitle]="'Select a section'">
+      <span content header>Section details</span>
+      <span content header-options>
+        <icon-button [class.can-save]="canSave()" [icon]="IconEnum.Save" (clicked)="save()" />
+        <icon-button [icon]="IconEnum.Add" (clicked)="addSection()" />
+        <context-menu [options]="pageHeaderOptions">
+          <icon-button [icon]="IconEnum.Options" />
+        </context-menu>
+        <icon-button [icon]="IconEnum.Play" />
+      </span>
+      <span content location>
+        <input-layout [label]="'Form'">
+          <drop-down slim [items]="formOptions()" slim [formControl]="crtlGrp.controls.section" />
+        </input-layout>
+        <input-layout [label]="'Page'">
+          <drop-down slim [items]="pageOptions()" slim [formControl]="crtlGrp.controls.page" />
+        </input-layout>
+        <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
+      </span>
+      <span content list> </span>
+      <span content specifics> </span>
+    </layout>
   `,
   styles: `
     :host {
-      background-color: var(--n-200);
-      border-radius: 0.5rem;
-      flex: 1;
       display: flex;
-      flex-direction: column;
-    }
-    .section-main {
-      display: flex;
-      width: 100%;
-      height: 100%;
       flex: 1;
-    }
-    .container {
-      display: grid;
-      gap: 1rem;
-    }
-    .divider {
-      background-color: var(--n-400);
-      height: 0.0625rem;
-      width: 100%;
-    }
-    .section {
-      display: grid;
-      align-items: start;
-      align-content: start;
-      gap: 1rem;
-      flex: 1;
-      width: 100%;
-      padding: 1.5rem;
-      border-radius: 0.25rem;
-    }
-    .question {
-      background-color: var(--n-100);
-      margin: 0.25rem;
-      padding: 1.5rem;
-      border-radius: 0.25rem;
-      &:empty {
-        place-content: center;
-        &:before {
-          content: 'Select a question';
-          margin: auto;
-          color: var(--n-400);
-        }
-      }
     }
   `,
 })
-export class SectionComponent {}
+export class SectionComponent {
+  protected IconEnum = IconEnum;
+  private _sectionService = inject(SectionService);
+  protected canSave = this._sectionService.canSave;
+  dialog = inject(Dialog);
+
+  protected pageHeaderOptions: Option[] = [{ label: 'Change section name', value: 'changeName' }];
+
+  protected formOptions = signal<ExtendedArray<SelectorItem>>(new ExtendedArray());
+  protected pageOptions = signal<ExtendedArray<SelectorItem>>(new ExtendedArray());
+  protected sectionOptions = signal<ExtendedArray<SelectorItem>>(new ExtendedArray());
+  protected crtlGrp = new FormGroup({
+    section: new FormControl([]),
+    page: new FormControl<ExtendedArray<string>>(new ExtendedArray()),
+    form: new FormControl<ExtendedArray<string>>(new ExtendedArray()),
+  });
+
+  protected addSection(): void {
+    this.dialog.open<string>(AddSectionDialogComponent, {
+      data: {
+        initialName: `Section ${this._sectionService.sections().size + 1}`,
+        addSection: this._sectionService.section.add,
+      },
+    });
+  }
+
+  protected save() {
+    this._sectionService.section.save();
+    this._sectionService.question.save();
+  }
+}

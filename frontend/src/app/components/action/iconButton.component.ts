@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
 import { IconComponent } from '../icons/icon.component';
 
@@ -7,29 +7,39 @@ import { IconComponent } from '../icons/icon.component';
   selector: 'icon-button',
   imports: [IconComponent, CommonModule],
   template: `
-    <div class="bg" [class]="buttonStyle">
-      <button class="icn-btn" (click)="emit($event)" [type]="type" base-input>
-        <icon [icon]="icon" class="icn" />
+    <div class="bg" [class]="style()">
+      <button class="icn-btn" (click)="emit($event)" [type]="type()" base-input>
+        <icon [icon]="icon()" class="icn" />
       </button>
     </div>
   `,
   styles: `
+    :host {
+      display: grid;
+      place-items: center;
+    }
     .bg {
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 2rem;
+      height: 2rem;
 
       border-radius: 50%;
       position: relative;
       &:before {
         content: '';
-        border-radius: 50%;
+        border-radius: 0.25rem;
         position: absolute;
         inset: 0;
         background-color: transparent;
         transition: background-color 0.15s;
       }
-      &:hover:before {
-        background-color: var(--hover-clr);
+      &:hover {
+        .icn {
+          scale: 1.2;
+        }
+
+        &:before {
+          background-color: var(--hover-clr);
+        }
       }
       &:active:before {
         background-color: var(--action-clr);
@@ -49,15 +59,18 @@ import { IconComponent } from '../icons/icon.component';
       display: grid;
       place-items: center;
     }
+    .icn {
+      transition: scale 0.5s;
+    }
   `,
 })
 export class IconButtonComponent {
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;
 
-  @Input() type = 'button';
-  @Input() icon!: IconEnum;
-  @Input() buttonStyle = ButtonStyleEnum.Transparent;
+  type = input('button');
+  icon = input.required<IconEnum>();
+  style = input<ButtonStyleEnum>(ButtonStyleEnum.Transparent);
 
   emit(event: MouseEvent) {
     this.clicked.emit(event);

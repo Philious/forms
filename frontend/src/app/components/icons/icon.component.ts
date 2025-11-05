@@ -17,7 +17,9 @@ import { OptionsIconComponent } from './options.icon.component';
 import { PlayIconComponent } from './play.icon.component';
 import { RemoveIconComponent } from './remove.icon.component';
 import { SaveIconComponent } from './save.icon.component';
+import { SearchIconComponent } from './search.icon.component';
 import { SettingsIconComponent } from './settings.icon.component';
+import { ToggleIconComponent } from './toggle.icon.component';
 
 @Component({
   selector: 'icon',
@@ -58,6 +60,8 @@ export class IconComponent {
     [IconEnum.Remove]: RemoveIconComponent,
     [IconEnum.Save]: SaveIconComponent,
     [IconEnum.Setting]: SettingsIconComponent,
+    [IconEnum.Search]: SearchIconComponent,
+    [IconEnum.Toggle]: ToggleIconComponent,
   };
 
   getComponent() {

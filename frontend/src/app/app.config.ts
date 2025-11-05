@@ -1,3 +1,4 @@
+/*
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -17,4 +18,31 @@ export const appConfig: ApplicationConfig = {
       }),
     )
   ]
+};
+*/
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { routes } from './app.routes';
+
+import { HttpInterceptorFn, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+
+const xsrfInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = document.cookie
+    .split('; ')
+    .find(c => c.startsWith('FORMS_COOKIE='))
+    ?.split('=')[1];
+
+  if (token) {
+    req = req.clone({
+      setHeaders: { 'X-Custom-Xsrf-Header': token },
+    });
+  }
+
+  return next(req);
+};
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes), provideAnimations(), provideHttpClient(withFetch(), withInterceptors([xsrfInterceptor]))],
 };

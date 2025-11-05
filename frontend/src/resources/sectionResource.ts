@@ -1,18 +1,18 @@
-import { computed, effect, inject, Injectable, resource, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { Section, SectionId } from '@cs-forms/shared';
-import { arrayToMap } from 'src/services/utils';
-import { Api } from './api.config';
+// import { Api } from './api.config';
 
 @Injectable({ providedIn: 'root' })
 export class SectionResource {
-  private api = inject(Api);
+  // private api = inject(Api);
   reloadTrigger = signal(0);
 
   reload = () => {
     console.log('section update');
     this.reloadTrigger.update(v => v + 1);
   };
-
+  sections = computed<ReadonlyMap<SectionId, Section>>(() => new Map()); //this.sectionResource.value());
+  /*
   sectionResource = resource<ReadonlyMap<SectionId, Section>, number>({
     params: () => this.reloadTrigger(),
     loader: ({ abortSignal }) =>
@@ -22,7 +22,7 @@ export class SectionResource {
     defaultValue: new Map(),
   });
 
-  sections = computed<ReadonlyMap<SectionId, Section>>(() => this.sectionResource.value());
+  
   isLoading = computed<boolean>(() => this.sectionResource.isLoading());
   error = computed(() => this.sectionResource.error());
   sectionList = computed<{ label: string; value: string }[]>(() => {
@@ -42,21 +42,21 @@ export class SectionResource {
       // console.log('\nError: \n', this.error());
     });
   }
-
+*/
   add = async (section: Section, callback?: () => void): Promise<void> => {
     console.log('add');
-    await this.api.request(`/api/sections/add`, 'POST', section);
+    await {}; // this.api.request(`/api/sections/add`, 'POST', section);
     this.reload();
     callback?.();
   };
   update = async (section: Section, callback?: () => void): Promise<void> => {
     console.log('update section', section);
-    await this.api.request(`/api/sections/update`, 'POST', section);
+    // await this.api.request(`/api/sections/update`, 'POST', section);
     this.reload();
     callback?.();
   };
   remove = async (id: SectionId, callback?: () => void): Promise<void> => {
-    await this.api.request(`/api/sections/remove/${id}`, 'DELETE');
+    // await this.api.request(`/api/sections/remove/${id}`, 'DELETE');
     callback?.();
     this.reload();
   };

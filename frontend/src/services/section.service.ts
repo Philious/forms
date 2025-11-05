@@ -1,6 +1,6 @@
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { AnswerTypeEnum, Question, QuestionId, Section, SectionId } from '@cs-forms/shared';
+import { EntryTypeEnum, Question, QuestionId, Section, SectionId } from '@cs-forms/shared';
 import { AnswerResource } from 'src/resources/answerResource';
 import { QuestionResource } from 'src/resources/questionResource';
 import { SectionResource } from 'src/resources/sectionResource';
@@ -130,7 +130,7 @@ export class SectionService {
       id: `question-${uid()}`,
       entry,
       updated: new Date().valueOf(),
-      answerType: AnswerTypeEnum.RadioButton,
+      answerType: EntryTypeEnum.RadioGroup,
       answers: [],
       validators: [],
       conditions: {},

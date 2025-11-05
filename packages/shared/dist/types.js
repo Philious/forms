@@ -1,14 +1,16 @@
-export var AnswerTypeEnum;
-(function (AnswerTypeEnum) {
-    AnswerTypeEnum["RadioButton"] = "radio-button";
-    AnswerTypeEnum["Barometer"] = "barometer";
-    AnswerTypeEnum["Text"] = "text";
-    AnswerTypeEnum["Number"] = "number";
-    AnswerTypeEnum["Textarea"] = "text-area";
-    AnswerTypeEnum["Date"] = "date";
-    AnswerTypeEnum["Dropdown"] = "drop-down";
-    AnswerTypeEnum["Checkbox"] = "check-box";
-})(AnswerTypeEnum || (AnswerTypeEnum = {}));
+export var EntryTypeEnum;
+(function (EntryTypeEnum) {
+    EntryTypeEnum["RadioGroup"] = "radio-group";
+    EntryTypeEnum["Barometer"] = "barometer";
+    EntryTypeEnum["Text"] = "text";
+    EntryTypeEnum["Number"] = "number";
+    EntryTypeEnum["Textarea"] = "text-area";
+    EntryTypeEnum["Date"] = "date";
+    EntryTypeEnum["Selector"] = "selector";
+    EntryTypeEnum["Checkbox"] = "check-box";
+    EntryTypeEnum["CheckboxGroup"] = "check-group";
+    EntryTypeEnum["TextString"] = "text-string";
+})(EntryTypeEnum || (EntryTypeEnum = {}));
 export var HttpStatusCode;
 (function (HttpStatusCode) {
     HttpStatusCode[HttpStatusCode["Continue"] = 100] = "Continue";

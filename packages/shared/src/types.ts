@@ -1,12 +1,14 @@
-export enum AnswerTypeEnum {
-  RadioButton = 'radio-button',
+export enum EntryTypeEnum {
+  RadioGroup = 'radio-group',
   Barometer = 'barometer',
   Text = 'text',
   Number = 'number',
   Textarea = 'text-area',
   Date = 'date',
-  Dropdown = 'drop-down',
+  Selector = 'selector',
   Checkbox = 'check-box',
+  CheckboxGroup = 'check-group',
+  TextString = 'text-string',
 }
 
 export type SectionId = string;
@@ -46,7 +48,7 @@ export type QuestionCore = {
   id: QuestionId;
   entry: string;
   updated: number;
-  answerType?: AnswerTypeEnum;
+  answerType?: EntryTypeEnum;
 };
 
 export type Question<C extends Conditions | string = Conditions> = QuestionCore & {

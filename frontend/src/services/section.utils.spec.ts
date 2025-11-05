@@ -8,7 +8,7 @@ describe('updateQuestion', () => {
       id: 'q1',
       entry: 'Old Question?',
       updated: new Date().valueOf(),
-      answerType: AnswerTypeEnum.RadioButton,
+      answerType: AnswerTypeEnum.RadioGroup,
     };
 
     const updated = updateQuestion(current, { question: 'New Question?' });
@@ -22,7 +22,7 @@ describe('updateQuestion', () => {
       id: 'q2',
       entry: 'Keep me',
       updated: new Date().valueOf() + 999,
-      answerType: AnswerTypeEnum.RadioButton,
+      answerType: AnswerTypeEnum.RadioGroup,
     };
 
     const updated = updateQuestion(current, {});

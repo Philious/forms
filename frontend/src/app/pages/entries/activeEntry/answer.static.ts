@@ -16,7 +16,7 @@ export const awnserTypeOptions: Option<AnswerTypeEnum>[] = [
   },
   {
     label: 'Dropdown',
-    value: AnswerTypeEnum.Dropdown,
+    value: AnswerTypeEnum.Selector,
   },
   {
     label: 'Number',
@@ -25,7 +25,7 @@ export const awnserTypeOptions: Option<AnswerTypeEnum>[] = [
 
   {
     label: 'Radio buttons',
-    value: AnswerTypeEnum.RadioButton,
+    value: AnswerTypeEnum.RadioGroup,
   },
   {
     label: 'Textbox',

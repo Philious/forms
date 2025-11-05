@@ -17,7 +17,11 @@ let uid = 0;
   },
   template: `
     @let prefixIcon = prefix(); @let sufixIcon = sufix();
-    <label class="label" [for]="id()">{{ label() }}</label>
+    <label class="label" [for]="id()">
+      <ng-content select="label">
+        {{ this.label() }}
+      </ng-content>
+    </label>
     <div class="input-wrapper">
       @if (prefixIcon) {
         <icon class="prefix" [icon]="prefixIcon" />
@@ -41,9 +45,15 @@ let uid = 0;
 
       display: grid;
       gap: 0.25rem;
-      [slim] {
+      &[slim] {
         .input-wrapper {
           height: 2rem;
+        }
+        .sufix {
+          top: 0;
+          right: 0;
+          width: 2rem;
+          position: absolute;
         }
       }
       &:not(.disabled) .input-wrapper:hover {

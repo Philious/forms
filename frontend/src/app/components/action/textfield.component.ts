@@ -17,7 +17,11 @@ let uid = 0;
   template: `
     @let suffix = suffixIcon();
     @let prefix = prefixIcon();
-    <label class="label" [for]="id()">{{ label() }}</label>
+    <div class="row">
+      <ng-content #label>
+        <label class="label" [for]="id()">{{ label() }}</label>
+      </ng-content>
+    </div>
     <div class="input-wrapper">
       @if (prefix) {
         <icon class="prefix" [icon]="prefix" />
@@ -28,6 +32,7 @@ let uid = 0;
         [attr.aria-invalid]="ariaInvalid()"
         [(ngModel)]="modelValue"
         [attr.aria-describedby]="id()"
+        [placeholder]="placeholder()"
         base-input
         input
         [id]="id()"
@@ -55,15 +60,6 @@ let uid = 0;
       .input {
         font-size: inherit;
       }
-      [slim] {
-        .input-wrapper {
-          height: 2rem;
-          padding-inline: 0.5rem;
-        }
-        .input {
-          padding-inline: 0.5rem;
-        }
-      }
       &:not(.disabled) .input-wrapper:hover {
         border-color: var(--input-border);
       }
@@ -89,6 +85,9 @@ let uid = 0;
       position: relative;
       transition: border-color 0.15s;
     }
+    .prefix + .input {
+      padding-left: 2.5rem;
+    }
     .prefix,
     .sufix {
       display: grid;
@@ -110,22 +109,23 @@ let uid = 0;
     }
   `,
 })
-export class TextFieldComponent {
+export class TextFieldComponent<T extends number | string = string> {
   id = input(`input-${uid++}`);
   label = input<string>();
   type = input<string>('text');
   prefixIcon = input<IconEnum | null>(null);
   suffixIcon = input<IconEnum | null>(null);
-  control = input<FormControl | null>(null);
+  control = input<FormControl<T> | null>(null);
+  placeholder = input<string>('');
   align = input<'left' | 'center' | 'right'>('left');
   step = input<number | 'any'>();
   min = input<number | null>();
   max = input<number | null>();
 
-  blured = output<string | number | null>();
+  blured = output<T>();
 
   ariaInvalid = computed(() => this.control()?.invalid && this.control()?.touched);
-  modelValue = model<string | number>('');
+  modelValue = model<T>('' as T);
   contextInfo = model<string>('');
 
   value: string | null = null;

@@ -11,7 +11,7 @@ let uid = 0;
       {{ label() }}
     </label>
     <div class="switch">
-      <input class="input" [id]="id()" type="checkbox" [(ngModel)]="isChecked" (change)="changed.emit(isChecked())" />
+      <input class="input" [id]="id()" type="checkbox" [(ngModel)]="active" (change)="changed.emit(active())" />
     </div>
   `,
   styles: `
@@ -85,7 +85,7 @@ let uid = 0;
 })
 export class SwitchComponent {
   id = input(`input-${uid++}`);
-  isChecked = model<boolean>(false);
+  active = model<boolean>(false);
   label = input('');
 
   changed = output<boolean>();

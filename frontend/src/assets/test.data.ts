@@ -16,7 +16,7 @@ export const testquestions: (Question & Response)[] = [
     id: 'id0',
     entry: 'question 1',
     updated: new Date().valueOf(),
-    answerType: AnswerTypeEnum.RadioButton,
+    answerType: AnswerTypeEnum.RadioGroup,
     answers: ['a1', 'a2'],
     validators: [],
     conditions: {
@@ -29,7 +29,7 @@ export const testquestions: (Question & Response)[] = [
     id: 'id1',
     entry: 'question 2',
     updated: new Date().valueOf(),
-    answerType: AnswerTypeEnum.RadioButton,
+    answerType: AnswerTypeEnum.RadioGroup,
     answers: ['a3', 'a4'],
     validators: [],
     conditions: {
@@ -42,7 +42,7 @@ export const testquestions: (Question & Response)[] = [
     id: 'id2',
     entry: 'question 3',
     updated: new Date().valueOf(),
-    answerType: AnswerTypeEnum.RadioButton,
+    answerType: AnswerTypeEnum.RadioGroup,
     answers: ['a5', 'a6'],
     validators: [],
     conditions: {
@@ -55,7 +55,7 @@ export const testquestions: (Question & Response)[] = [
     id: 'id3',
     entry: 'question 4',
     updated: new Date().valueOf(),
-    answerType: AnswerTypeEnum.RadioButton,
+    answerType: AnswerTypeEnum.RadioGroup,
     answers: ['a6', 'a7'],
     validators: [],
     conditions: {

@@ -1,176 +1,147 @@
-import {
-  addToMap,
-  Answer,
-  AnswerId,
-  AnswerTypeEnum,
-  Question,
-  QuestionId,
-  QuestionPayload,
-  Section,
-  SectionId,
-  SectionPayload,
-  ValidatorFn,
-  ValidatorId,
-} from '@cs-forms/shared';
+import { Division, DivisionId, Entry, EntryId, EntryTypeEnum, Form, FormId, Page, PageId } from '@cs-forms/shared';
+import { v4 as uid } from 'uuid';
 
-const sectionMap: Map<string, Section> = new Map();
-sectionMap.set('section-ea5e49d5-d292-4d49-a137-9326a0a60620', {
-  id: 'section-ea5e49d5-d292-4d49-a137-9326a0a60620',
-  name: 'Section 1',
-  description: '',
-  updated: 1754081754984,
-  questions: ['question-96e61d4d-3f48-4005-9336-cb7cbab77de1'],
-});
-const questionMap: Map<QuestionId, Question<any>> = new Map();
-questionMap.set('question-96e61d4d-3f48-4005-9336-cb7cbab77de1', {
-  id: 'question-96e61d4d-3f48-4005-9336-cb7cbab77de1',
-  entry: 'Question 1',
-  updated: 1754081754963,
-  answerType: AnswerTypeEnum.RadioButton,
-  answers: [],
-  validators: [],
-  conditions: {},
-});
-const answerMap: Map<AnswerId, string> = new Map();
-const validatorMap: Map<ValidatorId, ValidatorFn> = new Map();
-const conditionMap: Map<string, string> = new Map();
+type Ids = { entryIds?: EntryId[]; divisionIds?: DivisionId[]; pageIds?: PageId[]; formIds?: FormId[] };
 
-export const getAllSections = () => sectionMap;
-export const getSection = (id: SectionId) => sectionMap.get(id) ?? null;
+export const formMap = new Map<FormId, Form>();
+export const pageMap = new Map<PageId, Page>();
+export const divisionMap = new Map<DivisionId, Division>();
+export const entryMap = new Map<EntryId, Entry>([
+  ['Entry 1', { id: uid(), type: EntryTypeEnum.RadioGroup, label: 'Entry 1', updated: new Date().valueOf() }],
+]);
 
-export const addToSectionMap = (section: Section) => {
-  sectionMap.set(section.id, section);
-  return true;
+export const setForm = (id: FormId, ids?: Ids) => {
+  const form: Form = {
+    id,
+    pages: new Set(),
+    divisions: new Set(),
+    entries: new Set(),
+    updated: new Date().valueOf(),
+  };
+  formMap.set(form.id, form);
 };
 
-export function addSection(section: SectionPayload) {
-  if (!sectionMap.has(section.id)) {
-    const questions: QuestionId[] = [];
-    Object.values(section.questions).forEach(q => {
-      const { id, entry, updated, answerType, answers, validators, conditions } = q;
-      const question: Question<string> = {
-        id,
-        entry,
-        answerType,
-        updated,
-        answers: addToMap(answerMap, answers),
-        validators,
-        conditions: '',
-      };
-      questions.push(id);
-    });
-    const { id, name, description, updated } = section;
-    sectionMap.set(section.id, { id, name, description, updated, questions });
-
-    return true;
-  } else {
-    return false;
-  }
-}
-
-export function updateSectionPayload(part: SectionPayload & { id: string }) {
-  const current = getSection(part.id);
-
-  if (current) {
-    const newSection = Object.fromEntries(
-      Object.entries(current).map(([k, v]) => {
-        if (k === 'id') return [k, v];
-        else if (k === 'questions' && part[k]) {
-          return [k, [...new Set(Object.values(part[k]).map(q => updateQuestion(q)))]];
-        } else return [k, part[k as keyof Section] ?? v];
-      })
-    ) as Section;
-    newSection.updated = new Date().valueOf();
-    sectionMap.set(newSection.id, newSection);
-  } else {
-    return false;
-  }
-}
-
-export function updateSection(part: Section & { id: string }) {
-  const current = getSection(part.id);
-
-  if (current) {
-    const updatedSection = Object.fromEntries(
-      Object.entries(current).map(([k, v]) => {
-        console.log();
-        if (k === 'id') return [k, v];
-        else if (k === 'questions' && Array.isArray(v)) {
-          return [k, [...new Set([...v, ...part.questions])]];
-        } else return [k, part[k as keyof Section] ?? v];
-      })
-    ) as Section;
-    updatedSection.updated = new Date().valueOf();
-    sectionMap.set(updatedSection.id, updatedSection);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-export function deleteSection(id: SectionId) {
-  sectionMap.delete(id);
-}
-
-/** Question Content */
-
-/**  Questions */
-export const getAllQuestions = (): Map<QuestionId, Question> => questionMap;
-
-export function getQuestionPayload(id: QuestionId): QuestionPayload | null {
-  const question = questionMap.get(id);
-  return question ? questionToQuestionPayload(question) : null;
-}
-
-export const addToQuestionMap = (question: Question) => questionMap.set(question.id, question);
-
-export function questionToQuestionPayload(question: Question): QuestionPayload {
-  return {
-    id: question.id,
-    entry: question.entry,
-    updated: question.updated,
-    answerType: question.answerType,
-    answers: question?.answers?.reduce((acc, id) => {
-      const answer = answerMap.get(id);
-      if (answer) acc = { ...acc, [id]: answer };
-      return acc;
-    }, {} as Answer),
-    validators: question?.validators,
-    conditions: '',
-  };
-}
-
-export function addQuestion(question: QuestionPayload) {
-  const { id, entry, answerType, answers, validators } = question;
-
-  questionMap.set(id, {
+export const setPage = (id: PageId, ids?: Ids) => {
+  const page: Page = {
     id,
-    entry,
+    divisions: new Set(),
+    entries: new Set(),
     updated: new Date().valueOf(),
-    answerType,
-    answers: Object.keys(answers ?? {}),
-    validators: Object.keys(validators ?? {}),
-    conditions: '',
+  };
+  pageMap.set(page.id, page);
+
+  ids?.formIds?.forEach(f => {
+    if (!formMap.has(f)) {
+      setForm(f, ids);
+    }
+    formMap.get(f)?.pages.add(id);
+    ids.divisionIds?.forEach(d => formMap.get(f)?.divisions.add(d));
+    ids.entryIds?.forEach(e => formMap.get(f)?.entries.add(e));
+  });
+};
+
+export const setDivision = (id: DivisionId, ids?: Ids) => {
+  const div: Division = {
+    id,
+    entries: new Set(),
+    updated: new Date().valueOf(),
+  };
+  divisionMap.set(div.id, div);
+
+  ids?.pageIds?.forEach(p => {
+    if (!pageMap.has(p)) {
+      setPage(p, ids);
+    }
+    pageMap.get(p)?.divisions.add(id);
+    ids.entryIds?.forEach(e => pageMap.get(p)?.entries.add(e));
+  });
+};
+
+export const setEntry = (entry: Entry, ids?: Ids) => {
+  entryMap.set(entry.id, entry);
+
+  ids?.divisionIds?.forEach(d => {
+    if (!divisionMap.has(d)) {
+      setDivision(d, ids);
+    }
+    divisionMap.get(d)?.entries.add(entry.id);
+  });
+  console.log(entryMap);
+};
+
+export const set = { form: setForm, page: setPage, division: setDivision, entry: setEntry };
+
+export const getEntry = (id: EntryId) => (entryMap.has(id) ? entryMap.get(id)! : null);
+
+export const getEntries = (ids: Set<EntryId>): Map<EntryId, Entry> => {
+  const entries = new Map<EntryId, Entry>();
+
+  ids.forEach(id => {
+    const entry = entryMap.get(id);
+    if (entry) {
+      entries.set(entry.id, entry);
+    }
   });
 
-  return question;
-}
+  return entries ?? null;
+};
 
-export function updateQuestion(question: QuestionPayload) {
-  const currentQuestion = questionMap.get(question.id);
-  if (currentQuestion) {
-    const updatedQuestion = Object.fromEntries(
-      Object.entries(currentQuestion).map(([k, v]) => {
-        if (k === 'id') return [k, v];
-        else if (k === 'answers' && question[k]) return [k, addToMap(answerMap, question[k])];
-        else if (k === 'validators' && question[k]) return [k, question[k]];
-        return [k, question[k as keyof Question] ?? v];
-      })
-    ) as Question;
-    updatedQuestion.updated = new Date().valueOf();
-    questionMap.set(updatedQuestion.id as keyof Question, updatedQuestion);
-  }
-  return questionMap.get(question.id)!;
-}
+export const getDivision = (id: DivisionId): Division<'id'> | null => {
+  const division = divisionMap.get(id) as Division<'id'>;
+  const entries = new Set<EntryId>();
 
-export const getAllAnswers = (): Map<AnswerId, string> => answerMap;
+  division?.entries.forEach(eid => {
+    const storedEntry = entryMap.get(eid);
+    if (storedEntry) entries.add(storedEntry.id);
+  });
+
+  return division ? { ...division, entries } : null;
+};
+
+export const getPage = (id: PageId): Page<'id'> | null => {
+  const page = pageMap.get(id);
+  const entries = new Set<EntryId>();
+
+  page?.divisions.forEach(did => {
+    divisionMap.get(did)?.entries.forEach(eid => {
+      const storedEntry = entryMap.get(eid);
+      if (storedEntry) entries.add(storedEntry.id);
+    });
+  });
+
+  return page ? { ...page, entries } : null;
+};
+
+export const getForm = (id: FormId): Form<'id'> | null => {
+  const storedForm = formMap.get(id);
+  const entries = new Set<EntryId>();
+
+  storedForm?.pages.forEach(pid => {
+    pageMap.get(pid)?.divisions.forEach(did => {
+      divisionMap.get(did)?.entries.forEach(eid => {
+        const storedEntry = entryMap.get(eid);
+        if (storedEntry) entries.add(storedEntry.id);
+      });
+    });
+  });
+
+  return storedForm ? { ...storedForm, entries } : null;
+};
+
+export const getAllForms = (): Map<FormId, Form> | null => {
+  const formCollection = new Map<FormId, Form>();
+
+  formMap.forEach(form => {
+    formCollection.set(form.id, form);
+  });
+
+  return formCollection ?? null;
+};
+
+export const deleteForm = (id: FormId) => {};
+
+export const deletePage = (id: PageId) => {};
+
+export const deleteDivision = (id: DivisionId) => {};
+
+export const deleteEntry = (id: EntryId) => {};

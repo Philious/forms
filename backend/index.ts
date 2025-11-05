@@ -2,22 +2,28 @@ import cookieSession from 'cookie-session';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 // import { v4 as uuid } from 'uuid';
-import { HttpStatusCode, Question, QuestionId, QuestionPayload, Section } from '@cs-forms/shared';
+import { Division, DivisionId, Entry, EntryId, Form, FormId, HttpStatusCode, Page, PageId } from '@cs-forms/shared';
 import {
-  addToQuestionMap,
-  addToSectionMap,
-  deleteSection,
-  getAllAnswers,
-  getAllQuestions,
-  getAllSections,
-  getQuestionPayload,
-  updateQuestion,
-  updateSection,
+  deleteDivision,
+  deleteEntry,
+  deleteForm,
+  deletePage,
+  divisionMap,
+  entryMap,
+  formMap,
+  getDivision,
+  getEntry,
+  getForm,
+  getPage,
+  pageMap,
+  setDivision,
+  setEntry,
+  setForm,
+  setPage,
 } from './store.js';
 
 const app = express();
 const port = 3000;
-app.use(express.json());
 app.use(express.json());
 
 app.use(
@@ -35,12 +41,12 @@ app.use(
   })
 );
 
-app.get('/api/user', (req, res) => {
+app.get('/api/get/user', (req, res) => {
   if (req.session && !req.session.user) {
-    req.session.user = { id: '123', name: 'Alice' };
+    req.session.user = { id: '123', name: 'Aadvark' };
     res.json({ status: 'logged in' });
   }
-
+  console.log('LOGGED IN');
   res.json(req.session?.user);
 });
 
@@ -51,124 +57,162 @@ function error(status: HttpStatusCode, msg: string) {
   return err;
 }
 
-app.get('/api/sections/all', (_: Request, res: Response, next: NextFunction) => {
-  const m = getAllSections();
-  console.log('get all sections');
-  if (m) res.status(200).json(Array.from(m));
+type All = {
+  forms: Record<FormId, Form>;
+  pages: Record<PageId, Page>;
+  division: Record<DivisionId, Division>;
+  entries: Record<EntryId, Entry>;
+};
+
+app.get('/api/get/all', (req: Request, res: Response<All>, next: NextFunction) => {
+  const forms = Object.fromEntries(formMap);
+  const pages = Object.fromEntries(pageMap);
+  const division = Object.fromEntries(divisionMap);
+  const entries = Object.fromEntries(entryMap);
+  console.log('get all: ', { forms, pages, division, entries });
+  try {
+    res.status(200).json({ forms, pages, division, entries });
+  } catch (err) {
+    next(error(500, `Internal server error ${err}`));
+  }
+});
+
+app.get('/api/get/allForms', (_: Request, res: Response<Record<FormId, Form>>, next: NextFunction) => {
+  const forms = Object.fromEntries(formMap);
+
+  if (forms) res.status(200).json(forms);
   else next(error(500, 'Internal server error'));
 });
-/*
-app.get('/api/sections/minimal', (_: Request, res: Response) => {
-  console.log('send sections');
-  const minimal = getAllSections().map(s => ({ id: s.id, name: s.name }));
-  res.status(200).json(minimal);
+
+app.get('/api/get/forms/:formId', (req: Request<{ formId: FormId }>, res: Response<Form<'id'>>, next: NextFunction) => {
+  const { formId } = req.params;
+  const form = getForm(formId);
+
+  if (form) res.status(200).json(form);
+  else next(error(500, 'Internal server error'));
 });
 
-app.get('/api/sections/:id', (req: Request, res: Response, next: NextFunction) => {
-  console.log('get section');
-  const { id } = req.params;
-  const section = getSection(id);
+app.get('/api/get/page/:pageId', (req: Request<{ pageId: PageId }>, res: Response<Page<'id'>>, next: NextFunction) => {
+  const { pageId } = req.params;
+  const page = getPage(pageId);
 
-  if (section) res.status(200).json(section);
-  else next(error(404, 'Section not found'));
+  if (page) res.status(200).json(page);
+  else next(error(500, 'Internal server error'));
 });
-*/
-app.post('/api/sections/add', (req: Request<Section>, res: Response, next: NextFunction) => {
-  console.log('add section: ', req?.body);
+
+app.get('/api/get/division/:divisionId', (req: Request<{ divisionId: DivisionId }>, res: Response<Division<'id'>>, next: NextFunction) => {
+  const { divisionId } = req.params;
+  const division = getDivision(divisionId);
+
+  if (division) res.status(200).json(division);
+  else next(error(500, 'Internal server error'));
+});
+
+app.get('/api/get/entry/:entryId', (req: Request<{ entryId: EntryId }>, res: Response<Entry>, next: NextFunction) => {
+  const { entryId } = req.params;
+  const entry = getEntry(entryId);
+
+  if (entry) res.status(200).json(entry);
+  else next(error(500, `Internal server error, Could not find ${entryId}`));
+});
+
+type Body = {
+  formId?: FormId;
+  pageIds?: PageId[];
+  divisionIds?: DivisionId[];
+  entryId?: EntryId[];
+};
+
+app.post('/api/get/allEntries', (req: Request<Record<EntryId, Entry>>, res: Response, next: NextFunction) => {
+  const entries: Record<EntryId, Entry> = req.body;
+
+  if (entries) {
+    Object.values(entries).forEach(entry => setEntry(entry));
+    res.sendStatus(204);
+  } else {
+    next(error(500, `Internal server error, entries => ${entries}`));
+  }
+});
+
+app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFunction) => {
+  const entry: Entry = req.body;
+  console.log(entry);
+  entry.updated = new Date().valueOf();
   try {
-    addToSectionMap(req.body);
+    setEntry(entry);
     res.sendStatus(204);
   } catch (err) {
     next(error(500, `Internal server error ${err}`));
   }
 });
 
-app.post('/api/sections/update', (req: Request<Partial<Section> & { id: string }>, res: Response<Section>, next: NextFunction) => {
-  console.log('update section: ', req?.body);
-  updateSection(req.body);
-  res.sendStatus(204);
-});
-
-app.delete('/api/section/:id', (req: Request<{ id: string }>, res: Response): void => {
-  const { id } = req.params;
-  deleteSection(id);
-  res.sendStatus(204);
-});
-
-/** Questions */
-app.get('/api/questions/all', (_: Request, res: Response, next: NextFunction) => {
-  const m = getAllQuestions();
-  console.log('get all questions');
-  if (m) res.status(200).json(Array.from(m));
-  else next(error(500, 'Internal server error'));
-});
-/*
-app.get('/api/questions/:id', (req: Request, res: Response<QuestionPayload[]>) => {
-  console.log('send questions');
-  const { id } = req.params;
-  const questionIds = getSection(id)?.questions;
-  if (questionIds) {
-    const sectionQuestions = questionIds.map(qid => getQuestionPayload(qid as QuestionId)).filter(q => !!q);
-    res.status(200).json(sectionQuestions);
-  }
-});
-
-app.get('/api/questions/:id', (req: Request, res: Response<QuestionPayload>, next: NextFunction) => {
-  console.log('get question by id');
-  const { id } = req.params;
-  const newSet = getQuestionPayload(id);
-
-  if (newSet) res.status(200).json(newSet);
-  else next(error(404, 'Question not found'));
-});
-*/
-app.post('/api/questions/batch', (req: Request<QuestionId[]>, res: Response<QuestionPayload[]>, next: NextFunction) => {
-  console.log('get collection by id');
-  const ids: QuestionId[] = req.body;
-  const questions = ids.map(qid => getQuestionPayload(qid as QuestionId)).filter(q => !!q);
-
-  if (questions.length) res.sendStatus(204);
-  else next(error(404, 'Questions not found'));
-});
-
-app.post('/api/questions/add', (req: Request<Question>, res: Response, next: NextFunction) => {
-  console.log('add question: ', req?.body);
+app.post('/api/set/division', (req: Request<Division>, res: Response, next: NextFunction) => {
+  const division = req.body;
   try {
-    addToQuestionMap(req.body);
+    setDivision(division);
     res.sendStatus(204);
   } catch (err) {
     next(error(500, `Internal server error ${err}`));
   }
 });
 
-app.post('/api/questions/update', (req: Request<QuestionPayload>, res: Response, next: NextFunction) => {
-  console.log('update question: ', req?.body);
-  const check = updateQuestion(req.body);
-  if (check) res.sendStatus(204);
-  else next(error(404, 'Something went awry'));
+app.post('/api/set/page', (req: Request<Page>, res: Response, next: NextFunction) => {
+  const page = req.body;
+  try {
+    setPage(page);
+    res.sendStatus(204);
+  } catch (err) {
+    next(error(500, `Internal server error ${err}`));
+  }
 });
 
-app.get('/api/answers/all', (_: Request, res: Response, next: NextFunction) => {
-  const a = getAllAnswers();
-  if (a) res.status(200).json(Array.from(a));
-  else next(error(500, 'Internal server error'));
+app.post('/api/set/form', (req: Request<Page>, res: Response, next: NextFunction) => {
+  const form = req.body;
+  try {
+    setForm(form);
+    res.sendStatus(204);
+  } catch (err) {
+    next(error(500, `Internal server error ${err}`));
+  }
 });
 
-app.get('/api/conditions/all', (_: Request, res: Response, next: NextFunction) => {
-  const a = '';
-  if (a) res.status(200).json(Array.from(a));
-  else next(error(500, 'Internal server error'));
+app.delete('/api/delete:formId', (req: Request<FormId>, res: Response): void => {
+  const id = req.params;
+  deleteForm(id);
+  res.sendStatus(204);
+});
+
+app.delete('/api/delete:pageId', (req: Request<PageId>, res: Response): void => {
+  const id = req.params;
+  deletePage(id);
+  res.sendStatus(204);
+});
+
+app.delete('/api/delete:division', (req: Request<DivisionId>, res: Response): void => {
+  const id = req.params;
+  deleteDivision(id);
+  res.sendStatus(204);
+});
+
+app.delete('/api/delete:entry', (req: Request<EntryId>, res: Response): void => {
+  const id = req.params;
+  deleteEntry(id);
+  res.sendStatus(204);
 });
 
 /** Error handeling */
-app.use(function (err: { status: HttpStatusCode; msg: string }, req: unknown, res: Response) {
-  console.log('THIS: ', res.status);
-  res?.status?.(err.status || 500);
-  res?.send?.({ error: err.msg });
+app.use(function (err: { status: HttpStatusCode; msg: string }, req: Request, res: Response, next: NextFunction) {
+  res.status(err.status || 500).send({ error: err.msg });
 });
 
 app.use(function (req, res: Response) {
-  res.send({ error: "Sorry, can't find that" });
+  console.warn(`[404] ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    error: 'Route not found',
+    method: req.method,
+    url: req.originalUrl,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.listen(port, () => {

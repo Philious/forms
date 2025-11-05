@@ -45,6 +45,8 @@ export type ValidatorsType = {
   composeAsync: (AsyncValidatorFn | null)[];
 };
 
+export type ValidatorMap = Map<keyof ValidatorsType, ValidatorsType[keyof ValidatorsType]>;
+
 export type NotNone = string | number | boolean | bigint | symbol | object | ((...args: unknown[]) => unknown);
 
 export type StrictNotNone<T> = 0 extends 1 & T
@@ -52,3 +54,26 @@ export type StrictNotNone<T> = 0 extends 1 & T
   : T extends null | undefined | void
     ? never
     : T;
+
+export type AndOr = 'and' | 'or' | 'xand' | 'xor';
+export type ConditionType = '==' | '!=';
+//| '<=' | '>=' | '<' | '>';
+export type ConditionTuplet = [ConditionType, unknown];
+
+export type LeafCondition<K extends string | number | symbol> = Readonly<[K, ConditionType, unknown]>;
+
+export type Conditions<K extends string | number | symbol> =
+  | LeafCondition<K>
+  | { and: Conditions<K>[] }
+  | { or: Conditions<K>[] }
+  | { xand: Conditions<K>[] }
+  | { xor: Conditions<K>[] };
+
+export type BaseEntry<I, K extends string | number | symbol> = {
+  id: I;
+  label: string;
+  initialValue: unknown;
+  shouldCount?: boolean;
+  validators: ValidatorMap;
+  displayConditions: Conditions<K>;
+};
