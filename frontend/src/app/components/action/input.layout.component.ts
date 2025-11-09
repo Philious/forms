@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, contentChild, ElementRef, input, signal } from '@angular/core';
+import { AfterViewInit, Component, contentChild, ElementRef, input, signal, viewChild } from '@angular/core';
 import { NgControl, ValidationErrors } from '@angular/forms';
 import { IconEnum, InputState } from '../../../helpers/enum';
 import { IconComponent } from '../icons/icon.component';
@@ -16,7 +16,10 @@ let uid = 0;
     '[class.sufix]': 'sufix()',
   },
   template: `
-    @let prefixIcon = prefix(); @let sufixIcon = sufix();
+    @let preText = prefix();
+    @let prefixIcon = isIcon(preText);
+    @let sufText = sufix();
+    @let sufixIcon = isIcon(sufText);
     <label class="label" [for]="id()">
       <ng-content select="label">
         {{ this.label() }}
@@ -25,10 +28,14 @@ let uid = 0;
     <div class="input-wrapper">
       @if (prefixIcon) {
         <icon class="prefix" [icon]="prefixIcon" />
+      } @else if (preText) {
+        <div class="prefix">{{ preText }}</div>
       }
       <ng-content #input />
       @if (sufixIcon) {
         <icon class="sufix" [icon]="sufixIcon" />
+      } @else if (sufText) {
+        <div class="sufix">{{ sufText }}</div>
       }
     </div>
 
@@ -48,6 +55,10 @@ let uid = 0;
       &[slim] {
         .input-wrapper {
           height: 2rem;
+        }
+        .prefix,
+        .sufix {
+          font-size: var(--txt-small);
         }
         .sufix {
           top: 0;
@@ -104,25 +115,32 @@ let uid = 0;
 })
 export class InputLayoutComponent implements AfterViewInit {
   protected InputState = InputState;
-  readonly ngControlRef = contentChild(NgControl);
+  private readonly ngControlRef = contentChild(NgControl);
+  private readonly viewChild = viewChild<ElementRef<HTMLInputElement>>('input');
 
   id = input(`input-${uid++}`);
   type = input<string>('text');
   helpText = input<string>('');
   label = input<string>('');
-  prefix = input<IconEnum>();
-  sufix = input<IconEnum>();
+  prefix = input<IconEnum | string>();
+  sufix = input<IconEnum | string>();
 
   error = signal<ValidationErrors | null>(null);
 
-  constructor(private readonly hostRef: ElementRef<HTMLElement>) {}
+  isIcon(fix: unknown) {
+    if (Object.values(IconEnum).find(v => v === fix)) {
+      return fix as IconEnum;
+    }
+    return null;
+  }
 
   ngAfterViewInit(): void {
-    const host = this.hostRef.nativeElement;
+    const host = this.viewChild;
+    console.log(host());
     this.ngControlRef()?.statusChanges?.subscribe(status => {
       this.error.set(status !== 'VALID' ? (this.ngControlRef()?.control?.errors ?? null) : null);
     });
 
-    if (host) host.querySelector('input')?.setAttribute('id', this.id());
+    // if (host) host.querySelector('input')?.setAttribute('id', this.id());
   }
 }

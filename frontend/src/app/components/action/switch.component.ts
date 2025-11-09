@@ -22,7 +22,11 @@ let uid = 0;
       height: 3rem;
       cursor: pointer;
       align-items: center;
+      &[flex] .label {
+        flex: 1;
+      }
       &[slim] {
+        height: 2rem;
         .switch {
           width: 1.25rem;
           height: 0.75rem;

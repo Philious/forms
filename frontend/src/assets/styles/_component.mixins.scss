@@ -33,11 +33,12 @@
   
   [slim] {
     min-height: auto;
-      & .input-wrapper,
-      .input {
-      height: 2rem;
-      }
-      .input-wrapper {
+    & .input-wrapper,
+    .input {
+    height: 2rem;
+    margin: 0;
+    }
+    .input-wrapper {
       .prefix + .input { padding-left: 2rem; }
       &:has(.sufix)  .input { padding-right: 2rem; }
       .prefix, .sufix {
@@ -93,4 +94,45 @@
   :where(.row) {
     display: flex;
   }
+
+  :where(.default-animation) {
+    max-height: 100px;
+
+    transition:
+      opacity 0.5s,
+      scale 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      translate 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .default-enter {
+    transform-origin: center bottom;
+    @starting-style {
+      
+      overflow: hidden;
+      opacity: 0;
+      scale: 1 0;
+      translate: 0 1rem;
+      max-height: 0;
+    }
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+      max-height: 100px;
+    }
+  
+    .default-leave {
+    transform-origin: center top;
+    @starting-style {
+      
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+      max-height: 100px;
+    }
+      opacity: 0;
+      scale: 1 0;
+      translate: 0 0;
+      max-height: 0;
+    }
+  
 }

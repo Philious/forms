@@ -134,3 +134,59 @@ export function svgCircleAsPath(cx: number, cy: number, r: number) {
         a${r},${r} 0 1,0${r * 2},0
         a${r},${r} 0 1,0-${r * 2},0`;
 }
+
+type EasingFunction = (t: number) => number;
+export function animateValue(
+  start: number,
+  end: number,
+  speed: number,
+  onUpdate: (value: number) => void,
+  easing: EasingFunction = (n: number) => n,
+  onResolve: (value: number) => void = (n: number) => n
+): Promise<void> {
+  console.log('animate', start, end, speed);
+  return new Promise(resolve => {
+    const diff = Math.abs(end - start);
+    const duration = diff / speed; // Convert to milliseconds
+    const startTime = performance.now();
+
+    function step(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easing(progress);
+      const currentValue = Math.round(start + (end - start) * easedProgress);
+
+      onUpdate(currentValue);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        console.log('resolve');
+        onUpdate(end);
+        onResolve(end);
+        resolve();
+      }
+    }
+
+    requestAnimationFrame(step);
+  });
+}
+
+export function delay(delayMs: number, callback: () => void) {
+  const stopTime = performance.now() + delayMs;
+  new Promise<void>(resolve => {
+    function step(now: number) {
+      if (stopTime > now) {
+        requestAnimationFrame(step);
+      } else {
+        callback();
+        resolve();
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+export function decimals(v: number, d: number) {
+  return Math.round(v * 10 ** d) / 10 ** d;
+}
