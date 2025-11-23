@@ -1,8 +1,8 @@
 export enum InputState {
   Default = 'default',
-  Disabled = 'disabled',
-  Ok = 'ok',
+  Warning = 'warning',
   Error = 'error',
+  Disabled = 'disabled',
 }
 
 export enum MainTabs {

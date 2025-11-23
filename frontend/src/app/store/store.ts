@@ -30,12 +30,12 @@ export class Store {
   currentEntry = signal<Entry | null>(null);
 
   setUser = (user: User | null) => {
-    console.log('User: ', this);
+    // console.log('User: ', this);
     this._user.set(user);
   };
 
   setData = (payload: All | null) => {
-    console.log('set data', payload);
+    // console.log('set data', payload);
     this._forms.set(payload?.forms ?? null);
     this._pages.set(payload?.pages ?? null);
     this._divisions.set(payload?.division ?? null);

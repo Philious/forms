@@ -9,7 +9,7 @@ import { LayoutComponent } from '../common/layout.component';
 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
-import { InputLayoutComponent } from 'src/app/components/action/input.layout.component';
+import { InputLayoutComponent } from 'src/app/components/action/input-layout/input.layout.component';
 import { TextFieldComponent } from 'src/app/components/action/textfield.component';
 import { ExtendedArray } from 'src/helpers/utils';
 import { AddSectionDialogComponent } from './addSectionDialog.component';
@@ -37,10 +37,10 @@ import { AddSectionDialogComponent } from './addSectionDialog.component';
         <icon-button [icon]="IconEnum.Play" />
       </span>
       <span content location>
-        <input-layout [label]="'Form'">
+        <input-layout [label]="'Form'" [control]="crtlGrp.controls.section">
           <drop-down slim [items]="formOptions()" slim [formControl]="crtlGrp.controls.section" />
         </input-layout>
-        <input-layout [label]="'Page'">
+        <input-layout [label]="'Page'" [control]="crtlGrp.controls.page">
           <drop-down slim [items]="pageOptions()" slim [formControl]="crtlGrp.controls.page" />
         </input-layout>
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />

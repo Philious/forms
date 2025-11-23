@@ -1,8 +1,9 @@
-import { Component, model } from '@angular/core';
+import { Component, model, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Entry, EntryId, ExtendedEntries } from '@cs-forms/shared';
+import { Entry, ExtendedEntries } from '@cs-forms/shared';
 import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
-import { TextFieldComponent } from 'src/app/components/action/textfield.component';
+import { TranslationInputComponent } from 'src/app/components/action/translationInput';
+import { TranslationLocale } from '../../../../assets/index';
 import { AnswersComponent } from './answers.component';
 import { ConditionsComponent } from './conditions.component';
 import { validatiorOptions } from './validation.static';
@@ -11,13 +12,13 @@ import { validatiorOptions } from './validation.static';
   selector: 'active-entry',
   template: `
     @let entry = this.entry();
-    <div>{{ entry ?? 'no entry' }}</div>
+    <div>{{ entry ? '' : 'no entry' }}</div>
     @if (entry) {
       <div class="entry-section" animate.enter="'enter'" animate.leave="'leave'">
         <h2 class="h2">Active entry</h2>
-        <text-field slim [label]="'Translation key'" [modelValue]="entry.id" (modelValueChange)="updateId($event)"> </text-field>
-        <text-field slim [label]="'Question'" [modelValue]="entry.label" (modelValueChange)="updateLabel($event)" />
+        <translation-input />
       </div>
+
       <div class="entry-section">
         <h2 class="h2">Answers</h2>
         <answers [entry]="entry" />
@@ -36,12 +37,7 @@ import { validatiorOptions } from './validation.static';
     :host {
       display: grid;
     }
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 4fr;
-      align-items: end;
-      gap: 1.5rem;
-    }
+
     .entry-section {
       display: grid;
       padding-block: 1.5rem;
@@ -62,21 +58,38 @@ import { validatiorOptions } from './validation.static';
         translate: 0 2rem;
       }
     }
+    .row {
+      gap: 0.5rem;
+    }
   `,
-  imports: [ReactiveFormsModule, FormsModule, AnswersComponent, ConditionsComponent, TextFieldComponent, DropdownComponent],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    AnswersComponent,
+    ConditionsComponent,
+    DropdownComponent,
+    ReactiveFormsModule,
+    FormsModule,
+    TranslationInputComponent,
+  ],
 })
 export class ActiveEntryComponent {
   entry = model<Entry | null>(null);
   validatiorOptions = validatiorOptions;
   ctrl = new FormControl<SelectorItem[]>([]);
+  activeLocale = signal<TranslationLocale>(TranslationLocale.SV_SE);
+  translations = signal<Record<TranslationLocale, string>>({
+    [TranslationLocale.SV_SE]: '',
+    [TranslationLocale.NB_NO]: '',
+    [TranslationLocale.EN_US]: '',
+    [TranslationLocale.SHOW_TRANSLATION_KEYS]: '',
+  });
+  langs = Object.values(TranslationLocale).map(l => ({ langShort: l.slice(0, 2), langLong: l }));
 
-  updateId(id: EntryId) {
-    this.entry.update(e => {
-      if (!e) return e;
-      e.id = id;
-      return e;
-    });
+  setActiveLang(lang: TranslationLocale) {
+    this.activeLocale.set(lang);
   }
+
   updateType(type: ExtendedEntries) {
     this.entry.update(e => {
       if (!e) return e;
@@ -84,11 +97,11 @@ export class ActiveEntryComponent {
       return e;
     });
   }
-  updateLabel(label: string) {
-    this.entry.update(e => {
-      if (!e) return e;
-      e.label = label;
-      return e;
+  updateTranslation(translation: string, locale: TranslationLocale) {
+    console.log(translation, locale);
+    this.translations.update(t => {
+      t[locale] = translation;
+      return t;
     });
   }
 }

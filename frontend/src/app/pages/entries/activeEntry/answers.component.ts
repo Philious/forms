@@ -1,19 +1,17 @@
 import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, model, ModelSignal, signal } from '@angular/core';
+import { Component, model, ModelSignal, Pipe, PipeTransform, signal } from '@angular/core';
 import { FormRecord, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Entry, EntryTypeEnum } from '@cs-forms/shared';
-import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
-import { InputLayoutComponent } from 'src/app/components/action/input.layout.component';
+import { InputLayoutComponent } from 'src/app/components/action/input-layout/input.layout.component';
+import { TranslationInputComponent } from 'src/app/components/action/translationInput';
 import { IconComponent } from 'src/app/components/icons/icon.component';
-import { ControlListComponent } from 'src/app/components/reorerableFormFieldList.component';
 import { v4 as uid } from 'uuid';
 import { ButtonStyleEnum, IconEnum } from '../../../../helpers/enum';
 import { DropdownComponent, SelectorItem } from '../../../components/action/dropdown.component';
 import { BarometerComponent } from './barometer.component';
 import { SelectorEntryComponent } from './selectorEntry.component';
 
-import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
   name: 'toggle',
 })
@@ -37,12 +35,10 @@ type TranslationKeyPair = { id: string; translationKey: string; translation: str
     DropdownComponent,
     DialogModule,
     BarometerComponent,
-    ControlListComponent,
     InputLayoutComponent,
     SelectorEntryComponent,
-    IconButtonComponent,
     IconComponent,
-    Toggle,
+    TranslationInputComponent,
   ],
   template: `
     <span>
@@ -61,18 +57,7 @@ type TranslationKeyPair = { id: string; translationKey: string; translation: str
         @for (pair of groupValues(); track pair.id) {
           <li class="trans-trans-key">
             <icon class="drag-icon" [icon]="IconEnum.Drag" />
-            <input-layout class="key-input" slim>
-              <span class="toggling-label" ngProjectAs="label">
-                <span class="static-label">{{ pair.keyActive ? 'Key' : 'Translation' }}</span>
-                <span class="toggled-label">
-                  {{ pair.keyActive ? pair.translation : pair.translationKey }}
-                </span>
-                <button class="toggle-btn" btn (click)="pair.keyActive = !pair.keyActive">
-                  <icon class="toggle-icon" [icon]="IconEnum.Toggle" />
-                </button>
-              </span>
-              <input base-input input slim [value]="pair.keyActive ? pair.translationKey : pair.translation" (input)="updateInput($event, pair)" />
-            </input-layout>
+            <translation-input />
             <button class="remove-btn icn-btn" btn slim (click)="removeGroupEntry(pair.id)">
               <icon [icon]="IconEnum.Remove" />
             </button>

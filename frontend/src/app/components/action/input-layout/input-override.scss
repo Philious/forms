@@ -1,0 +1,20 @@
+
+::ng-deep {
+  select,
+  input {
+      position: absolute;
+      inset: 0;
+      appearance: none;
+      border: none;
+      background-color: transparent;
+      padding: 0.75rem;
+      font-size: 13px;
+      font-weight: 600;
+      &.sufix input {
+        padding-right: var(--input-height);
+      }
+      &[disabled] {
+        cursor: not-allowed;
+      }
+    }
+  }

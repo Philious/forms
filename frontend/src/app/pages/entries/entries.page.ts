@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Entry, Option } from '@cs-forms/shared';
 import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
 import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
-import { InputLayoutComponent } from 'src/app/components/action/input.layout.component';
+import { InputLayoutComponent } from 'src/app/components/action/input-layout/input.layout.component';
 import { SwitchComponent } from 'src/app/components/action/switch.component';
 import { TextFieldComponent } from 'src/app/components/action/textfield.component';
 import { ContextMenuComponent } from 'src/app/components/modals/contextMenu.component';
@@ -41,13 +41,13 @@ import { ActiveEntryComponent } from './activeEntry/activeEntry.component';
       </context-menu>
     </span>
     <span content location>
-      <input-layout slim [label]="'Form'" [sufix]="IconEnum.Down">
+      <input-layout slim [label]="'Form'" [sufix]="IconEnum.Down" [control]="crtlGrp.controls.section">
         <drop-down [items]="formOptions" slim [formControl]="crtlGrp.controls.section" [multiSelect]="false" />
       </input-layout>
-      <input-layout slim [label]="'Page'" [sufix]="IconEnum.Down">
+      <input-layout slim [label]="'Page'" [sufix]="IconEnum.Down" [control]="crtlGrp.controls.section">
         <drop-down [items]="pageOptions" slim [formControl]="crtlGrp.controls.section" [multiSelect]="false" />
       </input-layout>
-      <input-layout slim [label]="'Section'" [sufix]="IconEnum.Down">
+      <input-layout slim [label]="'Section'" [sufix]="IconEnum.Down" [control]="crtlGrp.controls.section">
         <drop-down [items]="sectionOptions" slim [formControl]="crtlGrp.controls.section" [multiSelect]="false" />
       </input-layout>
       <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />

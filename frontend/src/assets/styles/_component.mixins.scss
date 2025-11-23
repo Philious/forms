@@ -14,11 +14,12 @@
   :where([input]) {
     box-sizing: border-box;
     height: 2.5rem;
+    border-radius: 0.25rem;
     background-color: var(--input-bg-clr);
     color: var(--input-clr);
     padding: 0 1rem;
     transition: background-color .25s, border-color .25s;
-
+    border: none;
     &:hover {
       background-color: var(--input-bg-clr-hover);
       border-color: var(--input-border-hover);
@@ -97,7 +98,6 @@
 
   :where(.default-animation) {
     max-height: 100px;
-
     transition:
       opacity 0.5s,
       scale 0.5s cubic-bezier(0.22, 1, 0.36, 1),
@@ -106,33 +106,30 @@
   }
   .default-enter {
     transform-origin: center bottom;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    max-height: 100px;
     @starting-style {
-      
       overflow: hidden;
       opacity: 0;
       scale: 1 0;
       translate: 0 1rem;
       max-height: 0;
     }
-      opacity: 1;
-      scale: 1;
-      translate: 0 0;
-      max-height: 100px;
-    }
-  
-    .default-leave {
+  }
+    
+  .default-leave {
     transform-origin: center top;
+    opacity: 0;
+    scale: 1 0;
+    translate: 0 0;
+    max-height: 0;
     @starting-style {
-      
       opacity: 1;
       scale: 1;
       translate: 0 0;
       max-height: 100px;
     }
-      opacity: 0;
-      scale: 1 0;
-      translate: 0 0;
-      max-height: 0;
-    }
-  
+  }
 }

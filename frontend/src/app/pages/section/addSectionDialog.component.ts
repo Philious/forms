@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputLayoutComponent } from '../../components/action/input.layout.component';
+import { InputLayoutComponent } from '../../components/action/input-layout/input.layout.component';
 import { TextButtonComponent } from '../../components/action/textButton.component';
 import { DialogLayoutComponent } from '../../components/modals/dialogLayout.component';
 
@@ -17,7 +17,7 @@ type AddSectionDialogData = {
   template: ` <dialog-layout>
     <ng-content dialog-title>Title</ng-content>
     <ng-content dialog-content>
-      <input-layout [label]="'Name'">
+      <input-layout [label]="'Name'" [control]="sectionNameControl">
         <input [formControl]="sectionNameControl" input />
       </input-layout>
     </ng-content>

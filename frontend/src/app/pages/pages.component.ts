@@ -5,7 +5,7 @@ import { IconEnum } from 'src/helpers/enum';
 import { ExtendedArray } from 'src/helpers/utils';
 import { DropdownComponent, SelectorItem } from '../components/action/dropdown.component';
 import { IconButtonComponent } from '../components/action/iconButton.component';
-import { InputLayoutComponent } from '../components/action/input.layout.component';
+import { InputLayoutComponent } from '../components/action/input-layout/input.layout.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { LayoutComponent } from './common/layout.component';
@@ -31,7 +31,7 @@ import { LayoutComponent } from './common/layout.component';
       </context-menu>
     </span>
     <span content location>
-      <input-layout [label]="'Form'">
+      <input-layout [label]="'Form'" [control]="crtlGrp.controls.section">
         <drop-down slim [items]="formOptions()" slim [formControl]="crtlGrp.controls.section" [multiSelect]="false" />
       </input-layout>
       <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />

@@ -5,9 +5,9 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { Language } from '../../../helpers/enum';
 import { FormTranslation, LanguageSet } from '../../../helpers/translationTypes';
 import { TranslationService } from '../../../services/translation.service';
-import { InputLayoutComponent } from '../../components/action/input.layout.component';
 import { TextButtonComponent } from '../../components/action/textButton.component';
 import { DialogLayoutComponent } from '../../components/modals/dialogLayout.component';
+import { InputLayoutComponent } from '../action/input-layout/input.layout.component';
 
 @Component({
   selector: 'manage-question-dialog',

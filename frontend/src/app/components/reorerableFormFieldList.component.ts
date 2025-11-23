@@ -3,7 +3,7 @@ import { Component, input, linkedSignal } from '@angular/core';
 import { FormControl, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { IconEnum } from 'src/helpers/enum';
 import { IconButtonComponent } from './action/iconButton.component';
-import { InputLayoutComponent } from './action/input.layout.component';
+import { InputLayoutComponent } from './action/input-layout/input.layout.component';
 import { IconComponent } from './icons/icon.component';
 
 @Component({

@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
 import { FormTranslationGroup } from '../../../helpers/translationTypes';
-import { InputLayoutComponent } from '../../components/action/input.layout.component';
+import { InputLayoutComponent } from '../action/input-layout/input.layout.component';
 
 @Component({
   selector: 'translation-set',
