@@ -25,7 +25,7 @@
   &.disabled {
     opacity: .75;
   }
-  [slim] {
+  &[slim] {
     --height-input: var(--height-input-slim);
     .input-container {
       height: var(--height-input);
