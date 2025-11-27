@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "check-typescript": "tsc --noEmit",
-    "update:shared": "npm install ../packages/shared?v=1.0.6"
+    "update:shared": "npm install ../packages/shared?v=1.0.6",
+    "build:sw": "tsc -p tsconfig.sw.json"
   },
   "private": true,
   "dependencies": {

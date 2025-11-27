@@ -4,7 +4,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": ".",
     "paths": {
       "@cs-forms/shared": ["../../packages/shared"]
     },
@@ -28,5 +27,6 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "exclude": ["src/service-worker/sw.ts", "node_modules"]
 }
