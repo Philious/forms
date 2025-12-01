@@ -1,6 +1,6 @@
 import { Component, model, signal } from '@angular/core';
-import { TranslationLocale } from 'src/assets';
-import { InputLayoutComponent } from './input-layout/input.layout.component';
+import { InputLayoutComponent } from '@app/app/components/action/input-layout/input.layout.component';
+import { TranslationLocale } from '@app/assets';
 
 @Component({
   selector: 'translation-input',

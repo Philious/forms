@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { svgCircleAsPath } from 'src/helpers/utils';
+import { svgCircleAsPath } from '@app/helpers/utils';
 
 @Component({
   selector: 'search-icon',

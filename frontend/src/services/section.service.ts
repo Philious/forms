@@ -1,9 +1,9 @@
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { AnswerResource } from '@app/resources/answerResource';
+import { QuestionResource } from '@app/resources/questionResource';
+import { SectionResource } from '@app/resources/sectionResource';
 import { EntryTypeEnum, Question, QuestionId, Section, SectionId } from '@cs-forms/shared';
-import { AnswerResource } from 'src/resources/answerResource';
-import { QuestionResource } from 'src/resources/questionResource';
-import { SectionResource } from 'src/resources/sectionResource';
 import { v4 as uid } from 'uuid';
 import { currentQuestionPayload, replaceKeyInObject, updateKeyInObject } from './utils';
 

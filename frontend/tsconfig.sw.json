@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "WebWorker"],
     "skipLibCheck": true,
-    "lib": ["ES2020", "WebWorker"],
-    "strict": true,
-    "outDir": "src/service-worker",
-    "isolatedModules": false
+    "strict": true
   },
-  "include": ["src/service-worker/sw.ts"],
-  "exclude": ["node_modules"]
+  "include": ["./src/service-worker/sw.ts"]
 }

@@ -1,5 +1,5 @@
-import { SelectorItem } from 'src/app/components/action/dropdown.component';
-import { ValidatorsType } from 'src/helpers/types';
+import { SelectorItem } from '@app/app/components/action/dropdown.component';
+import { ValidatorsType } from '@app/helpers/types';
 
 export const validatiorOptions: SelectorItem<keyof ValidatorsType>[] = [
   { label: 'Minimum', id: 'min' },

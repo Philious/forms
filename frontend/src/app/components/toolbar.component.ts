@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, model, output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SectionService } from 'src/services/section.service';
+import { SectionService } from '@app/services/section.service';
 import { TextButtonComponent } from './action/textButton.component';
 
 @Component({

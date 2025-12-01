@@ -3,30 +3,23 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist",
-    "paths": {
-      "@cs-forms/shared": ["../../packages/shared"]
-    },
     "strict": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
-    "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022",
+    "paths": {
+      "@app/*": ["./src/*"],
+      "@cs-forms/shared": ["../packages/shared/src/*"]
+    }
   },
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  },
-  "exclude": ["src/service-worker/sw.ts", "node_modules"]
+  }
 }

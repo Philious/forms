@@ -5,7 +5,7 @@ import { ApiService } from './services/api.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  template: ` <router-outlet /> `,
+  template: ` <router-outlet />`,
 })
 export class AppComponent {
   constructor(apiService: ApiService) {

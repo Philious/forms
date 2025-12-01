@@ -1,7 +1,7 @@
 import { JsonPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
+import { IconEnum } from '@app/helpers/enum';
 import { Option } from '@cs-forms/shared';
-import { IconEnum } from 'src/helpers/enum';
 import { IconButtonComponent } from '../components/action/iconButton.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';

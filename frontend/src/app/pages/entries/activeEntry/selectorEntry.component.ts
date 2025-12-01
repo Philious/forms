@@ -2,11 +2,11 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, linkedSignal, model, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
+import { SwitchComponent } from '@app/app/components/action/switch.component';
+import { TextFieldComponent } from '@app/app/components/action/textfield.component';
+import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
 import { Entry, EntryTypeEnum } from '@cs-forms/shared';
-import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
-import { SwitchComponent } from 'src/app/components/action/switch.component';
-import { TextFieldComponent } from 'src/app/components/action/textfield.component';
-import { ButtonStyleEnum, IconEnum } from 'src/helpers/enum';
 import { v4 as uid } from 'uuid';
 
 @Component({

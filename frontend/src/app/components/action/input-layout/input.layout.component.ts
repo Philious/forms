@@ -1,16 +1,15 @@
-import { JsonPipe } from '@angular/common';
 import { AfterContentInit, ChangeDetectionStrategy, Component, computed, input, OnInit, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { IconEnum } from '../../../../helpers/enum';
-import { IconComponent } from '../../icons/icon.component';
-import { ErrorMessages } from './input.types';
-import { errorMessages } from './input.utils';
+import { ErrorMessages } from '@app/app/components/action/input-layout/input.types';
+import { errorMessages } from '@app/app/components/action/input-layout/input.utils';
+import { IconComponent } from '@app/app/components/icons/icon.component';
+import { IconEnum } from '@app/helpers/enum';
 
 let uid = 0;
 
 @Component({
   selector: 'input-layout',
-  imports: [IconComponent, JsonPipe],
+  imports: [IconComponent],
   host: {
     class: 'input-layout',
     '[class]': '[type()]',

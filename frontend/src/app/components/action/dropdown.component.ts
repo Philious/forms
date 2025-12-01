@@ -3,7 +3,7 @@ import { CdkConnectedOverlay, ConnectedPosition } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, forwardRef, input, model, signal, viewChild } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { array } from 'src/helpers/utils';
+import { array } from '@app/helpers/utils';
 import { IconEnum } from '../../../helpers/enum';
 import { CheckboxComponent } from './checkbox.component';
 

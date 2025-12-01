@@ -1,7 +1,7 @@
 import { Component, computed, model, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { genSound, percentToDecibels, playTone } from 'src/helpers/audio.utils';
-import { animateValue, decimals } from 'src/helpers/utils';
+import { genSound, percentToDecibels, playTone } from '@app/helpers/audio.utils';
+import { animateValue, decimals } from '@app/helpers/utils';
 import { InputLayoutComponent } from '../components/action/input-layout/input.layout.component';
 import { SwitchComponent } from '../components/action/switch.component';
 

@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { extendedArray, ExtendedArray } from '@app/helpers/utils';
 import { Section, SectionId } from '@cs-forms/shared';
-import { extendedArray, ExtendedArray } from 'src/helpers/utils';
 import { SectionService } from '../../../services/section.service';
 import { DropdownComponent, SelectorItem } from '../../components/action/dropdown.component';
 import { TextFieldComponent } from '../../components/action/textfield.component';

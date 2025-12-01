@@ -2,7 +2,7 @@ import { Component, model } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { JsonPipe } from '@angular/common';
-import { IconEnum } from 'src/helpers/enum';
+import { IconEnum } from '@app/helpers/enum';
 import { InputLayoutComponent } from '../components/action/input-layout/input.layout.component';
 import { minLength } from '../components/action/input-layout/input.utils';
 

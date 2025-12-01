@@ -2,9 +2,9 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, input, model } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
+import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
 
-import { ButtonStyleEnum, IconEnum } from 'src/helpers/enum';
+import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
 
 @Component({
   imports: [CommonModule, ReactiveFormsModule, FormsModule, IconButtonComponent, DialogModule],

@@ -1,6 +1,6 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconEnum } from 'src/helpers/enum';
+import { IconEnum } from '@app/helpers/enum';
 import { IconComponent } from '../icons/icon.component';
 
 let uid = 0;

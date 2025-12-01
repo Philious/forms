@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, model, output, signal } from '@angular/core';
-import { IconEnum } from 'src/helpers/enum';
+import { IconEnum } from '@app/helpers/enum';
 import { IconComponent } from './icons/icon.component';
 
 @Component({

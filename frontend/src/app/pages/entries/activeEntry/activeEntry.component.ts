@@ -1,8 +1,8 @@
 import { Component, model, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DropdownComponent, SelectorItem } from '@app/app/components/action/dropdown.component';
+import { TranslationInputComponent } from '@app/app/components/action/translationInput';
 import { Entry, ExtendedEntries } from '@cs-forms/shared';
-import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
-import { TranslationInputComponent } from 'src/app/components/action/translationInput';
 import { TranslationLocale } from '../../../../assets/index';
 import { AnswersComponent } from './answers.component';
 import { ConditionsComponent } from './conditions.component';

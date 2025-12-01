@@ -1,7 +1,7 @@
 /*
 import { computed, effect, Injectable, signal } from '@angular/core';
 import { Question, QuestionId, Section, SectionId } from '@cs-forms/shared';
-import { replaceKeyInObject, updateKeyInObject } from 'src/services/utils';
+import { replaceKeyInObject, updateKeyInObject } from '@app/services/utils';
 
 @Injectable({ providedIn: 'root' })
 export class CurrentStore {

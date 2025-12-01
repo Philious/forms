@@ -1,7 +1,7 @@
+import { environment } from './environments/environment';
+
 export function registerCustomServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/custom-sw/custom-sw.js', {
-      scope: '/custom-sw/',
-    });
+    navigator.serviceWorker.register(environment.serviceWorkerURL);
   }
 }

@@ -1,17 +1,17 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { Component, inject, signal } from '@angular/core';
-import { IconButtonComponent } from 'src/app/components/action/iconButton.component';
-import { ContextMenuComponent } from 'src/app/components/modals/contextMenu.component';
-import { IconEnum } from 'src/helpers/enum';
-import { SectionService } from 'src/services/section.service';
+import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
+import { ContextMenuComponent } from '@app/app/components/modals/contextMenu.component';
+import { IconEnum } from '@app/helpers/enum';
+import { SectionService } from '@app/services/section.service';
 import { Option } from '../../../helpers/types';
 import { LayoutComponent } from '../common/layout.component';
 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { DropdownComponent, SelectorItem } from 'src/app/components/action/dropdown.component';
-import { InputLayoutComponent } from 'src/app/components/action/input-layout/input.layout.component';
-import { TextFieldComponent } from 'src/app/components/action/textfield.component';
-import { ExtendedArray } from 'src/helpers/utils';
+import { DropdownComponent, SelectorItem } from '@app/app/components/action/dropdown.component';
+import { InputLayoutComponent } from '@app/app/components/action/input-layout/input.layout.component';
+import { TextFieldComponent } from '@app/app/components/action/textfield.component';
+import { ExtendedArray } from '@app/helpers/utils';
 import { AddSectionDialogComponent } from './addSectionDialog.component';
 
 @Component({
