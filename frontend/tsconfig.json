@@ -13,8 +13,8 @@
     "target": "ES2022",
     "module": "ES2022",
     "paths": {
-      "@app/*": ["./src/*"],
-      "@cs-forms/shared": ["../packages/shared/src/*"]
+      "@src/*": ["./src/*"],
+      "@app/*": ["./src/app/*"]
     }
   },
   "angularCompilerOptions": {

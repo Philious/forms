@@ -2,12 +2,11 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, linkedSignal, model, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
-import { SwitchComponent } from '@app/app/components/action/switch.component';
-import { TextFieldComponent } from '@app/app/components/action/textfield.component';
-import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
 import { Entry, EntryTypeEnum } from '@cs-forms/shared';
-import { v4 as uid } from 'uuid';
+import { IconButtonComponent } from '@src/app/components/action/icon-button.component';
+import { SwitchComponent } from '@src/app/components/action/switch.component';
+import { TextFieldComponent } from '@src/app/components/action/textfield.component';
+import { ButtonStyleEnum, IconEnum } from '@src/helpers/enum';
 
 @Component({
   imports: [CommonModule, ReactiveFormsModule, FormsModule, IconButtonComponent, TextFieldComponent, DialogModule, SwitchComponent],
@@ -44,12 +43,13 @@ export class SelectorEntryComponent {
 
   options = linkedSignal<{ label: WritableSignal<string>; value: WritableSignal<string> }[] | null>(() => {
     const props = this.props();
-    return props ? props.options.map(o => ({ label: signal<string>(o.label), value: signal<string>(o.value) })) : null;
+    console.log(props ? props.options : 'no options');
+    return props ? props.options.map(o => ({ label: signal<string>('o.label'), value: signal<string>(o.value) })) : null;
   });
 
   protected add() {
     this.props.update(p => {
-      p?.options.push({ label: 'item-' + p.options.length, value: uid() });
+      // p?.options.push({ label: 'item-' + p.options.length, value: uid() });
 
       return p;
     });

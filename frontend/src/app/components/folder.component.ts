@@ -6,7 +6,7 @@ import { TranslationKey, TranslationTree } from '../../helpers/translationTypes'
 import { TranslationService } from '../../services/translation.service';
 import { AddTranslationKeyDialogLayoutComponent } from '../pages/questions/addTranslationKeyDialog.component';
 import { TranslationSetComponent } from '../pages/questions/questionItem.component';
-import { IconButtonComponent } from './action/iconButton.component';
+import { IconButtonComponent } from './action/icon-button.component';
 import { FolderComponent as DuplicateFoldComponent } from './folder.component';
 import { IconComponent } from './icons/icon.component';
 

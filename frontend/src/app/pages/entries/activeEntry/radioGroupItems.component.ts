@@ -2,10 +2,10 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { AfterContentInit, Component, input, output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
-import { TextFieldComponent } from '@app/app/components/action/textfield.component';
-import { TranslationInputComponent } from '@app/app/components/action/translationInput';
-import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
+import { IconButtonComponent } from '@src/app/components/action/icon-button.component';
+import { TextFieldComponent } from '@src/app/components/action/textfield.component';
+import { TranslationInputComponent } from '@src/app/components/action/translation-input';
+import { ButtonStyleEnum, IconEnum } from '@src/helpers/enum';
 
 @Component({
   imports: [CommonModule, ReactiveFormsModule, FormsModule, IconButtonComponent, TextFieldComponent, DialogModule, TranslationInputComponent],

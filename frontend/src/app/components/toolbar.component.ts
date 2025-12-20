@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, model, output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SectionService } from '@app/services/section.service';
-import { TextButtonComponent } from './action/textButton.component';
+import { SectionService } from '@src/services/section.service';
+import { TextButtonComponent } from './action/base-button.component';
 
 @Component({
   selector: 'tool-bar',

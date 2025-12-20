@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { Entrey, TranslationSet } from '@app/app/components/questionsTree/types';
+import { Entrey, TranslationSet } from '@src/app/components/questionsTree/types';
 import { Language } from './enum';
 import {
   AllTranslationsObject,

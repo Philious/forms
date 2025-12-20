@@ -1,4 +1,4 @@
-import { EntryTypeEnum } from './types';
+import { EntryTypeEnum } from './types.js';
 
 // expands object types one level deep
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
@@ -6,47 +6,57 @@ export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 // expands object types recursively
 export type ExpandRecursively<T> = T extends object ? (T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never) : T;
 
+export enum Locale {
+  EN = 'en-US',
+  NB = 'nb-NO',
+  SE = 'sv-SE',
+  XX = 'translationKey',
+}
+
+export type Translation = Record<Locale, string>;
+
 export type FormId = string;
 export type PageId = string;
 export type DivisionId = string;
 export type EntryId = string;
 export type TextType = 'h2' | 'h3' | 'h4' | 'paragraph';
 
-export type Form<T extends 'id' | 'map' = 'id'> = {
+export type Form<T extends 'set' | 'array' = 'array'> = {
   id: FormId;
-  header?: string;
-  pages: Set<PageId>;
-  divisions: Set<DivisionId>;
-  entries: T extends 'id' ? Set<EntryId> : T extends 'map' ? Map<EntryId, Entry> : never;
+  header: Translation;
+  pages: T extends 'set' ? Set<PageId> : Array<PageId>;
+  divisions: T extends 'set' ? Set<DivisionId> : Array<DivisionId>;
+  entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
   updated: number;
 };
 
-export type Page<T extends 'id' | 'map' = 'id'> = {
+export type Page<T extends 'set' | 'array' = 'array'> = {
   id: PageId;
-  header?: string;
-  divisions: Set<DivisionId>;
-  entries: T extends 'id' ? Set<EntryId> : T extends 'map' ? Map<EntryId, Entry> : never;
+  header: Translation;
+  divisions: T extends 'set' ? Set<DivisionId> : Array<DivisionId>;
+  entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
   updated: number;
 };
 
-export type Division<T extends 'id' | 'map' = 'id'> = {
+export type Division<T extends 'set' | 'array' = 'array'> = {
   id: DivisionId;
-  header?: string;
-  entries: T extends 'id' ? Set<EntryId> : T extends 'map' ? Map<EntryId, Entry> : never;
+  header: Translation;
+  entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
   updated: number;
 };
 
 // #region Entry
 export type ExtendedEntries = Expand<EntryTypeEnum>;
-export type Entry<T extends ExtendedEntries = ExtendedEntries> = {
+export type Entry<T extends EntryTypeEnum = EntryTypeEnum> = {
   id: EntryId;
   type: T;
-  label: string;
+  translations: Translation;
   updated: number;
   group?: EntryId[];
+  entrySpecific: Settings<T>;
   validation?: boolean;
   condition?: Condition | ExtendedCondition;
-} & Settings<T>;
+};
 
 export type Barometer = Entry<EntryTypeEnum.Barometer>;
 export type Text = Entry<EntryTypeEnum.Text>;
@@ -54,7 +64,6 @@ export type Number = Entry<EntryTypeEnum.Number>;
 export type Date = Entry<EntryTypeEnum.Date>;
 export type TextArea = Entry<EntryTypeEnum.Textarea>;
 export type Selector = Entry<EntryTypeEnum.Selector>;
-export type Check = Entry<EntryTypeEnum.Checkbox>;
 export type CheckGroup = Entry<EntryTypeEnum.CheckboxGroup>;
 export type RadioGroup = Entry<EntryTypeEnum.RadioGroup>;
 export type Texts = Entry<EntryTypeEnum.TextString>;
@@ -91,12 +100,13 @@ export type SelectorSettings = {
   multiselect?: boolean;
 };
 
-export type CheckSettings = {
-  option: Option;
+export type Check = {
+  translation: Translation;
+  selected: boolean;
 };
 
 export type CheckGroupSettings = {
-  value: string;
+  selected: string[];
   checks: Check[];
 };
 
@@ -104,8 +114,9 @@ export type RadioGroupSettings = {
   selected: string;
   options: Option[];
 };
+
 export type TextStringSettings = {
-  variatiion?: TextType;
+  typographyType?: TextType;
 };
 
 export type Settings<T extends EntryTypeEnum> = T extends 'barometer'
@@ -120,8 +131,6 @@ export type Settings<T extends EntryTypeEnum> = T extends 'barometer'
   ? TextAreaSettings
   : T extends EntryTypeEnum.Selector
   ? SelectorSettings
-  : T extends EntryTypeEnum.Checkbox
-  ? CheckSettings
   : T extends EntryTypeEnum.CheckboxGroup
   ? CheckGroupSettings
   : T extends EntryTypeEnum.RadioGroup

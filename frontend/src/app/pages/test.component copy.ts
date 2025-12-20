@@ -1,8 +1,8 @@
 import { Component, computed, model, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { genSound, percentToDecibels, playTone } from '@app/helpers/audio.utils';
-import { animateValue, decimals } from '@app/helpers/utils';
-import { InputLayoutComponent } from '../components/action/input-layout/input.layout.component';
+import { genSound, percentToDecibels, playTone } from '@src/helpers/audio.utils';
+import { animateValue, decimals } from '@src/helpers/utils';
+import { ControlInputLayoutComponent } from '../components/action/input-layout/controls-input.layout.component';
 import { SwitchComponent } from '../components/action/switch.component';
 
 const frqs = [250, 500, 1000, 2000, 4000, 8000];
@@ -10,7 +10,7 @@ const animationSpeed = 10;
 
 @Component({
   selector: 'test-page',
-  imports: [FormsModule, SwitchComponent, InputLayoutComponent],
+  imports: [FormsModule, SwitchComponent, ControlInputLayoutComponent],
   template: `
     <div class="container">
       <form class="radio-group control group-layout pan">
@@ -26,7 +26,7 @@ const animationSpeed = 10;
               <switch slim flex [label]="'Set max decibels'" [(active)]="useDecibels" />
             </div>
             @if (useDecibels()) {
-              <input-layout
+              <control-input-layout
                 animate.enter="default-enter"
                 animate.leave="default-leave"
                 slim
@@ -35,7 +35,7 @@ const animationSpeed = 10;
                 [sufix]="'dB'"
               >
                 <input slim type="number" min="0" max="90" step="1" [(ngModel)]="maxdB" />
-              </input-layout>
+              </control-input-layout>
             }
           </div>
         </div>

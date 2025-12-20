@@ -2,12 +2,12 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, model, output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Language } from '../../../helpers/enum';
+import { Locale } from '../../../helpers/enum';
 import { FormTranslation, LanguageSet } from '../../../helpers/translationTypes';
 import { TranslationService } from '../../../services/translation.service';
-import { TextButtonComponent } from '../../components/action/textButton.component';
 import { DialogLayoutComponent } from '../../components/modals/dialogLayout.component';
-import { InputLayoutComponent } from '../action/input-layout/input.layout.component';
+import { TextButtonComponent } from '../action/base-button.component';
+import { ControlInputLayoutComponent } from '../action/input-layout/controls-input.layout.component';
 
 @Component({
   selector: 'manage-question-dialog',
@@ -20,19 +20,19 @@ import { InputLayoutComponent } from '../action/input-layout/input.layout.compon
         {{ false ? 'Update tranlation' : 'New translation' }}
       </div>
       <div class="content" slot="content">
-        <input-layout [label]="'Translation id'">
+        <control-input-layout [label]="'Translation id'">
           <input type="text" [(ngModel)]="modelValue" list="languages" />
           <datalist id="languages">
             @for (path of dataList(); track path) {
               <option [value]="path"></option>
             }
           </datalist>
-        </input-layout>
+        </control-input-layout>
         <div class="content" [formGroup]="langFormGroup">
           @for (trans of langFormGroup.controls | keyvalue; track trans) {
-            <input-layout [label]="trans.key">
+            <control-input-layout [label]="trans.key">
               <input type="text" [formControlName]="trans.key" />
-            </input-layout>
+            </control-input-layout>
           }
         </div>
       </div>
@@ -42,7 +42,7 @@ import { InputLayoutComponent } from '../action/input-layout/input.layout.compon
       </div>
     </dialog-layout>
   `,
-  imports: [TextButtonComponent, InputLayoutComponent, DialogLayoutComponent, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [TextButtonComponent, ControlInputLayoutComponent, DialogLayoutComponent, CommonModule, FormsModule, ReactiveFormsModule],
   styles: `
     :host {
       padding: 1.5rem;
@@ -69,7 +69,7 @@ export class AddTranslationKeyDialogLayoutComponent {
   langFormGroup: FormGroup<FormTranslation>;
 
   constructor() {
-    const langSet = Object.values(Language).reduce((acc, lang) => {
+    const langSet = Object.values(Locale).reduce((acc, lang) => {
       return { ...acc, [lang]: new FormControl('') };
     }, {} as FormTranslation);
     this.langFormGroup = new FormGroup(langSet);

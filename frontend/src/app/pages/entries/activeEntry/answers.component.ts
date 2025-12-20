@@ -1,16 +1,17 @@
 import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, model, ModelSignal, Pipe, PipeTransform, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, linkedSignal, model, Pipe, PipeTransform, signal } from '@angular/core';
 import { FormRecord, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputLayoutComponent } from '@app/app/components/action/input-layout/input.layout.component';
-import { TranslationInputComponent } from '@app/app/components/action/translationInput';
-import { IconComponent } from '@app/app/components/icons/icon.component';
-import { Entry, EntryTypeEnum } from '@cs-forms/shared';
+import { EntryTypeEnum, Settings } from '@cs-forms/shared';
+import { addIds } from '@src/app/components/action/dropdown.utils';
+import { ControlInputLayoutComponent } from '@src/app/components/action/input-layout/controls-input.layout.component';
+import { TranslationInputComponent } from '@src/app/components/action/translation-input';
+import { IconComponent } from '@src/app/components/icons/icon.component';
 import { v4 as uid } from 'uuid';
 import { ButtonStyleEnum, IconEnum } from '../../../../helpers/enum';
-import { DropdownComponent, SelectorItem } from '../../../components/action/dropdown.component';
+import { DropdownComponent, SelectorItemWithId } from '../../../components/action/dropdown.component';
+import { PartialEntry } from '../entries.page';
 import { BarometerComponent } from './barometer.component';
-import { SelectorEntryComponent } from './selectorEntry.component';
 
 @Pipe({
   name: 'toggle',
@@ -35,24 +36,23 @@ type TranslationKeyPair = { id: string; translationKey: string; translation: str
     DropdownComponent,
     DialogModule,
     BarometerComponent,
-    InputLayoutComponent,
-    SelectorEntryComponent,
+    ControlInputLayoutComponent,
     IconComponent,
     TranslationInputComponent,
   ],
   template: `
     <span>
-      <input-layout slim [label]="'Answer type'" [sufix]="IconEnum.Down">
-        <drop-down [items]="typeOptions" [selectedIds]="selectedEntryType()" (selectedIds)="updateType($event)" />
-      </input-layout>
+      <control-input-layout slim [label]="'Answer type'" [sufix]="IconEnum.Down">
+        <drop-down [items]="typeOptions" [(selected)]="entryType" (selectedIds)="updateType($event)" />
+      </control-input-layout>
     </span>
-    @if (entry().type === EntryTypeEnum.Barometer) {
+    @if (entryType() === EntryTypeEnum.Barometer) {
       <answer-barometer [step]="0.1" [min]="2" [max]="5" />
-    } @else if (entry().type === EntryTypeEnum.Date) {
+    } @else if (entryType() === EntryTypeEnum.Date) {
       Date
-    } @else if (entry().type === EntryTypeEnum.Number) {
+    } @else if (entryType() === EntryTypeEnum.Number) {
       Number
-    } @else if (entry().type === EntryTypeEnum.RadioGroup || entry().type === EntryTypeEnum.CheckboxGroup) {
+    } @else if (entryType() === EntryTypeEnum.RadioGroup || entryType() === EntryTypeEnum.CheckboxGroup || entryType() === EntryTypeEnum.Selector) {
       <ul class="list">
         @for (pair of groupValues(); track pair.id) {
           <li class="trans-trans-key">
@@ -65,14 +65,11 @@ type TranslationKeyPair = { id: string; translationKey: string; translation: str
         }
       </ul>
       <button class="add-btn" btn slim (click)="addGroupEntry()"><icon [icon]="IconEnum.Add" />Add</button>
-    } @else if (entry().type === EntryTypeEnum.Selector) {
-      @let entry = typeHelper(this.entry, EntryTypeEnum.Selector);
-      <selector-entry [(props)]="entry" />
-    } @else if (entry().type === EntryTypeEnum.Text) {
+    } @else if (entryType() === EntryTypeEnum.Text) {
       TextInput
-    } @else if (entry().type === EntryTypeEnum.Textarea) {
+    } @else if (entryType() === EntryTypeEnum.Textarea) {
       Textarea
-    } @else if (entry().type === EntryTypeEnum.TextString) {}
+    } @else if (entryType() === EntryTypeEnum.TextString) {}
   `,
   styles: `
     .answer-list:empty {
@@ -144,32 +141,30 @@ type TranslationKeyPair = { id: string; translationKey: string; translation: str
       }
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnswersComponent<T extends EntryTypeEnum> {
   IconEnum = IconEnum;
   ButtonStyleEnum = ButtonStyleEnum;
   EntryTypeEnum = EntryTypeEnum;
+  entry = model.required<PartialEntry<T>>();
 
-  entry = model.required<Entry>();
-  selectedEntryType = signal<T[]>([EntryTypeEnum.RadioGroup] as T[]);
-
-  typeHelper<T extends EntryTypeEnum>(entry: ModelSignal<Entry>, _: T) {
-    return entry as unknown as ModelSignal<Entry<T>>;
-  }
+  entryType = linkedSignal<T | null>(() => this.entry().type ?? null);
+  entrySettings = linkedSignal<Settings<T> | null>(() => this.entry().entrySpecific ?? null);
 
   groupValues = signal<TranslationKeyPair[]>([]);
 
-  typeOptions: SelectorItem[] = [
-    { id: EntryTypeEnum.Barometer, label: 'Barometer' },
-    { id: EntryTypeEnum.CheckboxGroup, label: 'Checkgroup' },
-    { id: EntryTypeEnum.Date, label: 'Date field' },
-    { id: EntryTypeEnum.Number, label: 'Number field' },
-    { id: EntryTypeEnum.RadioGroup, label: 'Radiogroup' },
-    { id: EntryTypeEnum.Selector, label: 'Selector' },
-    { id: EntryTypeEnum.Text, label: 'Text field' },
-    { id: EntryTypeEnum.Textarea, label: 'Textarea field' },
-    { id: EntryTypeEnum.TextString, label: 'Text' },
-  ];
+  typeOptions: SelectorItemWithId<EntryTypeEnum>[] = addIds<EntryTypeEnum>([
+    { label: 'Barometer', value: EntryTypeEnum.Barometer },
+    { label: 'Checkgroup', value: EntryTypeEnum.CheckboxGroup },
+    { label: 'Date field', value: EntryTypeEnum.Date },
+    { label: 'Number field', value: EntryTypeEnum.Number },
+    { label: 'Radiogroup', value: EntryTypeEnum.RadioGroup },
+    { label: 'Selector', value: EntryTypeEnum.Selector },
+    { label: 'Text field', value: EntryTypeEnum.Text },
+    { label: 'Textarea field', value: EntryTypeEnum.Textarea },
+    { label: 'Text', value: EntryTypeEnum.TextString },
+  ]);
 
   formRecord = new FormRecord({});
   toggle(v: boolean) {
@@ -189,7 +184,8 @@ export class AnswersComponent<T extends EntryTypeEnum> {
 
   updateType(event: Event) {
     this.entry.update(e => {
-      e.type = (event as unknown as string[]).at(0) as EntryTypeEnum;
+      console.log(e, event);
+      e.type = (event as unknown as string[]).at(0) as T;
 
       return e;
     });

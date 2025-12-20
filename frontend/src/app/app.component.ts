@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ApiService } from './services/api.service';
 
@@ -8,7 +8,8 @@ import { ApiService } from './services/api.service';
   template: ` <router-outlet />`,
 })
 export class AppComponent {
-  constructor(apiService: ApiService) {
-    apiService.get.user({ complete: apiService.get.all });
+  apiService = inject(ApiService);
+  constructor() {
+    this.apiService.get.user({ complete: this.apiService.get.all });
   }
 }

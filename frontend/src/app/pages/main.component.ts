@@ -1,17 +1,18 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconEnum, MainTabs } from '../../helpers/enum';
-import { IconButtonComponent } from '../components/action/iconButton.component';
-import { TabViewComponent } from '../components/action/tabView.component';
+import { IconButtonComponent } from '../components/action/icon-button.component';
+import { TabViewComponent } from '../components/action/tab-view.component';
 import { DataViewComponent } from '../components/dataView.component';
 import { ApiService } from '../services/api.service';
+import { LocaleService } from '../services/locale.service';
 import { Store } from '../store/store';
+import { DivisionPageComponent } from './divisions.component';
 import { EntriesComponent } from './entries/entries.page';
 import { FormPageComponent } from './forms.component';
 import { PagePageComponent } from './pages.component';
-import { SectionComponent } from './section/section.page';
 import { TestPageComponent } from './test.component';
 
 @Component({
@@ -21,7 +22,7 @@ import { TestPageComponent } from './test.component';
     CommonModule,
     TabViewComponent,
     EntriesComponent,
-    SectionComponent,
+    DivisionPageComponent,
     FormPageComponent,
     TestPageComponent,
     FormsModule,
@@ -32,14 +33,17 @@ import { TestPageComponent } from './test.component';
   template: `
     <div class="top-section">
       <div class="row">
-        <tab-view class="tabs" [tabs]="tabs" [selected]="selectedTab()" (selectedEmitter)="tabSelect($event)" />
-        <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
+        <tab-view class="tabs" [tabs]="tabs" [selected]="selectedTab()" (selectedChange)="tabSelect($event)" />
+        <div class="global-settings">
+          <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
+          <div class="locale">{{ locale() }}</div>
+        </div>
       </div>
     </div>
     @if (selectedTab() === MainTabs.Entries) {
       <entries-page />
-    } @else if (selectedTab() === MainTabs.Sections) {
-      <sections-page />
+    } @else if (selectedTab() === MainTabs.Divisions) {
+      <division-page />
     } @else if (selectedTab() === MainTabs.Pages) {
       <pages-page />
     } @else if (selectedTab() === MainTabs.Forms) {
@@ -48,8 +52,8 @@ import { TestPageComponent } from './test.component';
       <test-page />
     }
 
-    <data-view label="Entries" [data]="store.entries()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
-    <data-view label="Forms" [data]="store.currentEntry()" [startPosition]="{ bottom: '1rem', right: '50%' }" />
+    <data-view label="form" [data]="store.currentForm()" [startPosition]="{ bottom: '1rem', right: '50%' }" />
+    <data-view label="page" [data]="store.currentPage()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
   `,
   styles: `
     :host {
@@ -74,10 +78,22 @@ import { TestPageComponent } from './test.component';
       z-index: 1;
       background-color: var(--bg-clr);
     }
+    .global-settings {
+      display: flex;
+      align-items: center;
+    }
+    .locale {
+      width: 3rem;
+      height: 3rem;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+      color: var(--n-400);
+      font-weight: 600;
+    }
     .row {
       display: flex;
       justify-content: space-between;
-
       gap: 3rem;
     }
     .toggle-translations {
@@ -98,9 +114,10 @@ import { TestPageComponent } from './test.component';
     }
   `,
 })
-export class MainPageComponent {
+export class MainPageComponent implements OnInit {
   apiService = inject(ApiService);
   store = inject(Store);
+  localeService = inject(LocaleService);
   dialog = inject(Dialog);
 
   IconEnum = IconEnum;
@@ -110,19 +127,37 @@ export class MainPageComponent {
   showTranslations = signal<boolean>(false);
   searchFilter = model<string>('');
 
-  constructor() {
-    effect(() => console.log(this.store.entries(), this.store.currentEntry()));
-  }
+  locale = computed(() => this.localeService.activeLocale().slice(3, 5));
 
   tabs = [
     { label: 'Entries', value: MainTabs.Entries },
-    { label: 'Sections', value: MainTabs.Sections },
+    { label: 'Divisions', value: MainTabs.Divisions },
     { label: 'Pages', value: MainTabs.Pages },
     { label: 'Forms', value: MainTabs.Forms },
     { label: 'Test', value: MainTabs.Test },
   ];
 
-  tabSelect(tab: string) {
+  ngOnInit() {
+    console.log(this.store.forms());
+    if (!this.store.forms()) this.tabSelect(MainTabs.Forms);
+    else if (!this.store.pages()) this.tabSelect(MainTabs.Pages);
+    else if (!this.store.divisions()) this.tabSelect(MainTabs.Divisions);
+    else this.tabSelect(MainTabs.Entries);
+  }
+
+  tabSelect(tab: string | null) {
     this.selectedTab.set(tab as MainTabs);
+  }
+
+  constructor() {
+    const init = effect(() => {
+      if (this.store.forms() === null) return;
+      if (Object.keys(this.store.forms() ?? {}).length < 1) this.tabSelect(MainTabs.Forms);
+      else if (Object.keys(this.store.pages() ?? {}).length < 1) this.tabSelect(MainTabs.Pages);
+      else if (Object.keys(this.store.divisions() ?? {}).length < 1) this.tabSelect(MainTabs.Divisions);
+      else this.tabSelect(MainTabs.Entries);
+
+      init.destroy();
+    });
   }
 }

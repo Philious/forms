@@ -7,16 +7,17 @@ export enum InputState {
 
 export enum MainTabs {
   Entries = 'entries',
-  Sections = 'sections',
+  Divisions = 'divisions',
   Pages = 'pages',
   Forms = 'forms',
   Test = 'test',
 }
 
-export enum Language {
-  English = 'en',
-  Norwegian = 'no',
-  Swedish = 'sv',
+export enum Locale {
+  EN = 'en-US',
+  NB = 'nb-NO',
+  SV = 'sv-SE',
+  XX = 'translationKey',
 }
 
 export enum ButtonStyleEnum {

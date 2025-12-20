@@ -1,13 +1,13 @@
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, input, linkedSignal } from '@angular/core';
 import { FormControl, FormRecord, ReactiveFormsModule } from '@angular/forms';
-import { IconEnum } from '@app/helpers/enum';
-import { IconButtonComponent } from './action/iconButton.component';
-import { InputLayoutComponent } from './action/input-layout/input.layout.component';
+import { IconEnum } from '@src/helpers/enum';
+import { IconButtonComponent } from './action/icon-button.component';
+import { ControlInputLayoutComponent } from './action/input-layout/controls-input.layout.component';
 import { IconComponent } from './icons/icon.component';
 
 @Component({
-  imports: [CdkDrag, CdkDragPlaceholder, CdkDropList, IconComponent, InputLayoutComponent, ReactiveFormsModule, IconButtonComponent],
+  imports: [CdkDrag, CdkDragPlaceholder, CdkDropList, IconComponent, ControlInputLayoutComponent, ReactiveFormsModule, IconButtonComponent],
   selector: 'control-list',
   template: `
     <ul cdkDropList (cdkDropListDropped)="dragItem($event)" class="current-list">
@@ -17,9 +17,9 @@ import { IconComponent } from './icons/icon.component';
           <div class="drag-icon">
             <icon [icon]="IconEnum.Drag" />
           </div>
-          <input-layout slim>
+          <control-input-layout slim>
             <input base-input input slim [formControl]="entry" />
-          </input-layout>
+          </control-input-layout>
         </li>
       }
     </ul>

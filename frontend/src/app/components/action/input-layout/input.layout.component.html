@@ -2,12 +2,13 @@
 @let prefixIcon = isIcon(preText);
 @let sufText = sufix();
 @let sufixIcon = isIcon(sufText);
-
+@if (showLabel()) {
 <label class="label" [for]="id()">
   <ng-content select="label">
     {{ this.label() }}
   </ng-content>
 </label>
+}
 <div class="input-container">
   @if (prefixIcon) {
     <icon class="prefix" [icon]="prefixIcon" />
@@ -19,14 +20,17 @@
   } @else if (sufText) {
     <div class="sufix">{{ sufText }}</div>
   }
-  <div #inputContainer class="input-wrapper">
-    <ng-content  />
+  <div class="input-wrapper">
+    <ng-content />
   </div>
 
 </div>
-<div class="context-text">
-  <ng-content  select="context-info">
-    <span class="error-message">{{ errorMessage() }}</span>
-    <span class="context-message">{{ contextMessage() }}</span>
-  </ng-content>
-</div>
+<ng-content  select="context-info">
+  @if (errorMessage() || contextMessage()) {
+    <div class="context-text">
+      @if (errorMessage()) { <span class="error-message">{{ errorMessage() }}</span> }
+      @if (contextMessage()) { <span class="context-message">{{ contextMessage() }}</span> }
+    </div>
+  }
+ </ng-content>
+

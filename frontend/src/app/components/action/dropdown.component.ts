@@ -1,59 +1,77 @@
-import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
-import { CdkConnectedOverlay, ConnectedPosition } from '@angular/cdk/overlay';
+import { Combobox, ComboboxInput, ComboboxPopup, ComboboxPopupContainer } from '@angular/aria/combobox';
+import { Listbox, Option } from '@angular/aria/listbox';
+import { CdkConnectedOverlay, ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, forwardRef, input, model, signal, viewChild } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { array } from '@app/helpers/utils';
+import { Component, input, model, ModelSignal, signal, viewChild, viewChildren } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { array } from '@src/helpers/utils';
 import { IconEnum } from '../../../helpers/enum';
 import { CheckboxComponent } from './checkbox.component';
 
-export type SelectorItem<O = unknown> = { id: string; label: string; options?: O };
+export type SelectorItem<O = unknown, I = string> = { id?: I; label: string; value: O };
+export type SelectorItemWithId<O = unknown, I = string> = { id: I; label: string; value: O };
 
-let index = 0;
+let componentIndex = 0;
 
 @Component({
   selector: 'drop-down',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, CdkConnectedOverlay, CdkMenuTrigger, CdkMenu, CdkMenuItem, CheckboxComponent],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DropdownComponent),
-      multi: true,
-    },
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    CdkConnectedOverlay,
+    CheckboxComponent,
+    Combobox,
+    ComboboxInput,
+    ComboboxPopup,
+    ComboboxPopupContainer,
+    Listbox,
+    Option,
+    OverlayModule,
   ],
   template: `
-    <input
-      class="input"
-      #trigger
-      readonly
-      base-input
-      input
-      [id]="uid"
-      [cdkMenuTriggerFor]="menu"
-      [value]="selectedLabel(selected())"
-      [attr.readonly]="filter()"
-      [disabled]="isDisabled"
-      (click)="toggleMenu()"
-    />
-    <ng-template
-      #menu
-      cdkConnectedOverlay
-      [cdkConnectedOverlayOrigin]="trigger"
-      [cdkConnectedOverlayOpen]="isOpen()"
-      (overlayOutsideClick)="isOpen.set(false)"
-      (detach)="isOpen.set(false)"
-    >
-      <div class="menu" [class.multi-select]="multiSelect()" cdkMenu>
-        @for (item of items(); track item.id) {
-          <button class="menu-item" [class.selected]="isSelected(item.id)" cdkMenuItem (click)="selectOption(item)">
-            @if (multiSelect()) {
-              <check-box slim [modelValue]="isSelected(item.id)" />
+    <div ngCombobox>
+      <input
+        class="input"
+        #origin
+        readonly
+        base-input
+        input
+        [id]="uid"
+        ngComboboxInput
+        [value]="selectedLabel(selected())"
+        [attr.readonly]="filter()"
+        [disabled]="isDisabled"
+      />
+      <ng-template ngComboboxPopupContainer>
+        <ng-template
+          #menu
+          [cdkConnectedOverlay]="{ origin, usePopover: 'inline', matchWidth: true }"
+          [cdkConnectedOverlayOpen]="isOpen()"
+          (overlayOutsideClick)="isOpen.set(false)"
+          (attach)="isOpen.set(true)"
+          (detach)="isOpen.set(false)"
+        >
+          <div class="menu" [class.multi-select]="multiSelect()" ngListbox>
+            @for (item of items(); track item.id) {
+              <div
+                class="menu-item"
+                [class.selected]="isSelected(item.id)"
+                [value]="item.value"
+                [label]="item.label"
+                ngOption
+                (click)="selectOption(item)"
+              >
+                @if (multiSelect()) {
+                  <check-box slim [modelValue]="isSelected(item.id)" />
+                }
+                {{ item.label }}
+              </div>
             }
-            {{ item.label }}
-          </button>
-        }
-      </div>
-    </ng-template>
+          </div>
+        </ng-template>
+      </ng-template>
+    </div>
   `,
   styles: `
     :host:not([slim]) {
@@ -115,32 +133,52 @@ let index = 0;
     }
   `,
 })
-export class DropdownComponent<T = unknown> {
-  menuRef = viewChild<ElementRef<HTMLInputElement> | null>('menu');
+export class DropdownComponent<T> {
+  listbox = viewChild<Listbox<string>>(Listbox);
+  options = viewChildren<Option<string>>(Option);
+  combobox = viewChild<Combobox<string>>(Combobox);
+
   IconEnum = IconEnum;
   uid: string;
-  positions: ConnectedPosition[];
 
   filter = input<boolean>(false);
   multiSelect = input<boolean>(false);
-  items = input<SelectorItem<T>[]>([]);
+  items = input<SelectorItemWithId<T>[]>([]);
+  onlyReturnValue = input<boolean>(false);
+  positions = input<ConnectedPosition[]>([
+    {
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'top',
+    },
+  ]);
 
-  selected = model<SelectorItem<T>[]>([]);
-  selectedIds = model<SelectorItem['id'][]>([]);
-  selectedLabel = (selected: SelectorItem<T>[]): string => {
-    return selected.map(s => s.label).join(', ');
+  selected = model<T | SelectorItemWithId<T>[] | null>(null);
+  protected selectedLabel = (selected: SelectorItemWithId<T>[] | T | null): string => {
+    return Array.isArray(selected) && selected.length > 0
+      ? selected.map(s => s.label).join(', ')
+      : (this.items().find(item => item.id === selected)?.label ?? '');
   };
-  isOpen = signal<boolean>(false);
+
+  protected isOpen = signal<boolean>(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private _onChange = (_: SelectorItem<T>[]) => {};
+  private _onChange = (_: SelectorItemWithId<T>[] | T | null) => {};
   private _onTouch = () => {};
   protected isDisabled: boolean = false;
 
-  writeValue(items: SelectorItem<T>[]): void {
-    this.selected.set(items);
+  private formatReturnValue(selection: SelectorItemWithId<T>[]): typeof this.selected extends ModelSignal<infer U> ? U : T {
+    const returnArray = Array.isArray(this.selected());
+    if (!returnArray) return selection.length > 0 ? (selection.pop() as T) : null;
+
+    return this.selected();
   }
-  registerOnChange(fn: (items: SelectorItem<T>[]) => void): void {
+
+  writeValue(items: SelectorItemWithId<T>[]): void {
+    this.selected.set(this.formatReturnValue(items));
+  }
+  registerOnChange(fn: (items: SelectorItemWithId<T>[] | T | null) => void): void {
     this._onChange = fn;
   }
   registerOnTouched(fn: () => void): void {
@@ -151,32 +189,30 @@ export class DropdownComponent<T = unknown> {
   }
 
   constructor() {
-    this.uid = `dropdown-${index++}`;
-    this.positions = [
-      {
-        originX: 'start',
-        originY: 'bottom',
-        overlayX: 'start',
-        overlayY: 'top',
-      },
-    ];
+    this.uid = `dropdown-${componentIndex++}`;
   }
 
-  toggleMenu() {
-    this.isOpen.update(v => !v);
-    console.log(this.items());
+  protected toggleMenu(set?: boolean) {
+    this.isOpen.update(v => (typeof set === 'boolean' ? set : !v));
   }
   protected isSelected(id: string): boolean {
-    return this.selected().filter(s => s.id === id).length > 0;
+    const selected = this.selected();
+    if (Array.isArray(selected)) {
+      return selected.map(s => s.id).includes(id);
+    } else {
+      return selected === id;
+    }
   }
-  selectOption(update: SelectorItem<T>) {
+  protected selectOption(update: SelectorItemWithId<T>) {
     this.selected.update(arr => {
-      if (this.multiSelect()) return array.toggle(update, arr);
-      return [update];
+      if (Array.isArray(arr)) {
+        if (this.multiSelect()) return array.toggle(update, arr);
+        else return [update];
+      } else {
+        return update.value;
+      }
     });
 
-    this.selectedIds.set(this.selected().map(item => item.id));
-    console.log(this.selectedIds());
     if (!this.multiSelect()) this.isOpen.set(false);
     this._onChange(this.selected());
     this._onTouch();

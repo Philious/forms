@@ -2,7 +2,7 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, linkedSignal, model, Signal, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
+import { ButtonStyleEnum, IconEnum } from '@src/helpers/enum';
 import { TextFieldComponent } from '../../../components/action/textfield.component';
 
 type BarometerType = 'linear' | 'inverted-linear' | 'catenary' | 'inverted-catenary';

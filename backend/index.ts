@@ -60,52 +60,64 @@ function error(status: HttpStatusCode, msg: string) {
 type All = {
   forms: Record<FormId, Form>;
   pages: Record<PageId, Page>;
-  division: Record<DivisionId, Division>;
+  divisions: Record<DivisionId, Division>;
   entries: Record<EntryId, Entry>;
 };
 
 app.get('/api/get/all', (req: Request, res: Response<All>, next: NextFunction) => {
-  const forms = Object.fromEntries(formMap);
-  const pages = Object.fromEntries(pageMap);
-  const division = Object.fromEntries(divisionMap);
+  const forms: Record<FormId, Form<'array'>> = {};
+  const pages: Record<PageId, Page<'array'>> = {};
+  const divisions: Record<DivisionId, Division<'array'>> = {};
   const entries = Object.fromEntries(entryMap);
-  console.log('get all: ', { forms, pages, division, entries });
+  formMap.forEach(f => {
+    const retrieved = getForm(f.id);
+    if (retrieved) forms[f.id] = retrieved;
+  });
+  pageMap.forEach(p => {
+    const retrieved = getPage(p.id);
+    if (retrieved) pages[p.id] = retrieved;
+  });
+  divisionMap.forEach(d => {
+    const retrieved = getPage(d.id);
+    if (retrieved) divisions[d.id] = retrieved;
+  });
+
   try {
-    res.status(200).json({ forms, pages, division, entries });
+    res.status(200).json({ forms, pages, divisions, entries });
   } catch (err) {
     next(error(500, `Internal server error ${err}`));
   }
 });
 
 app.get('/api/get/allForms', (_: Request, res: Response<Record<FormId, Form>>, next: NextFunction) => {
-  const forms = Object.fromEntries(formMap);
+  const forms: Record<FormId, Form<'array'>> = {};
 
   if (forms) res.status(200).json(forms);
   else next(error(500, 'Internal server error'));
 });
 
-app.get('/api/get/forms/:formId', (req: Request<{ formId: FormId }>, res: Response<Form<'id'>>, next: NextFunction) => {
+app.get('/api/get/forms/:formId', (req: Request<{ formId: FormId }>, res: Response<Form<'array'>>, next: NextFunction) => {
   const { formId } = req.params;
   const form = getForm(formId);
 
   if (form) res.status(200).json(form);
-  else next(error(500, 'Internal server error'));
+  else next(error(500, `No form with id ${formId}`));
 });
 
-app.get('/api/get/page/:pageId', (req: Request<{ pageId: PageId }>, res: Response<Page<'id'>>, next: NextFunction) => {
+app.get('/api/get/page/:pageId', (req: Request<{ pageId: PageId }>, res: Response<Page<'array'>>, next: NextFunction) => {
   const { pageId } = req.params;
   const page = getPage(pageId);
 
   if (page) res.status(200).json(page);
-  else next(error(500, 'Internal server error'));
+  else next(error(500, `No page with id ${pageId}`));
 });
 
-app.get('/api/get/division/:divisionId', (req: Request<{ divisionId: DivisionId }>, res: Response<Division<'id'>>, next: NextFunction) => {
+app.get('/api/get/division/:divisionId', (req: Request<{ divisionId: DivisionId }>, res: Response<Division<'array'>>, next: NextFunction) => {
   const { divisionId } = req.params;
   const division = getDivision(divisionId);
 
   if (division) res.status(200).json(division);
-  else next(error(500, 'Internal server error'));
+  else next(error(500, `No division with id ${divisionId}`));
 });
 
 app.get('/api/get/entry/:entryId', (req: Request<{ entryId: EntryId }>, res: Response<Entry>, next: NextFunction) => {
@@ -136,7 +148,7 @@ app.post('/api/get/allEntries', (req: Request<Record<EntryId, Entry>>, res: Resp
 
 app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFunction) => {
   const entry: Entry = req.body;
-  console.log(entry);
+  console.log('entry: ', entry);
   entry.updated = new Date().valueOf();
   try {
     setEntry(entry);
@@ -148,6 +160,7 @@ app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFuncti
 
 app.post('/api/set/division', (req: Request<Division>, res: Response, next: NextFunction) => {
   const division = req.body;
+  console.log('save diision');
   try {
     setDivision(division);
     res.sendStatus(204);
@@ -158,6 +171,7 @@ app.post('/api/set/division', (req: Request<Division>, res: Response, next: Next
 
 app.post('/api/set/page', (req: Request<Page>, res: Response, next: NextFunction) => {
   const page = req.body;
+  console.log('save page');
   try {
     setPage(page);
     res.sendStatus(204);
@@ -166,8 +180,9 @@ app.post('/api/set/page', (req: Request<Page>, res: Response, next: NextFunction
   }
 });
 
-app.post('/api/set/form', (req: Request<Page>, res: Response, next: NextFunction) => {
+app.post('/api/set/form', (req: Request<Form>, res: Response, next: NextFunction) => {
   const form = req.body;
+  console.log('save form');
   try {
     setForm(form);
     res.sendStatus(204);

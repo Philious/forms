@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonStyleEnum, IconEnum } from '../../../helpers/enum';
 import { FormTranslationGroup } from '../../../helpers/translationTypes';
-import { InputLayoutComponent } from '../action/input-layout/input.layout.component';
+import { ControlInputLayoutComponent } from '../action/input-layout/controls-input.layout.component';
 
 @Component({
   selector: 'translation-set',
@@ -13,9 +13,9 @@ import { InputLayoutComponent } from '../action/input-layout/input.layout.compon
         <li class="list-item">
           <div class="translation-wrapper">
             <label class="translation-label">{{ form.key }}</label>
-            <input-layout class="text-field">
+            <control-input-layout class="text-field">
               <input class="translation-input" type="text" [formControlName]="form.key" base-input input />
-            </input-layout>
+            </control-input-layout>
           </div>
         </li>
       }
@@ -46,7 +46,7 @@ import { InputLayoutComponent } from '../action/input-layout/input.layout.compon
     }
   `,
 
-  imports: [InputLayoutComponent, FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [ControlInputLayoutComponent, FormsModule, ReactiveFormsModule, CommonModule],
 })
 export class TranslationSetComponent {
   ButtonStyleEnum = ButtonStyleEnum;

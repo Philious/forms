@@ -1,22 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { actionButton } from '../../../helpers/types';
-import { TextButtonComponent } from '../action/textButton.component';
+import { TextButtonComponent } from '../action/base-button.component';
 
 @Component({
   selector: 'dialog-layout',
   imports: [TextButtonComponent, CommonModule],
+  host: {
+    role: 'dialog',
+  },
   template: `
-    <div class="header">
-      <ng-content select="[dialog-title]"> {{ headerString() }} </ng-content>
+    <div class="header" [class.padding]="sectionPadding()">
+      {{ title() }}
+      <ng-content select="[dialog-title]"> {{ title() }} </ng-content>
     </div>
     <div class="content">
-      <ng-content select="[dialog-content]"> {{ contentString() }} </ng-content>
+      <ng-content select="[dialog-content]"> {{ content() }} </ng-content>
     </div>
-    <div class="footer">
+    <div class="footer" [class.padding]="sectionPadding()">
       <ng-content select="[dialog-footer]">
         @for (button of footerButtons(); track button.id) {
-          <text-button [label]="button.label" (clicked)="button.action()" />
+          <button base-button [label]="button.label" (clicked)="button.action()"></button>
         }
       </ng-content>
     </div>
@@ -33,7 +37,6 @@ import { TextButtonComponent } from '../action/textButton.component';
         min-width: 18rem;
         padding: 1.5rem;
         display: grid;
-        gap: 1.5rem;
         box-sizing: border-box;
         @include media.mobile {
           transform: translate(0, 0);
@@ -50,9 +53,14 @@ import { TextButtonComponent } from '../action/textButton.component';
       }
       .header {
         font-size: 1.25rem;
+        &.padding {
+          padding-bottom: 1.5rem;
+        }
       }
       .footer {
-        margin-top: 1.5rem;
+        &.padding {
+          padding-top: 1.5rem;
+        }
         display: flex;
         gap: 1rem;
         @include media.mobile {
@@ -63,7 +71,8 @@ import { TextButtonComponent } from '../action/textButton.component';
   ],
 })
 export class DialogLayoutComponent {
-  readonly headerString = input<string>();
-  readonly contentString = input<string>();
-  readonly footerButtons = input<actionButton[]>();
+  title = input<string>();
+  content = input<string>();
+  footerButtons = input<actionButton[]>();
+  sectionPadding = input<boolean>(true);
 }

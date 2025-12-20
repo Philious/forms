@@ -132,4 +132,52 @@
       max-height: 100px;
     }
   }
+
+  [layout-section] {
+      display: grid;
+      padding-block: 1.5rem;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--n-300);
+      transition:
+        opacity 0.5s,
+        translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      @starting-style {
+        opacity: 0;
+        translate: 0 2rem;
+      }
+      .enter {
+        opacity: 1;
+        translate: 0 0;
+      }
+      .leave {
+        translate: 0 2rem;
+      }
+      &:last-child {
+        border: none;
+      }
+  }
+
+  .action-animation {
+    &:after {
+      content: '';
+      border-radius: 999px;
+      position: absolute;
+      inset: 0;
+      scale: 1.2;
+      opacity: 0;
+      box-shadow:
+        0 0 1.5rem inset,
+        0 0 0.3rem,
+        0 0 0 0.015rem inset;
+      transition:
+        opacity 0.5s,
+        scale 0.5s;
+      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    &:active:after {
+      scale: 0;
+      opacity: 1;
+      transition: opacity 0s;
+    }
+  }
 }

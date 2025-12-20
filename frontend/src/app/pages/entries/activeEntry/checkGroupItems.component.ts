@@ -2,9 +2,9 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, input, model, output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IconButtonComponent } from '@app/app/components/action/iconButton.component';
-import { TextFieldComponent } from '@app/app/components/action/textfield.component';
-import { ButtonStyleEnum, IconEnum } from '@app/helpers/enum';
+import { IconButtonComponent } from '@src/app/components/action/icon-button.component';
+import { TextFieldComponent } from '@src/app/components/action/textfield.component';
+import { ButtonStyleEnum, IconEnum } from '@src/helpers/enum';
 import { awnserTypeOptions } from './answer.static';
 
 @Component({

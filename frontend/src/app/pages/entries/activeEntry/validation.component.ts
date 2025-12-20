@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ValidatorsType } from '@app/helpers/types';
+import { ValidatorsType } from '@src/helpers/types';
 import { DropdownComponent, SelectorItem } from '../../../components/action/dropdown.component';
 import { validatiorOptions } from './validation.static';
 

@@ -1,32 +1,37 @@
+import { JsonPipe } from '@angular/common';
 import { Component, model } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-
-import { JsonPipe } from '@angular/common';
-import { IconEnum } from '@app/helpers/enum';
-import { InputLayoutComponent } from '../components/action/input-layout/input.layout.component';
-import { minLength } from '../components/action/input-layout/input.utils';
+import { ControlInputLayoutComponent } from '@app/components/action/input-layout/controls-input.layout.component';
+import { minLength } from '@app/components/action/input-layout/input.utils';
+import { IconEnum } from '@src/helpers/enum';
 
 @Component({
   selector: 'test-page',
-  imports: [FormsModule, InputLayoutComponent, ReactiveFormsModule, JsonPipe],
+  imports: [FormsModule, ControlInputLayoutComponent, ReactiveFormsModule, JsonPipe],
   template: `
     <button (click)="toggleDisabled()">Toggle disabled</button>
-    <input-layout [label]="'Text field'" [contextMessage]="'Context message'" [control]="control" [controlElement]="input">
+    <control-input-layout [label]="'Text field'" [contextMessage]="'Context message'" [control]="control" [controlElement]="input">
       <input [formControl]="control" #input />
-    </input-layout>
+    </control-input-layout>
     <div style="position: absolute;">
       Prestine: {{ this.control.pristine }}<br />
       Dirty: {{ this.control.dirty }}<br />
       Touched: {{ this.control.touched }}<br />
       Errors: {{ this.control.invalid }} Errors: {{ this.control.errors | json }}
     </div>
-    <input-layout [label]="'Selector'" [contextMessage]="'Context message'" [sufix]="IconEnum.Down" [control]="control2" [controlElement]="input">
+    <control-input-layout
+      [label]="'Selector'"
+      [contextMessage]="'Context message'"
+      [sufix]="IconEnum.Down"
+      [control]="control2"
+      [controlElement]="input"
+    >
       <select [(value)]="modelText" #input>
         <option value="item1">item 1</option>
         <option value="item2">item 2</option>
         <option value="item2">item 3</option>
       </select>
-    </input-layout>
+    </control-input-layout>
   `,
   styles: `
     :host {

@@ -1,5 +1,70 @@
-import { AbstractControl, AsyncValidatorFn, ValidatorFn } from '@angular/forms';
+import { AbstractControl, AsyncValidatorFn, Form } from '@angular/forms';
+import { Division, DivisionId, Entry, EntryId, FormId, Page, PageId } from '@cs-forms/shared';
 import { IconEnum } from './enum';
+
+export type Exact<T> = T extends infer U ? (U extends T ? (T extends U ? U : never) : never) : never;
+export type GenericEvent<T> = Event & { type: T } & T;
+export type FormRecord = Record<FormId, Form> | null;
+export type PageRecord = Record<PageId, Page> | null;
+export type DivisionRecord = Record<DivisionId, Division> | null;
+export type EntryRecord = Record<EntryId, Entry<EntryTypeEnum>> | null;
+
+export enum EntryTypeEnum {
+  RadioGroup = 'radio-group',
+  Barometer = 'barometer',
+  Text = 'text',
+  Number = 'number',
+  Textarea = 'text-area',
+  Date = 'date',
+  Selector = 'selector',
+  Checkbox = 'check-box',
+  CheckboxGroup = 'check-group',
+  TextString = 'text-string',
+}
+
+export type SectionId = string;
+export type QuestionId = string;
+export type AnswerId = string;
+export type ValidatorId = string;
+
+export type ValidatorFn = <T>(v: T) => boolean;
+export type Answer = Record<AnswerId, string>;
+export type Validator = Record<ValidatorId, ValidatorFn>;
+
+export type Section = {
+  id: SectionId;
+  name: string;
+  updated: number;
+  description: string;
+  questions: QuestionId[];
+};
+
+export type SectionPayload = {
+  id: SectionId;
+  name: string;
+  updated: number;
+  description: string;
+  questions: QuestionPayload[];
+};
+
+export type QuestionCore = {
+  id: QuestionId;
+  entry: string;
+  updated: number;
+  answerType?: EntryTypeEnum;
+};
+
+export type Question<C extends Conditions<string | number | symbol> | string = Conditions<string | number | symbol>> = QuestionCore & {
+  answers: AnswerId[];
+  validators: ValidatorId[];
+  conditions: C;
+};
+
+export type QuestionPayload = QuestionCore & {
+  answers: Answer;
+  validators: ValidatorId[];
+  conditions: string;
+};
 
 export type actionButton = {
   id: string;
@@ -55,11 +120,9 @@ export type StrictNotNone<T> = 0 extends 1 & T
     ? never
     : T;
 
+export type ConditionType = '==' | '!=' | '<=' | '>=' | '<' | '>';
 export type AndOr = 'and' | 'or' | 'xand' | 'xor';
-export type ConditionType = '==' | '!=';
-//| '<=' | '>=' | '<' | '>';
 export type ConditionTuplet = [ConditionType, unknown];
-
 export type LeafCondition<K extends string | number | symbol> = Readonly<[K, ConditionType, unknown]>;
 
 export type Conditions<K extends string | number | symbol> =

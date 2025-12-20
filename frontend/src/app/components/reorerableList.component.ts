@@ -1,23 +1,30 @@
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, model, output, signal } from '@angular/core';
-import { IconEnum } from '@app/helpers/enum';
+import { IconEnum } from '@src/helpers/enum';
 import { IconComponent } from './icons/icon.component';
+
+type ListVM = {
+  id: string;
+  index: number;
+  selected: boolean;
+};
 
 @Component({
   imports: [CdkDrag, CdkDragPlaceholder, CdkDropList, IconComponent, CommonModule],
   selector: 'list',
   template: `
-    @let displayKey = this.displayKey();
     <ul cdkDropList (cdkDropListDropped)="dragItem($event)" class="current-list">
-      @for (entry of computedList(); track entry['id']) {
-        <li class="list-item" [class.selected]="selected() === entry['listItemId']" cdkDrag [cdkDragData]="entry.listItemId">
+      @for (entry of vm(); track entry.id) {
+        <li class="list-item" [class.selected]="entry.selected" cdkDrag [cdkDragData]="entry.index">
           <div class="drag-custom-placeholder current-list-item" *cdkDragPlaceholder></div>
+
           <div class="drag-icon">
             <icon [icon]="IconEnum.Drag" />
           </div>
+
           <button btn class="list-btn" (click)="select(entry)">
-            {{ displayKey ? entry[displayKey] : 'No object key selected' }}
+            {{ findLabelFn()(list()[entry.index]) }}
           </button>
         </li>
       }
@@ -102,38 +109,41 @@ import { IconComponent } from './icons/icon.component';
 })
 export class ListComponent<O extends Record<string, unknown>> {
   IconEnum = IconEnum;
-  list = model<O[]>([]);
-  displayKey = input<keyof O>();
+  list = model.required<O[]>();
+  findLabelFn = input.required<(item: O) => string>();
   updateSelected = output<O>();
 
-  protected computedList = computed(() => {
-    const arrList = this.list() as (O & { listItemId: string })[];
-    let idx = 0;
-    for (const key in this.list()) {
-      arrList[key]['listItemId'] = `item${idx}`;
-      idx++;
-    }
+  protected vm = computed<ListVM[]>(() => {
+    const selectedId = this.selected();
 
-    return arrList;
+    return this.list().map((item, index) => {
+      const id = `item${item.id ?? index}`;
+      return {
+        id,
+        index,
+        selected: id === selectedId,
+      };
+    });
   });
 
   protected selected = signal<string>('');
-  protected select(item: O & { listItemId: string }) {
-    this.updateSelected.emit(item);
-    this.selected.set(item.listItemId);
+  protected select(entry: ListVM) {
+    this.selected.set(entry.id);
+    this.updateSelected.emit(this.list()[entry.index]);
   }
 
-  protected dragItem(event: CdkDragDrop<string>) {
+  protected dragItem(event: CdkDragDrop<number>) {
+    if (event.previousIndex === event.currentIndex) return;
+
     this.list.update(order => {
-      const previousIndex = event.previousIndex;
-      const currentIndex = event.currentIndex;
-      console.log(previousIndex, currentIndex, event);
-      if (typeof previousIndex !== 'number' || typeof currentIndex !== 'number') return order;
-
-      const entry = order.splice(previousIndex, 1)[0];
-      order.splice(currentIndex, 0, entry);
-
-      return order;
+      const copy = [...order];
+      const [moved] = copy.splice(event.previousIndex, 1);
+      copy.splice(event.currentIndex, 0, moved);
+      return copy;
     });
+  }
+
+  constructor() {
+    this.list.subscribe(v => console.log(v));
   }
 }

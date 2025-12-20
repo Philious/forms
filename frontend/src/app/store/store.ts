@@ -70,4 +70,9 @@ export class Store {
   setEntry = (entry: Entry | null) => {
     this.currentEntry.set(entry);
   };
+
+  updateForm() {
+    const forms = this._forms();
+    this._forms.set(forms ? Object.fromEntries(Object.entries(forms)) : null);
+  }
 }

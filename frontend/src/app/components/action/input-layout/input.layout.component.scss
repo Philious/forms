@@ -7,6 +7,11 @@
   display: grid;
   gap: 0.25rem;
 
+  .input-wrapper,
+  .input-container,
+  .label {
+    width: inherit;
+  }
   &:not(.disabled) .input-container:hover::before {
     background-color: var(--input-bg-clr-hover);
   }
@@ -48,7 +53,6 @@
   color: var(--input-clr);
   border-radius: 0.25rem;
   height: var(--height-input);
-  width: var(--width-input-default);
   display: grid;
   box-sizing: border-box;
   position: relative;
@@ -77,10 +81,12 @@
 }
 .label,
 .context-text {
+  width: inherit;
   &:empty {
     display: none;
   }
   color: var(--label);
   font-size: var(--txt-small);
   line-height: 1.2;
+  font-weight: 500;
 }
