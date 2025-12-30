@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, output } from '@angular/core';
 
 @Component({
   selector: 'tab-view',
   imports: [CommonModule],
   template: `
     @for (tab of tabs(); track tab.value) {
-      <button class="tab" [class.active]="selected() === tab.value" (click)="onTabClick(tab.value)">
+      <button class="tab" [class.active]="selected() === tab.value" (click)="updateValue(tab.value)">
         {{ tab.label }}
       </button>
     }
@@ -27,12 +27,15 @@ import { Component, input, model } from '@angular/core';
       transition: padding 0.25s;
       border-radius: 0.25rem 0.25rem 0 0;
       color: var(--n-600);
+      font-weight: 600;
+      letter-spacing: 0.025rem;
       &:hover {
         color: var(--white);
       }
       &.active {
         padding: 0 1rem;
         background-color: var(--n-200);
+
         &:before,
         &:after {
           content: '';
@@ -58,11 +61,17 @@ import { Component, input, model } from '@angular/core';
     }
   `,
 })
-export class TabViewComponent {
-  tabs = input<{ label: string; value: string }[]>([]);
-  selected = model<string | null>(null);
+export class TabViewComponent<T> {
+  tabs = input<{ label: string; value: T }[]>([]);
+  oneWayBinding = input<boolean>(false);
+  selected = model.required<T>();
+  update = output<T>();
 
-  onTabClick(value: string) {
-    this.selected.set(value);
+  updateValue(val: T) {
+    if (this.oneWayBinding()) {
+      this.update.emit(val);
+    } else {
+      this.selected.set(val);
+    }
   }
 }

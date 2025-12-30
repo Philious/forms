@@ -19,7 +19,7 @@ export type EntryId = string;
 export type TextType = 'h2' | 'h3' | 'h4' | 'paragraph';
 export type Form<T extends 'set' | 'array' = 'array'> = {
     id: FormId;
-    header: Translation;
+    label: Translation;
     pages: T extends 'set' ? Set<PageId> : Array<PageId>;
     divisions: T extends 'set' ? Set<DivisionId> : Array<DivisionId>;
     entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
@@ -27,14 +27,14 @@ export type Form<T extends 'set' | 'array' = 'array'> = {
 };
 export type Page<T extends 'set' | 'array' = 'array'> = {
     id: PageId;
-    header: Translation;
+    label: Translation;
     divisions: T extends 'set' ? Set<DivisionId> : Array<DivisionId>;
     entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
     updated: number;
 };
 export type Division<T extends 'set' | 'array' = 'array'> = {
     id: DivisionId;
-    header: Translation;
+    label: Translation;
     entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
     updated: number;
 };
@@ -42,7 +42,7 @@ export type ExtendedEntries = Expand<EntryTypeEnum>;
 export type Entry<T extends EntryTypeEnum = EntryTypeEnum> = {
     id: EntryId;
     type: T;
-    translations: Translation;
+    label: Translation;
     updated: number;
     group?: EntryId[];
     entrySpecific: Settings<T>;

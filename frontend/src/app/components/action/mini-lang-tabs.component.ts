@@ -6,7 +6,7 @@ import { Translation } from '@src/helpers/translationTypes';
 @Component({
   selector: 'mini-lang-tabs',
   template: `
-    <div class="lang-selection" ngProjectAs="context-info">
+    <div class="lang-selection">
       @for (lang of langs; track lang) {
         <button
           text-btn
@@ -42,11 +42,12 @@ import { Translation } from '@src/helpers/translationTypes';
       text-transform: uppercase;
       position: relative;
       &.active {
-        background-color: var(--n-350);
+        background-color: var(--p-300);
         box-shadow: 0 0 0 1px var(--n-400);
       }
       &.has-translation {
-        background-color: var(--p-300);
+        background-color: var(--n-350);
+
         box-shadow: 0 0 0 1px var(--p-400);
         &.active {
           background-color: var(--p-400);

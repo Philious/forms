@@ -3,6 +3,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
+    "allowJs": true,
     "emitDeclarationOnly": false,
     "moduleResolution": "nodenext",
     "strict": true,

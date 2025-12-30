@@ -1,8 +1,8 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, Signal, signal, WritableSignal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Division, Form, Option, Page } from '@cs-forms/shared';
 import { IconEnum, Locale } from '@src/helpers/enum';
-import { newDivision } from '@src/helpers/form.utils';
+import { itemOptions, newDivision } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
 import { AriaDropComponent, OptionProps } from '../components/action/aria-drop.component';
 import { IconButtonComponent } from '../components/action/icon-button.component';
@@ -10,13 +10,15 @@ import { SignalInputLayoutComponent } from '../components/action/input-layout/si
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
-import { AddNewDialogComponent } from '../components/modals/add.new.dialog.component';
+import { AddNewDialogComponent, openAddNewDialog } from '../components/modals/add.new.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
-import { ListComponent } from '../components/reorerableList.component';
+import { ListComponent, ListItem } from '../components/reorerableList.component';
 import { ApiService } from '../services/api.service';
 import { LocaleService } from '../services/locale.service';
+import { LocalStorageService } from '../services/localStorageService';
 import { Store } from '../store/store';
 import { LayoutComponent } from './common/layout.component';
+import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/page.utilities';
 
 @Component({
   selector: 'division-page',
@@ -26,8 +28,8 @@ import { LayoutComponent } from './common/layout.component';
     ContextMenuComponent,
     TextFieldComponent,
     ReactiveFormsModule,
-    ListComponent,
     TranslationInputComponent,
+    ListComponent,
     TabViewComponent,
     SignalInputLayoutComponent,
     AriaDropComponent,
@@ -39,9 +41,9 @@ import { LayoutComponent } from './common/layout.component';
       </ng-content>
       <ng-content header-options>
         <span content header-options>
-          <icon-button [class.can-save]="canSave()" [icon]="IconEnum.Save" (clicked)="save()" />
+          <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
           <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
-          <context-menu [options]="divisionHeaderOptions">
+          <context-menu [options]="divisionLabelOptions">
             <icon-button [icon]="IconEnum.Options" />
           </context-menu>
         </span>
@@ -56,14 +58,14 @@ import { LayoutComponent } from './common/layout.component';
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
-        <list [(list)]="divisionList" [findLabelFn]="findLabel" (updateSelected)="this.currentDivision.set($event)" />
+        <list [(list)]="divisionList" (selectedChange)="updateSelected($event)" />
       </ng-content>
       <ng-content specifics>
-        @let currentDivision = this.currentDivision();
+        @let currentDivision = this.store.currentDivision();
         @if (currentDivision) {
           <div layout-section animate.enter="'enter'" animate.leave="'leave'">
             <h2 class="h2">Active Division</h2>
-            <translation-input [translations]="currentDivision.header" (translationsChange)="updateHeader($event)" />
+            <translation-input [translations]="currentDivision.label" (translationsChange)="updateLabel($event)" />
           </div>
           <div layout-section animate.enter="'enter'" animate.leave="'leave'">
             <h2 class="h2">Entries</h2>
@@ -85,98 +87,60 @@ export class DivisionPageComponent {
   store = inject(Store);
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
+  localStorage = inject(LocalStorageService);
   addNewDialog = inject(AddNewDialogComponent);
 
-  canSave = signal<boolean>(false);
-  locale = computed<Locale>(() => this.localeService.activeLocale() ?? Locale.SV);
-  currentDivision = this.store.currentDivision;
+  protected currentSaved: Signal<boolean>;
+  protected divisionList: WritableSignal<ListItem[]>;
 
-  divisionList = linkedSignal<Division[]>(() => {
-    const division = this.store.divisions();
-    return division ? Object.values(division) : [];
+  protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
+  protected selectedForm = linkedSignal<string[]>(() => {
+    const id = this.store.currentForm()?.id;
+    return id ? [id] : [];
+  });
+  protected pageOptions = computed<OptionProps<Page>[]>(() => itemOptions<Page>(this.store.pages() ?? {}, this.localeService.translate));
+  protected selectedPage = linkedSignal<string[]>(() => {
+    const translation = this.store.currentPage()?.label;
+    return translation ? [this.localeService.translate(translation)] : [];
   });
 
-  formOptions = computed<OptionProps<Form>[]>(() =>
-    (Object.values(this.store.forms() ?? {}) as Form[]).map(o => ({
-      id: o.id,
-      value: o.header?.['sv-SE'] ?? 'NO NAME',
-      data: o,
-    }))
-  );
-  selectedForm = linkedSignal<string[]>(() => {
-    return (
-      this.formOptions()
-        .filter(o => o.id === this.store.currentForm()?.id)
-        ?.map(o => o.value) || []
-    );
-  });
-
-  pageOptions = computed<OptionProps<Page>[]>(() =>
-    (Object.values(this.store.pages() ?? {}) as Page[]).map(o => ({
-      id: o.id,
-      value: o.header?.['sv-SE'] ?? 'NO NAME',
-      data: o,
-    }))
-  );
-  selectedPage = linkedSignal<string[]>(() => {
-    return (
-      this.formOptions()
-        .filter(o => o.id === this.store.currentPage()?.id)
-        ?.map(o => o.value) || []
-    );
-  });
-
-  protected divisionHeaderOptions: Option<string>[] = [{ label: 'Change division name', value: 'changeName' }];
-
+  protected divisionLabelOptions: Option<string>[] = [{ label: 'Change division name', value: 'changeName' }];
+  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
   protected entryViewTabs = [
     { label: 'Tree', value: 'tree' },
     { label: 'List', value: 'list' },
   ];
-  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
-  findLabel = (division: Division): string => (division.header ? division.header[this.locale()] : 'No translation');
 
-  add() {
-    this.addNewDialog.open('Add new division', '', (header: Translation) => {
-      if (header) {
-        const division = newDivision({ header });
-        this.divisionList.update(list => {
-          // Needed to trigger the update, (spread is not deep)
-          const newArr: Division[] = [];
+  protected updateSelected: (id: string | null) => void;
+  protected save: () => void;
+  protected updateLabel: (translation: Translation) => void;
 
-          list.push(division);
-          list.forEach(item => {
-            newArr.push(item);
-          });
+  protected updateSelectedForm = updateSelectedAriaOptionFn<Form>(this.formOptions, this.store.currentForm);
+  protected updateSelectedPage = updateSelectedAriaOptionFn<Page>(this.pageOptions, this.store.currentPage);
 
-          return newArr;
-        });
-        this.store.setDivision(division);
-        return true;
-      }
-      return false;
+  async add() {
+    this.localeService.set(Locale.XX);
+    await openAddNewDialog('Add new division', '').then(value => {
+      const division = newDivision({ label: value });
+      this.divisionList.update(list => mergeListItem(list, division, this.localeService.translate));
+      this.store.currentDivision.set(division);
     });
   }
-  save() {
-    const division = this.currentDivision();
-    if (division) {
-      this.apiService.post.division(division);
-    }
-  }
-  protected updateSelectedForm(event: string[]) {
-    console.log(this.store.currentForm());
-    const selectedForm = this.formOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedForm) this.store.setForm(selectedForm);
-  }
-  protected updateSelectedPage(event: string[]) {
-    console.log(this.store.currentPage());
-    const selectedPage = this.pageOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedPage) this.store.setPage(selectedPage);
-  }
-  updateHeader(translation: Translation) {
-    const trans = translation;
-    this.currentDivision.update(division => {
-      division!['header'] = trans;
-      return division;
-    });
+
+  constructor() {
+    console.log('create divisions component');
+    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Division>(
+      this.store.currentDivision,
+      this.store.divisions,
+      this.localeService.translate,
+      this.store.storeDivision,
+      this.apiService.post.division
+    );
+
+    this.currentSaved = currentSaved;
+    this.divisionList = list;
+    this.updateSelected = updateSelected;
+    this.save = save;
+    this.updateLabel = updateLabel;
   }
 }

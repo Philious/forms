@@ -19,22 +19,53 @@ export class ApiService {
 
   get = {
     user: (options?: ApiObserverOptions<User>) =>
-      this._get('/user', { ...options, error: err => console.log('error', err), next: this.store.setUser }),
-    all: (options?: ApiObserverOptions<never>) => this._get(`/all`, { ...options, next: this.store.setData }),
-    form: (formId: FormId, options?: ApiObserverOptions<Form>) => this._get(`/forms/${formId}`, { ...options, next: this.store.setForm }),
-    page: (pageId: PageId, options?: ApiObserverOptions<Page>) => this._get(`/page(${pageId})`, { ...options, next: this.store.setPage }),
+      this._get('/user', {
+        ...options,
+        error: err => console.log('error', err),
+        next: this.store.setUser,
+      }),
+    all: (options?: ApiObserverOptions<never>) =>
+      this._get(`/all`, {
+        ...options,
+        next: this.store.setData,
+      }),
+    form: (formId: FormId, options?: ApiObserverOptions<Form>) =>
+      this._get(`/forms/${formId}`, {
+        ...options,
+        next: (form: Form) => this.store.currentForm.set(form),
+      }),
+    page: (pageId: PageId, options?: ApiObserverOptions<Page>) =>
+      this._get(`/page(${pageId})`, {
+        ...options,
+        next: (page: Page) => this.store.currentPage.set(page),
+      }),
     division: (divId: DivisionId, options?: ApiObserverOptions<Division>) =>
-      this._get(`/division/${divId}`, { ...options, next: this.store.setDivision }),
-    entry: (entryId: EntryId, options?: ApiObserverOptions<Entry>): void => this._get(`/entry${entryId}`, { ...options, next: this.store.setEntry }),
-    allForms: (options?: ApiObserverOptions<never>) => this._get('/all/forms', { ...options, next: this.store.setForms }),
-    allEntries: (options?: ApiObserverOptions<never>) => this._get('/all/entries', { ...options, next: this.store.setEntries }),
+      this._get(`/division/${divId}`, {
+        ...options,
+        next: (division: Division) => this.store.currentDivision.set(division),
+      }),
+    entry: (entryId: EntryId, options?: ApiObserverOptions<Entry>): void =>
+      this._get(`/entry${entryId}`, {
+        ...options,
+        next: (entry: Entry) => this.store.currentEntry.set(entry),
+      }),
+    allForms: (options?: ApiObserverOptions<never>) =>
+      this._get('/all/forms', {
+        ...options,
+        next: this.store.setForms,
+      }),
+    allEntries: (options?: ApiObserverOptions<never>) =>
+      this._get('/all/entries', {
+        ...options,
+        next: this.store.setEntries,
+      }),
   };
 
   post = {
-    form: (form: Form) => this._post('/form', form),
-    page: (page: Page) => this._post('/page', page),
-    division: (division: Division) => this._post('/division', division),
-    entry: (entry: Entry) => this._post('/entry', entry),
+    form: (form: Form, options?: ApiObserverOptions<Form>) => this._post('/form', form, { ...options }),
+    page: (page: Page, options?: ApiObserverOptions<Page>) => this._post('/page', page, { ...options }),
+    division: (division: Division, options?: ApiObserverOptions<Division>) => this._post('/division', division, { ...options }),
+    entry: (entry: Entry, options?: ApiObserverOptions<Entry>) => this._post('/entry', entry, { ...options }),
   };
 
   delete = {

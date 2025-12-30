@@ -1,20 +1,25 @@
+import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
-import { Form, Option } from '@cs-forms/shared';
+import { Component, inject, Signal, signal, WritableSignal } from '@angular/core';
+import { Form } from '@cs-forms/shared';
 import { TabViewComponent } from '@src/app/components/action/tab-view.component';
 import { TranslationInputComponent } from '@src/app/components/action/translation-input';
-import { AddNewDialogComponent } from '@src/app/components/modals/add.new.dialog.component';
+import { openAddNewDialog } from '@src/app/components/modals/add.new.dialog.component';
 import { ApiService } from '@src/app/services/api.service';
 import { LocaleService } from '@src/app/services/locale.service';
 import { IconEnum, Locale } from '@src/helpers/enum';
 import { newForm } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
+import { Option } from '@src/helpers/types';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
+import { openBinaryDialog } from '../components/modals/binary.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
-import { ListComponent } from '../components/reorerableList.component';
+import { ListComponent, ListItem } from '../components/reorerableList.component';
+import { LocalStorageService } from '../services/localStorageService';
 import { Store } from '../store/store';
 import { LayoutComponent } from './common/layout.component';
+import { loadPageFn, mergeListItem } from './common/page.utilities';
 
 @Component({
   selector: 'forms-page',
@@ -33,27 +38,27 @@ import { LayoutComponent } from './common/layout.component';
       <ng-content header>
         <span>Form details</span>
       </ng-content>
-      <ng-content header-options>
-        <span content header-options>
-          <icon-button [class.can-save]="canSave()" [icon]="IconEnum.Save" (clicked)="save()" />
-          <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
-          <context-menu [options]="pageHeaderOptions">
-            <icon-button [icon]="IconEnum.Options" />
-          </context-menu>
-        </span>
-      </ng-content>
+
+      <span content header-options>
+        <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
+        <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
+        <context-menu [options]="pageLabelOptions">
+          <icon-button [icon]="IconEnum.Options" />
+        </context-menu>
+      </span>
+
       <ng-content location>
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
-        <list [(list)]="formList" [findLabelFn]="findLabel" (updateSelected)="this.currentForm.set($event)" />
+        <list [(list)]="formList" (selectedChange)="updateSelected($event)" (removeId)="removeItem($event)" />
       </ng-content>
       <ng-content specifics>
-        @let currentForm = this.currentForm();
+        @let currentForm = this.store.currentForm();
         @if (currentForm) {
           <div layout-section animate.enter="'enter'" animate.leave="'leave'">
             <h2 class="h2">Active form</h2>
-            <translation-input [translations]="currentForm.header" (translationsChange)="updateHeader($event)" />
+            <translation-input [translations]="currentForm.label" (translationsChange)="updateLabel($event)" />
           </div>
           <div layout-section animate.enter="'enter'" animate.leave="'leave'">
             <h2 class="h2">Pages</h2>
@@ -74,6 +79,13 @@ import { LayoutComponent } from './common/layout.component';
       display: flex;
       flex: 1;
     }
+    .h2 {
+      white-space: nowrap;
+      width: min-content;
+    }
+    .can-save {
+      color: var(--p-500);
+    }
   `,
 })
 export class FormPageComponent {
@@ -81,62 +93,55 @@ export class FormPageComponent {
   store = inject(Store);
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
-  addNewDialog = inject(AddNewDialogComponent);
+  localStorage = inject(LocalStorageService);
+  dialog = inject(Dialog);
 
-  canSave = signal<boolean>(false);
-  locale = computed<Locale>(() => this.localeService.activeLocale() ?? Locale.SV);
-  currentForm = this.store.currentForm;
+  protected currentSaved: Signal<boolean>;
+  protected formList: WritableSignal<ListItem[]>;
 
-  formList = linkedSignal<Form[]>(() => {
-    const forms = this.store.forms();
-    return forms ? Object.values(forms) : [];
-  });
-
-  protected pageHeaderOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
+  protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
 
   protected entryViewTabs = [
     { label: 'Tree', value: 'tree' },
     { label: 'List', value: 'list' },
   ];
+
   protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
-  findLabel = (form: Form): string => (form.header ? form.header[this.locale()] : 'No translation');
 
-  add() {
-    this.addNewDialog.open('Add new form', '', (header: Translation) => {
-      if (header) {
-        const form = newForm({ header });
-        this.formList.update(list => {
-          // Needed to trigger the update, (spread is not deep)
-          const newArr: Form[] = [];
+  protected updateSelected: (id: string | null) => void;
+  protected save: () => void;
+  protected updateLabel: (translation: Translation) => void;
 
-          list.push(form);
-          list.forEach(item => {
-            newArr.push(item);
-          });
-
-          return newArr;
-        });
-        this.store.setForm(form);
-        return true;
-      }
-      return false;
+  protected async add() {
+    this.localeService.set(Locale.XX);
+    await openAddNewDialog('Add new form', '').then(value => {
+      const form = newForm({ label: value });
+      this.formList.update(list => mergeListItem(list, form, this.localeService.translate));
+      this.store.currentForm.set(form);
     });
   }
 
-  save() {
-    const form = this.currentForm();
-    if (form) {
-      this.apiService.post.form(form);
-    }
+  protected async removeItem(id: string) {
+    await openBinaryDialog('Remove form?', 'This can not be undone')
+      .then(() => console.log('remove' + id))
+      .catch(() => console.log('do not remove' + id));
   }
 
-  updateHeader(translation: Translation) {
-    const trans = translation;
-    this.currentForm.update(form => {
-      form!['header'] = trans;
-      return form;
-    });
-  }
+  constructor() {
+    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Form>(
+      this.store.currentForm,
+      this.store.forms,
+      this.localeService.translate,
+      this.store.storeForm,
+      this.apiService.post.form
+    );
 
-  constructor() {}
+    this.currentSaved = currentSaved;
+    this.formList = list;
+    this.updateSelected = updateSelected;
+    this.save = save;
+    this.updateLabel = updateLabel;
+
+    // effect(() => console.log('current form: ', this.store.currentForm()));
+  }
 }

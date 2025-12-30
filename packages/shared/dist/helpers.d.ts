@@ -6,3 +6,6 @@ export type ExtendedArrayType<T> = T[] & {
     unique: () => ExtendedArrayType<T>;
 };
 export declare function extendedArray<T>(array?: T[]): ExtendedArrayType<T>;
+export declare const _: {
+    deepClone: <K extends string | number | symbol, V>(k: Record<K, V>) => Record<K, V>;
+};

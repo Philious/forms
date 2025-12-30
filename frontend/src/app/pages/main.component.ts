@@ -1,14 +1,17 @@
-import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, model, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Entry } from '@cs-forms/shared';
 import { IconEnum, MainTabs } from '../../helpers/enum';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { DataViewComponent } from '../components/dataView.component';
+import { openBinaryDialog } from '../components/modals/binary.dialog.component';
 import { ApiService } from '../services/api.service';
 import { LocaleService } from '../services/locale.service';
+import { LocalStorageService } from '../services/localStorageService';
 import { Store } from '../store/store';
+import { checkIfSaved, clearCurrentifNotSaved } from './common/page.utilities';
 import { DivisionPageComponent } from './divisions.component';
 import { EntriesComponent } from './entries/entries.page';
 import { FormPageComponent } from './forms.component';
@@ -33,7 +36,7 @@ import { TestPageComponent } from './test.component';
   template: `
     <div class="top-section">
       <div class="row">
-        <tab-view class="tabs" [tabs]="tabs" [selected]="selectedTab()" (selectedChange)="tabSelect($event)" />
+        <tab-view class="tabs" [tabs]="tabs" [(selected)]="selectedTab" (update)="tabSelect($event)" [oneWayBinding]="true" />
         <div class="global-settings">
           <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
           <div class="locale">{{ locale() }}</div>
@@ -52,8 +55,9 @@ import { TestPageComponent } from './test.component';
       <test-page />
     }
 
-    <data-view label="form" [data]="store.currentForm()" [startPosition]="{ bottom: '1rem', right: '50%' }" />
-    <data-view label="page" [data]="store.currentPage()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
+    <data-view label="form" [data]="store.currentForm()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
+    <data-view label="page" [data]="store.pages()" [startPosition]="{ top: '33%', right: '1rem' }" />
+    <data-view label="division" [data]="store.currentDivision()" [startPosition]="{ bottom: '1rem', right: '1rem' }" />
   `,
   styles: `
     :host {
@@ -118,18 +122,18 @@ export class MainPageComponent implements OnInit {
   apiService = inject(ApiService);
   store = inject(Store);
   localeService = inject(LocaleService);
-  dialog = inject(Dialog);
+  localStorage = inject(LocalStorageService);
 
   IconEnum = IconEnum;
   MainTabs = MainTabs;
   selectedSurvey = signal({ label: 'Mother of all Surveys', value: 'moas' });
-  selectedTab = signal(MainTabs.Entries);
+  selectedTab = signal<MainTabs>(MainTabs.Entries);
   showTranslations = signal<boolean>(false);
   searchFilter = model<string>('');
 
   locale = computed(() => this.localeService.activeLocale().slice(3, 5));
-
-  tabs = [
+  props = { content: () => 'content' };
+  tabs: { label: string; value: MainTabs }[] = [
     { label: 'Entries', value: MainTabs.Entries },
     { label: 'Divisions', value: MainTabs.Divisions },
     { label: 'Pages', value: MainTabs.Pages },
@@ -138,20 +142,56 @@ export class MainPageComponent implements OnInit {
   ];
 
   ngOnInit() {
-    console.log(this.store.forms());
-    if (!this.store.forms()) this.tabSelect(MainTabs.Forms);
-    else if (!this.store.pages()) this.tabSelect(MainTabs.Pages);
-    else if (!this.store.divisions()) this.tabSelect(MainTabs.Divisions);
-    else this.tabSelect(MainTabs.Entries);
+    if (!this.store.forms()) this.selectedTab.set(MainTabs.Forms);
+    else if (!this.store.pages()) this.selectedTab.set(MainTabs.Pages);
+    else if (!this.store.divisions()) this.selectedTab.set(MainTabs.Divisions);
+    else this.selectedTab.set(MainTabs.Entries);
   }
 
-  tabSelect(tab: string | null) {
-    this.selectedTab.set(tab as MainTabs);
+  async tabSelect(tab: MainTabs) {
+    const prevSelected = this.selectedTab();
+
+    switch (prevSelected) {
+      case MainTabs.Test:
+        this.selectedTab.set(tab);
+        break;
+      case MainTabs.Forms:
+        const form = this.store.currentForm;
+        const forms = this.store.forms;
+        if (form && !checkIfSaved(form, forms))
+          await openBinaryDialog('Current form is not saved', 'Continue anyway?')
+            .then(() => clearCurrentifNotSaved(this.store.currentForm, this.store.forms()))
+            .catch(() => this.selectedTab.set(prevSelected));
+        break;
+      case MainTabs.Pages:
+        const page = this.store.currentPage;
+        const pages = this.store.pages;
+        if (page && !checkIfSaved(page, pages))
+          await openBinaryDialog('Current page is not saved', 'Continue anyway?')
+            .then(() => clearCurrentifNotSaved(this.store.currentPage, this.store.pages()))
+            .catch(() => this.selectedTab.set(prevSelected));
+        break;
+      case MainTabs.Divisions:
+        const division = this.store.currentPage;
+        const divisions = this.store.pages;
+        if (division && !checkIfSaved(division, divisions))
+          await openBinaryDialog('Current division is not saved', 'Continue anyway?')
+            .then(() => clearCurrentifNotSaved(this.store.currentDivision, this.store.divisions()))
+            .catch(() => this.selectedTab.set(prevSelected));
+        break;
+      case MainTabs.Entries:
+        const entry = this.store.currentEntry;
+        const entries = this.store.entries;
+        if (entry && !checkIfSaved<Entry>(entry, entries))
+          await openBinaryDialog('Current entry is not saved', 'Continue anyway?')
+            .then(() => clearCurrentifNotSaved(this.store.currentEntry, this.store.entries()))
+            .catch(() => this.selectedTab.set(prevSelected));
+    }
   }
 
   constructor() {
+    Object.values(this.localStorage.clear).forEach(fn => fn());
     const init = effect(() => {
-      if (this.store.forms() === null) return;
       if (Object.keys(this.store.forms() ?? {}).length < 1) this.tabSelect(MainTabs.Forms);
       else if (Object.keys(this.store.pages() ?? {}).length < 1) this.tabSelect(MainTabs.Pages);
       else if (Object.keys(this.store.divisions() ?? {}).length < 1) this.tabSelect(MainTabs.Divisions);

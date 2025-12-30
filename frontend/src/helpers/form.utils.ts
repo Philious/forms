@@ -1,21 +1,24 @@
 import { ValidationErrors } from '@angular/forms';
-import { Division, Entry, EntryTypeEnum, Form, Locale, Page } from '@cs-forms/shared';
+import { Division, Entry, EntryTypeEnum, Form, Page } from '@cs-forms/shared';
 import { OptionProps } from '@src/app/components/action/aria-drop.component';
 import { v4 as uid } from 'uuid';
+import { Locale, noTranslation } from './enum';
+import { Translation } from './translationTypes';
 
-export function spreadTranslation(trans: string, transKey?: string) {
+export function spreadTranslation(trans: Partial<Translation>, transKey?: string): Translation {
   return {
-    [Locale.SE]: trans,
-    [Locale.EN]: trans,
-    [Locale.NB]: trans,
-    [Locale.XX]: transKey || '',
+    [Locale.SV]: '',
+    [Locale.EN]: '',
+    [Locale.NB]: '',
+    ...trans,
+    [Locale.XX]: transKey || trans.translationKey || '',
   };
 }
 
 export function newForm(form: Partial<Form<'array'>>): Form<'array'> {
   return {
     id: form.id ?? uid(),
-    header: form.header ?? spreadTranslation(''),
+    label: form.label ?? spreadTranslation({}),
     pages: form.pages ?? [],
     divisions: form.divisions ?? [],
     entries: form.entries ?? [],
@@ -26,7 +29,7 @@ export function newForm(form: Partial<Form<'array'>>): Form<'array'> {
 export function newPage(page: Partial<Page<'array'>>): Page<'array'> {
   return {
     id: page.id ?? uid(),
-    header: page.header ?? spreadTranslation(''),
+    label: page.label ?? spreadTranslation({}),
     divisions: page.divisions ?? [],
     entries: page.entries ?? [],
     updated: page.updated ?? new Date().valueOf(),
@@ -36,27 +39,46 @@ export function newPage(page: Partial<Page<'array'>>): Page<'array'> {
 export function newDivision(page: Partial<Division<'array'>>): Division<'array'> {
   return {
     id: page.id ?? uid(),
-    header: page.header ?? spreadTranslation(''),
+    label: page.label ?? spreadTranslation({}),
     entries: page.entries ?? [],
     updated: page.updated ?? new Date().valueOf(),
   };
 }
 
-export function newEntry<T extends EntryTypeEnum>(entry?: Partial<Entry<T>>): Partial<Entry> & Pick<Entry, 'id' | 'translations' | 'updated'> {
+export function newEntry<T extends EntryTypeEnum>(entry?: Partial<Entry<T>>): Partial<Entry> & Pick<Entry, 'id' | 'label' | 'updated'> {
   return {
     id: entry?.id ?? uid(),
-    translations: entry?.translations || spreadTranslation(''),
+    label: entry?.label || spreadTranslation({}),
     updated: entry?.updated || new Date().valueOf(),
     ...(entry ?? []),
   };
 }
 
-export function itemOptions<T extends Form | Page | Division>(items: Record<string, T>): OptionProps<T>[] {
-  return (Object.values(items) as T[]).map(o => ({
-    id: Object.hasOwn(o, 'id') ? o?.id : '',
-    value: o.header?.['sv-SE'] ?? 'NO NAME',
-    data: o as T,
+type Filters = {
+  pages?: string[];
+  divisions?: string[];
+  entries?: string[];
+  label: Translation;
+  id: string;
+};
+
+export function itemOptions<T extends Filters>(
+  items: Record<string, T>,
+  translate: (set: Translation) => string,
+  filter?: Omit<Filters, 'id' | 'label'>
+): OptionProps<T>[] {
+  const filtered = Object.values<T>(items).filter(
+    item => !filter || filter?.pages?.includes(item.id) || filter?.divisions?.includes(item.id) || filter?.entries?.includes(item.id)
+  );
+  console.log(filtered);
+  const options: OptionProps<T>[] = filtered.map(o => ({
+    label: !!translate(o?.label) ? () => translate(o?.label) : () => noTranslation,
+    value: o.id,
+    data: o,
   }));
+  options.unshift({ label: () => 'Show All', value: '' } as OptionProps<T>);
+  options.forEach(o => console.log(o.label()));
+  return options;
 }
 
 export function getErrorMessage(errors: ValidationErrors | null): string | null {

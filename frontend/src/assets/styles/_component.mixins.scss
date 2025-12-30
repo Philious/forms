@@ -103,13 +103,7 @@
       scale 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       translate 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .default-enter {
-    transform-origin: center bottom;
-    opacity: 1;
-    scale: 1;
-    translate: 0 0;
-    max-height: 100px;
+        &.enter {
     @starting-style {
       overflow: hidden;
       opacity: 0;
@@ -117,9 +111,12 @@
       translate: 0 1rem;
       max-height: 0;
     }
+    transform-origin: center bottom;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
   }
-    
-  .default-leave {
+  &.leave {
     transform-origin: center top;
     opacity: 0;
     scale: 1 0;
@@ -132,6 +129,10 @@
       max-height: 100px;
     }
   }
+
+
+  }
+
 
   [layout-section] {
       display: grid;

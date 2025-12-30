@@ -2,16 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, model, output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SectionService } from '@src/services/section.service';
-import { TextButtonComponent } from './action/base-button.component';
+import { ButtonComponent } from './action/base-button.component';
 
 @Component({
   selector: 'tool-bar',
   template: `
     <div class="tool-bar">
-      <text-button [label]="'Save'" (clicked)="save()" />
+      <button base-button (clicked)="save()">Save</button>
     </div>
   `,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TextButtonComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent],
   styles: `
     .tool-bar {
       background-color: var(--black);

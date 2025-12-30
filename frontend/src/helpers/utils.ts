@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash.clonedeep';
+
 export const setCookie = (name: string, value: string, hours: number): void => {
   const expires = new Date();
   expires.setTime(expires.getTime() + hours * 60 * 60 * 1000);
@@ -127,6 +129,52 @@ export class ExtendedArray<T> extends Array<T> {
     this.splice(0, this.length, ...uniqueItems);
     return this;
   }
+}
+
+export type ExtendedObjectType<K extends string | number | symbol, V> = Record<K, V> & {
+  has: (item: K) => boolean;
+  size: () => number;
+  update: () => void;
+  values: () => V[];
+  keys: () => K[];
+};
+export function extendedRecord<K extends string | number | symbol, V>(object?: Record<K, V>): ExtendedObjectType<K, V> {
+  object = object ? object : ({} as Record<K, V>);
+  Object.defineProperty(object, 'has', {
+    value: (item: K): boolean => {
+      return Object.keys(object).filter(o => o === item).length > 0;
+    },
+    writable: false,
+  });
+
+  Object.defineProperty(object, 'size', {
+    value: (): number => {
+      return Object.keys(object).length;
+    },
+    writable: false,
+  });
+  Object.defineProperty(object, 'update', {
+    value: (): Record<K, V> => {
+      return cloneDeep<Record<K, V>>(object);
+    },
+    writable: false,
+  });
+
+  Object.defineProperty(object, 'values', {
+    value: (): V[] => {
+      return Object.values(object);
+    },
+    writable: false,
+  });
+
+  Object.defineProperty(object, 'keys', {
+    value: (): K[] => {
+      return Object.keys(object) as K[];
+    },
+    writable: false,
+  });
+
+  return object as ExtendedObjectType<K, V>;
 }
 
 export function svgCircleAsPath(cx: number, cy: number, r: number) {

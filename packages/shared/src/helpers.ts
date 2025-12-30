@@ -36,3 +36,9 @@ export function extendedArray<T>(array?: T[]) {
 
   return array as ExtendedArrayType<T>;
 }
+
+export const _ = {
+  deepClone: <K extends string | number | symbol, V>(k: Record<K, V>) => {
+    return k;
+  },
+};

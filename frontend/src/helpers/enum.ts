@@ -24,6 +24,7 @@ export enum ButtonStyleEnum {
   Filled = 'filled',
   Border = 'border',
   Transparent = 'transparent',
+  Icon = 'icon-btn',
 }
 
 export enum IconEnum {
@@ -47,3 +48,5 @@ export enum IconEnum {
   Search = 'search',
   Toggle = 'toggle',
 }
+
+export const noTranslation = '** NO TRANSLATION **';

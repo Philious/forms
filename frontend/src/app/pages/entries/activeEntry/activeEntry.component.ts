@@ -18,7 +18,7 @@ import { validatiorOptions } from './validation.static';
     @if (entry) {
       <div layout-section animate.enter="'enter'" animate.leave="'leave'">
         <h2 class="h2">Active entry</h2>
-        <translation-input [translations]="entry.translations" (translations)="updateTranslation($event)" />
+        <translation-input [translations]="entry.label" (translations)="updateTranslation($event)" />
       </div>
 
       <div class="layout-section">
@@ -85,12 +85,11 @@ export class ActiveEntryComponent<T extends EntryTypeEnum> {
   protected ctrl = new FormControl<SelectorItem[]>([]);
 
   protected type = linkedSignal<T | null>(() => this.entry().type ?? null);
-  protected translations = linkedSignal<Translation>(() => this.entry().translations);
   protected specificSettings = linkedSignal<Settings<T> | null>(() => this.entry()?.entrySpecific ?? null);
 
   protected updateTranslation(set: Event) {
     this.entry.update(e => {
-      (e.translations as Translation) = set as unknown as Translation;
+      (e.label as Translation) = set as unknown as Translation;
 
       return e;
     });

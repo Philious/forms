@@ -33,18 +33,18 @@ export function createGetHelper(client: HttpClient, baseUrl: string): <T>(url: s
   return getter;
 }
 
-export function createPostHelper(client: HttpClient, baseUrl: string): <T>(url: string, value: T, options?: ApiObserverOptions<unknown>) => void {
-  const poster = <T>(url: string, value: T, options?: ApiObserverOptions<unknown>): void => {
-    client
-      .post(`${baseUrl}${url}`, value, {
+export function createPostHelper(client: HttpClient, baseUrl: string): <T>(url: string, value: T, options: ApiObserverOptions<T>) => void {
+  const poster = <T>(url: string, value: T, options: ApiObserverOptions<T>): void => {
+    (
+      client.post(`${baseUrl}${url}`, value, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
-      })
-      .subscribe({
-        next: options?.next,
-        error: options?.error,
-        complete: options?.complete,
-      });
+      }) as Observable<T>
+    ).subscribe({
+      next: options.next,
+      error: options.error,
+      complete: options.complete,
+    });
   };
   return poster;
 }

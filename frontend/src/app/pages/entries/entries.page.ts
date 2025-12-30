@@ -7,18 +7,19 @@ import { IconButtonComponent } from '@src/app/components/action/icon-button.comp
 import { SignalInputLayoutComponent } from '@src/app/components/action/input-layout/signal-input.layout.component';
 import { TextFieldComponent } from '@src/app/components/action/textfield.component';
 import { ContextMenuComponent } from '@src/app/components/modals/contextMenu.component';
-import { ListComponent } from '@src/app/components/reorerableList.component';
+import { ListItem } from '@src/app/components/reorerableList.component';
 import { ApiService } from '@src/app/services/api.service';
 import { LocaleService } from '@src/app/services/locale.service';
+import { LocalStorageService } from '@src/app/services/localStorageService';
 import { Store } from '@src/app/store/store';
 import { IconEnum, Locale } from '@src/helpers/enum';
-import { itemOptions, newEntry } from '@src/helpers/form.utils';
+import { itemOptions } from '@src/helpers/form.utils';
 import { EntryTypeEnum } from '@src/helpers/types';
 import { LayoutComponent } from '../common/layout.component';
 import { ActiveEntryComponent } from './activeEntry/activeEntry.component';
 
-export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Exclude<Entry<T>, 'id' | 'translations' | 'updated'>> &
-  Pick<Entry<T>, 'id' | 'translations' | 'updated'>;
+export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Exclude<Entry<T>, 'id' | 'label' | 'updated'>> &
+  Pick<Entry<T>, 'id' | 'label' | 'updated'>;
 
 @Component({
   selector: 'entries-page',
@@ -30,7 +31,6 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
     TextFieldComponent,
     CommonModule,
     ActiveEntryComponent,
-    ListComponent,
     FormsModule,
     ReactiveFormsModule,
     AriaDropComponent,
@@ -40,7 +40,7 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
     <span content header-options>
       <icon-button [class.can-save]="canSave()" [icon]="IconEnum.Save" (clicked)="save()" />
       <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
-      <context-menu [options]="pageHeaderOptions">
+      <context-menu [options]="pageLabelOptions">
         <icon-button [icon]="IconEnum.Options" />
       </context-menu>
     </span>
@@ -57,7 +57,7 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
       <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
     </span>
     <span list>
-      <list [(list)]="entryList" [findLabelFn]="listLabel(locale())" (updateSelected)="this.currentEntry.set($event)" />
+      <!--<list [(list)]="entryList" [findLabelFn]="listLabel(locale())" (updateSelected)="this.currentEntry.set($event)" />-->
     </span>
 
     <span specifics>
@@ -83,80 +83,92 @@ export class EntriesComponent {
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
   store = inject(Store);
+  localStorage = inject(LocalStorageService);
   IconEnum = IconEnum;
+
+  currentSaved = computed<boolean>(() => {
+    const pages = this.store.entries()?.values() ?? [];
+    const ce = this.store.currentEntry();
+
+    return !ce || pages.length === 0 || (!!ce && pages.filter(e => e.id === ce.id).length !== 0);
+  });
 
   currentEntry = this.store.currentEntry as WritableSignal<PartialEntry | null>;
   locale = this.localeService.activeLocale;
   canSave = signal<boolean>(false);
 
-  protected entryOrder = computed(() => this.entryList().map(e => e.id));
-  protected pageHeaderOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
+  protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
   protected sectionList = [{ label: 'Change section name', value: 'changeName' }];
-  protected entryList = linkedSignal<PartialEntry[]>(() => {
-    const entries = this.store.entries();
-    return entries ? Object.values(entries) : [];
+
+  entryList = linkedSignal<ListItem[]>(() => {
+    const entries = this.store.entries()?.values() ?? [];
+    const ce = this.store.currentEntry();
+
+    if (ce && entries.filter(e => e.id === ce.id).length === 0) {
+      entries.push(ce);
+    }
+
+    return entries.map(e => ({
+      id: e.id,
+      label: this.localeService.translate(e.label),
+      selected: e.id === ce?.id,
+      color: e.id === ce?.id && !this.currentSaved() ? { color: 'var(--p-500)', message: 'Page is not saved' } : undefined,
+    }));
   });
 
   protected showId = signal<boolean>(false);
 
-  protected selectedForm = linkedSignal<string[]>(() => {
-    return (
-      this.formOptions()
-        .filter(o => o.id === this.store.currentForm()?.id)
-        ?.map(o => o.value) || []
-    );
+  selectedForm = linkedSignal<string[]>(() => {
+    const translation = this.store.currentForm()?.label;
+    if (translation) return [this.localeService.translate(translation)];
+    return [];
   });
-  protected selectedPage = linkedSignal<string[]>(() => {
-    return (
-      this.formOptions()
-        .filter(o => o.id === this.store.currentPage()?.id)
-        ?.map(o => o.value) || []
-    );
+  selectedPage = linkedSignal<string[]>(() => {
+    const translation = this.store.currentPage()?.label;
+    if (translation) return [this.localeService.translate(translation)];
+    return [];
   });
   protected selectedDivision = linkedSignal<string[]>(() => {
-    return (
-      this.divisionOptions()
-        .filter(o => o.id === this.store.currentDivision()?.id)
-        ?.map(o => o.value) || []
-    );
+    const translation = this.store.currentDivision()?.label;
+    if (translation) return [this.localeService.translate(translation)];
+    return [];
   });
 
-  protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}));
-  protected pageOptions = computed<OptionProps<Page>[]>(() => itemOptions<Page>(this.store.pages() ?? {}));
-  protected divisionOptions = computed<OptionProps<Division>[]>(() => itemOptions<Division>(this.store.divisions() ?? {}));
+  protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
+  protected pageOptions = computed<OptionProps<Page>[]>(() => itemOptions<Page>(this.store.pages() ?? {}, this.localeService.translate));
+  protected divisionOptions = computed<OptionProps<Division>[]>(() =>
+    itemOptions<Division>(this.store.divisions() ?? {}, this.localeService.translate)
+  );
 
   protected updateSelectedForm(event: string[]) {
     const selectedForm = this.formOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedForm) this.store.setForm(selectedForm);
+    if (selectedForm) this.store.currentForm.set(selectedForm);
   }
   protected updateSelectedPage(event: string[]) {
     const selectedPage = this.pageOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedPage) this.store.setPage(selectedPage);
+    if (selectedPage) this.store.currentPage.set(selectedPage);
   }
   protected updateSelectedDivision(event: string[]) {
     const selectedDivision = this.divisionOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedDivision) this.store.setDivision(selectedDivision);
+    if (selectedDivision) this.store.currentDivision.set(selectedDivision);
   }
 
   protected setActive() {}
-  protected listLabel(locale: Locale): (k: Pick<Entry, 'translations'>) => string {
-    return (k: Pick<Entry, 'translations'>) => k.translations[locale] ?? 'No translation';
+  protected listLabel(locale: Locale): (k: Pick<Entry, 'label'>) => string {
+    return (k: Pick<Entry, 'label'>) => k.label[locale] ?? 'No translation';
   }
-  protected add() {
-    this.entryList.update(list => {
-      list.push(newEntry());
-
-      return list;
-    });
-  }
+  protected add() {}
 
   protected save() {
     const entry = this.currentEntry();
-    const keys: (keyof Entry)[] = ['id', 'type', 'translations', 'updated', 'entrySpecific'];
+    const keys: (keyof Entry)[] = ['id', 'type', 'label', 'updated', 'entrySpecific'];
 
     const missingKey = keys.filter(k => !entry || !entry[k]);
     if (missingKey.length) console.error(`${missingKey.join(', ')} missing`);
-    else this.apiService.post.entry(entry as Entry);
+    else {
+      this.apiService.post.entry(entry as Entry);
+      this.localStorage.clear.entry();
+    }
   }
 
   constructor() {}

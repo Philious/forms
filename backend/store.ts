@@ -12,7 +12,7 @@ export const entryMap = new Map<EntryId, Entry>([
     {
       id: uid(),
       type: EntryTypeEnum.RadioGroup,
-      translations: {
+      label: {
         [Locale.SE]: 'Entry 1',
         [Locale.EN]: 'Entry 1',
         [Locale.NB]: 'Entry 1',
@@ -58,7 +58,7 @@ export const updateIds = (ids: Ids) => {
 export const setForm = (form: Form) => {
   const formUpdate: Form<'array'> = {
     ...form,
-    header: form.header,
+    label: form.label,
     updated: new Date().valueOf(),
   };
   formMap.set(form.id, formUpdate);
@@ -67,7 +67,7 @@ export const setForm = (form: Form) => {
 export const setPage = (page: Page) => {
   const pageUpdate: Page<'array'> = {
     ...page,
-    header: page.header,
+    label: page.label,
     updated: new Date().valueOf(),
   };
   pageMap.set(page.id, pageUpdate);
@@ -87,7 +87,7 @@ export const setPage = (page: Page) => {
 export const setDivision = (division: Division) => {
   const div: Division<'array'> = {
     ...division,
-    header: division.header,
+    label: division.label,
     updated: new Date().valueOf(),
   };
   divisionMap.set(div.id, div);

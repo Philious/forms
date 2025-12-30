@@ -27,3 +27,8 @@ export function extendedArray(array) {
     });
     return array;
 }
+export const _ = {
+    deepClone: (k) => {
+        return k;
+    },
+};

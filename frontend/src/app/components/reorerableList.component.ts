@@ -1,31 +1,41 @@
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import { Component, computed, input, model, output, signal } from '@angular/core';
-import { IconEnum } from '@src/helpers/enum';
+import { CommonModule, NgStyle } from '@angular/common';
+import { Component, model, output } from '@angular/core';
+import { IconEnum, noTranslation } from '@src/helpers/enum';
+import { TooltipDirective } from '../directives/tooltip.directive';
+import { ButtonComponent } from './action/base-button.component';
 import { IconComponent } from './icons/icon.component';
 
-type ListVM = {
+export type ListItem = {
   id: string;
-  index: number;
-  selected: boolean;
+  label: string;
+  selected?: boolean;
+  disabled?: boolean;
+  color?: string | { color: string; message: string };
 };
 
 @Component({
-  imports: [CdkDrag, CdkDragPlaceholder, CdkDropList, IconComponent, CommonModule],
+  imports: [CdkDrag, CdkDragPlaceholder, CdkDropList, IconComponent, ButtonComponent, CommonModule, NgStyle, TooltipDirective],
   selector: 'list',
   template: `
     <ul cdkDropList (cdkDropListDropped)="dragItem($event)" class="current-list">
-      @for (entry of vm(); track entry.id) {
-        <li class="list-item" [class.selected]="entry.selected" cdkDrag [cdkDragData]="entry.index">
+      @for (entry of list(); let idx = $index; track entry.id) {
+        <li class="list-item" [class.selected]="entry.selected" cdkDrag [cdkDragData]="idx">
           <div class="drag-custom-placeholder current-list-item" *cdkDragPlaceholder></div>
-
           <div class="drag-icon">
             <icon [icon]="IconEnum.Drag" />
           </div>
+          <button btn class="list-btn" (click)="selected.set(entry.id)">{{ entry.label || noTranslation }}</button>
 
-          <button btn class="list-btn" (click)="select(entry)">
-            {{ findLabelFn()(list()[entry.index]) }}
-          </button>
+          @if (entry.color) {
+            <div
+              class="dot"
+              [class.message]="!!colorMessage(entry.color).message"
+              [tooltip]="colorMessage(entry.color).message"
+              [ngStyle]="{ backgroundColor: colorMessage(entry.color).color }"
+            ></div>
+          }
+          <button base-button [iconButton]="IconEnum.Remove" (click)="removeId.emit(entry.id)"></button>
         </li>
       }
     </ul>
@@ -38,6 +48,15 @@ type ListVM = {
       height: 2.5rem;
       opacity: 0;
       overflow: hidden;
+    }
+    .dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      &.message {
+        cursor: help;
+      }
     }
     .cdk-drop-list-dragging .list-item {
       &:not(.current-list-item):hover {
@@ -87,6 +106,7 @@ type ListVM = {
         align-items: center;
         background-color: transparent;
         border: none;
+        letter-spacing: 0.025rem;
       }
     }
 
@@ -107,31 +127,16 @@ type ListVM = {
     }
   `,
 })
-export class ListComponent<O extends Record<string, unknown>> {
+export class ListComponent {
   IconEnum = IconEnum;
-  list = model.required<O[]>();
-  findLabelFn = input.required<(item: O) => string>();
-  updateSelected = output<O>();
-
-  protected vm = computed<ListVM[]>(() => {
-    const selectedId = this.selected();
-
-    return this.list().map((item, index) => {
-      const id = `item${item.id ?? index}`;
-      return {
-        id,
-        index,
-        selected: id === selectedId,
-      };
-    });
-  });
-
-  protected selected = signal<string>('');
-  protected select(entry: ListVM) {
-    this.selected.set(entry.id);
-    this.updateSelected.emit(this.list()[entry.index]);
+  noTranslation = noTranslation;
+  list = model.required<ListItem[]>();
+  selected = model<ListItem['id'] | null>(null);
+  removeId = output<string>();
+  colorMessage(value: string | { color: string; message: string }): { color: string; message: string } {
+    if (typeof value == 'string') return { color: value, message: '' };
+    else return value;
   }
-
   protected dragItem(event: CdkDragDrop<number>) {
     if (event.previousIndex === event.currentIndex) return;
 
@@ -141,9 +146,5 @@ export class ListComponent<O extends Record<string, unknown>> {
       copy.splice(event.currentIndex, 0, moved);
       return copy;
     });
-  }
-
-  constructor() {
-    this.list.subscribe(v => console.log(v));
   }
 }

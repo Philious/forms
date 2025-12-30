@@ -5,7 +5,6 @@
   --height-input: var(--height-input-default);
   width: var(--input-width, 100%);
   display: grid;
-  gap: 0.25rem;
 
   .input-wrapper,
   .input-container,
@@ -47,6 +46,13 @@
   }
 }
 
+.label {
+  grid-area: 1 / 1 / 2 / 2;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: .25rem;
+}
+
 .input-container {
   background-color: var(--input-bg-clr);
   box-shadow: 0 0 0 0.0625rem var(--color-border-default) inset;
@@ -69,6 +75,23 @@
     outline: 1px solid;
   }
 }
+
+.context-text{
+  padding-top: 0.25rem;
+  transition: padding-top .25s, max-height .25s;
+  &.enter {
+    max-height: 32px;
+    @starting-style {
+      padding-top: 0;
+      max-height: 0;
+    }
+  }
+  &.leave {
+    padding-top: 0;
+    max-height: 0;
+  }
+}
+
 .prefix,
 .sufix {
   display: grid;

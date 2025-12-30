@@ -1,7 +1,8 @@
-import { Component, input, model, signal, viewChild } from '@angular/core';
-import { ControlInputLayoutComponent } from '@src/app/components/action/input-layout/controls-input.layout.component';
+import { CommonModule } from '@angular/common';
+import { Component, input, model, output, signal, viewChild } from '@angular/core';
 import { Locale } from '@src/helpers/enum';
 import { Translation } from '@src/helpers/translationTypes';
+import { SignalInputLayoutComponent } from './input-layout/signal-input.layout.component';
 import { MiniLangTabsComponent } from './mini-lang-tabs.component';
 
 let id = 0;
@@ -9,24 +10,29 @@ let id = 0;
 @Component({
   selector: 'translation-input',
   template: `
-    <control-input-layout slim>
+    <ng-template #labelElement>
+      <span>{{ label() }}</span>
+      <mini-lang-tabs (activeLocale)="activeLocale.set($event)" [translationSet]="translations()" />
+    </ng-template>
+    <signal-input-layout
+      slim
+      (hasError)="hasError.emit($event)"
+      [type]="'text'"
+      [inputElement]="input"
+      [validators]="[validator]"
+      [labelElement]="labelElement"
+    >
       <input
         [id]="id()"
         #input
-        ngProjectAs="input"
         input
         slim
-        (keydown)="updateLanguage($event)"
+        (keydown)="updateSelectedLanguage($event)"
         class="translation-input"
-        [value]="translations()[activeLocale()]"
+        [value]="this.translations()[this.activeLocale()]"
         (input)="updateTranslation($event.target.value)"
       />
-
-      <label [for]="id()" class="label" ngProjectAs="context-info">
-        <span>{{ label() }}</span>
-        <mini-lang-tabs (activeLocale)="activeLocale.set($event)" [translationSet]="translations()" />
-      </label>
-    </control-input-layout>
+    </signal-input-layout>
   `,
   styles: `
     .input-content,
@@ -36,13 +42,15 @@ let id = 0;
       width: 100%;
     }
     .label {
+      color: var(--label);
+      font-size: var(--txt-small);
       grid-area: 1 / 1 / 2 / 2;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
     }
   `,
-  imports: [ControlInputLayoutComponent, MiniLangTabsComponent],
+  imports: [MiniLangTabsComponent, CommonModule, SignalInputLayoutComponent],
 })
 export class TranslationInputComponent {
   protected input = viewChild<HTMLInputElement>('input');
@@ -55,24 +63,31 @@ export class TranslationInputComponent {
 
   id = input<string>(`translation-input-${id ? ++id : ''}`);
   label = input<string>('Translations');
-  activeLocale = signal<Locale>(Locale.SV);
+  hasError = output<boolean>();
 
-  updateTranslation(trans: string) {
+  protected activeLocale = signal<Locale & string>(Locale.XX);
+
+  protected getTransKey = () => {
+    return this.translations().translationKey;
+  };
+
+  protected validator = (_: string) => {
+    const hasError = !!this.getTransKey() ? null : 'Translation key needed';
+    return hasError;
+  };
+
+  protected updateTranslation(trans: string) {
     this.translations.update(obj => {
       obj[this.activeLocale()] = trans;
-      return obj;
+      return { ...obj };
     });
   }
-  updateLanguage(event: Event) {
+
+  protected updateSelectedLanguage(event: Event) {
     const key = parseInt((event as KeyboardEvent).key);
     const ctrl = (event as KeyboardEvent).ctrlKey;
     if (ctrl && Number.isInteger(key)) {
       event.preventDefault();
-      console.log(key);
-      console.log(this.input());
     }
-  }
-  constructor() {
-    console.log(this.translations());
   }
 }

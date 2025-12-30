@@ -6,8 +6,8 @@ export type FormatOnEvent<T = unknown> = {
   change: EventFormator<T>;
   blur: EventFormator<T>;
 };
-
-export type Validator<E extends string = string> = (val: E) => string | null;
+export type Validator = (val: string) => string | null;
+export type ValidationCompositionFn<T, M = string> = (errorValue: T, message: M) => Validator;
 
 export type Errors =
   | 'min'
@@ -22,6 +22,6 @@ export type Errors =
   | 'compose'
   | 'composeasync';
 
-export type ErrorMessages = Record<Errors, string>;
+export type DefaultErrorMessages = Record<Errors, string>;
 
 export type InputState = 'default' | 'warning' | 'error' | 'disabled';

@@ -8,19 +8,25 @@ import { IconComponent } from '../icons/icon.component';
     role: 'button',
     class: 'btn',
     '[class]': '["action-animation", buttonStyle()]',
+    '[class.icn-btn]': 'iconButton()',
     '(click)': 'onClickButton($event)',
   },
   template: `
-    @let left = leftIcon();
-    @let right = rightIcon();
-    @if (left) {
-      <icon class="icon-left" [icon]="left" />
-    }
-    <ng-content>
-      <span class="label">{{ label() }}</span>
-    </ng-content>
-    @if (right) {
-      <icon class="icon-right" [icon]="right" />
+    @let iconBtn = iconButton();
+    @if (iconBtn) {
+      <icon class="icon-btn" [icon]="iconBtn" />
+    } @else {
+      @let left = leftIcon();
+      @let right = rightIcon();
+      @if (left) {
+        <icon class="icon-left" [icon]="left" />
+      }
+      <ng-content>
+        <span class="label">{{ label() }}</span>
+      </ng-content>
+      @if (right) {
+        <icon class="icon-right" [icon]="right" />
+      }
     }
   `,
   imports: [IconComponent],
@@ -52,6 +58,15 @@ import { IconComponent } from '../icons/icon.component';
       &.filled {
         background-color: var(--btn-bg-clr);
       }
+      &.icn-btn {
+        padding: 0;
+        width: 2em;
+        height: 2em;
+        min-width: 2em;
+        &:before {
+          filter: none;
+        }
+      }
       &:has(.icon-left) {
         padding-left: 0.35em;
       }
@@ -61,7 +76,8 @@ import { IconComponent } from '../icons/icon.component';
       &:before {
         content: '';
         opacity: 0;
-        background-color: var(--btn-bg-clr);
+        color: inherit;
+        background-color: currentColor;
         position: absolute;
         inset: 0;
         filter: invert(1) contrast(10);
@@ -84,12 +100,13 @@ import { IconComponent } from '../icons/icon.component';
     }
   `,
 })
-export class TextButtonComponent {
+export class ButtonComponent {
   label = input<string>('');
   size = input<string>('1rem');
   buttonStyle = input<ButtonStyleEnum>(ButtonStyleEnum.Transparent);
   leftIcon = input<IconEnum | null>(null);
   rightIcon = input<IconEnum | null>(null);
+  iconButton = input<IconEnum | null>(null);
   clicked = output<MouseEvent>();
 
   IconEnum = IconEnum;

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, OnInit } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, OnInit, TemplateRef } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
-import { ErrorMessages } from '@src/app/components/action/input-layout/input.types';
+import { DefaultErrorMessages } from '@src/app/components/action/input-layout/input.types';
 import { errorMessages } from '@src/app/components/action/input-layout/input.utils';
 import { IconComponent } from '@src/app/components/icons/icon.component';
 import { IconEnum } from '@src/helpers/enum';
@@ -10,7 +11,7 @@ let uid = 0;
 
 @Component({
   selector: 'control-input-layout',
-  imports: [IconComponent],
+  imports: [IconComponent, NgTemplateOutlet],
   host: {
     class: 'input-layout',
     '[class]': '[type()]',
@@ -28,7 +29,8 @@ export class ControlInputLayoutComponent implements OnInit {
 
   id = input(`input-${uid++}`);
   type = input<string>('text');
-  label = input<string>('');
+  label = input<string | TemplateRef<HTMLElement>>();
+  labelElement = input<TemplateRef<HTMLElement>>();
   prefix = input<IconEnum | string>();
   sufix = input<IconEnum | string>();
   showLabel = input<boolean>(true);
@@ -36,7 +38,7 @@ export class ControlInputLayoutComponent implements OnInit {
   control = input<FormControl>(new FormControl());
   controlElement = input<HTMLInputElement>();
 
-  errorMessages = input<ErrorMessages, Partial<ErrorMessages>>(errorMessages, {
+  errorMessages = input<DefaultErrorMessages, Partial<DefaultErrorMessages>>(errorMessages, {
     transform: messages => ({ ...errorMessages, ...messages }),
   });
   contextMessage = input<string>('');
@@ -48,7 +50,7 @@ export class ControlInputLayoutComponent implements OnInit {
     const errors = this.control().errors;
 
     if (errors) {
-      const error = Object.keys(errors).shift() as keyof ErrorMessages;
+      const error = Object.keys(errors).shift() as keyof DefaultErrorMessages;
       return this.errorMessages()[error];
     } else {
       return null;
@@ -58,7 +60,9 @@ export class ControlInputLayoutComponent implements OnInit {
   isIcon(fix: unknown) {
     return Object.values(IconEnum).find(v => v === fix) ? (fix as IconEnum) : null;
   }
-
+  isString(key: unknown): boolean {
+    return typeof key === 'string';
+  }
   constructor() {}
 
   ngOnInit(): void {

@@ -66,7 +66,7 @@ export type QuestionPayload = QuestionCore & {
   conditions: string;
 };
 
-export type actionButton = {
+export type ActionButton = {
   id: string;
   label: string;
   action: () => void;

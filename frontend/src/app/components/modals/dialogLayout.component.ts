@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { actionButton } from '../../../helpers/types';
-import { TextButtonComponent } from '../action/base-button.component';
+import { ActionButton } from '../../../helpers/types';
+import { ButtonComponent } from '../action/base-button.component';
 
 @Component({
   selector: 'dialog-layout',
-  imports: [TextButtonComponent, CommonModule],
+  imports: [ButtonComponent, CommonModule],
   host: {
     role: 'dialog',
   },
@@ -73,6 +73,6 @@ import { TextButtonComponent } from '../action/base-button.component';
 export class DialogLayoutComponent {
   title = input<string>();
   content = input<string>();
-  footerButtons = input<actionButton[]>();
+  footerButtons = input<ActionButton[]>();
   sectionPadding = input<boolean>(true);
 }

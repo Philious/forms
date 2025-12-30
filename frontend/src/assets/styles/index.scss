@@ -29,6 +29,7 @@ body {
   font-size: 1.25rem;
   font-weight: 500;
   margin: 0;
+  letter-spacing: 0.05rem;
 }
 
 .h2 {
@@ -36,6 +37,11 @@ body {
   font-weight: 600;
   margin: 0;
   text-transform: uppercase;
+  letter-spacing: 0.025rem;
+}
+
+.h3 {
+  letter-spacing: 0.025rem;
 }
 
 input, button, textarea {

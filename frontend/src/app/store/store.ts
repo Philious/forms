@@ -1,5 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Division, DivisionId, Entry, EntryId, Form, FormId, Page, PageId } from '@cs-forms/shared';
+import { ExtendedObjectType, extendedRecord } from '@src/helpers/utils';
+import { LocalStorageService } from '../services/localStorageService';
 
 export type User = { id: string; name: string };
 type All = {
@@ -11,12 +13,13 @@ type All = {
 
 @Injectable({ providedIn: 'root' })
 export class Store {
+  localStorage = inject(LocalStorageService);
+
   private _user = signal<User | null>(null);
-  private _forms = signal<Record<FormId, Form> | null>(null);
-  private _pages = signal<Record<PageId, Page> | null>(null);
-  private _divisions = signal<Record<DivisionId, Division> | null>(null);
-  private _entries = signal<Record<EntryId, Entry> | null>(null);
-  private _entry = signal<Entry | null>(null);
+  private _forms = signal<ExtendedObjectType<FormId, Form> | null>(null);
+  private _pages = signal<ExtendedObjectType<PageId, Page> | null>(null);
+  private _divisions = signal<ExtendedObjectType<DivisionId, Division> | null>(null);
+  private _entries = signal<ExtendedObjectType<EntryId, Entry> | null>(null);
 
   user = this._user.asReadonly();
   forms = this._forms.asReadonly();
@@ -30,49 +33,69 @@ export class Store {
   currentEntry = signal<Entry | null>(null);
 
   setUser = (user: User | null) => {
-    // console.log('User: ', this);
     this._user.set(user);
   };
 
   setData = (payload: All | null) => {
-    // console.log('set data', payload);
-    this._forms.set(payload?.forms ?? null);
-    this._pages.set(payload?.pages ?? null);
-    this._divisions.set(payload?.division ?? null);
-    this._entries.set(payload?.entries ?? null);
+    this._forms.set(payload?.forms ? extendedRecord<FormId, Form>(payload.forms) : null);
+    this._pages.set(payload?.pages ? extendedRecord<PageId, Page>(payload.pages) : null);
+    this._divisions.set(payload?.division ? extendedRecord<DivisionId, Division>(payload.division) : null);
+    this._entries.set(payload?.entries ? extendedRecord<EntryId, Entry>(payload.entries) : null);
   };
 
   setForms = (forms: Map<FormId, Form> | null) => {
-    this._forms.set(forms ? Object.fromEntries(forms) : null);
+    this._forms.set(forms ? extendedRecord<FormId, Form>(Object.fromEntries(forms)) : null);
   };
 
   setPages = (pages: Map<PageId, Page> | null) => {
-    this._pages.set(pages ? Object.fromEntries(pages) : null);
+    this._pages.set(pages ? extendedRecord<PageId, Page>(Object.fromEntries(pages)) : null);
   };
 
   setDivisions = (divisions: Map<DivisionId, Division> | null) => {
-    this._divisions.set(divisions ? Object.fromEntries(divisions) : null);
+    this._divisions.set(divisions ? extendedRecord<DivisionId, Division>(Object.fromEntries(divisions)) : null);
   };
 
   setEntries = (entries: Map<EntryId, Entry> | null) => {
-    this._entries.set(entries ? Object.fromEntries(entries) : null);
+    this._entries.set(entries ? extendedRecord<EntryId, Entry>(Object.fromEntries(entries)) : null);
   };
 
-  setForm = (form: Form | null) => {
-    this.currentForm.set(form);
-  };
-  setPage = (page: Page | null) => {
-    this.currentPage.set(page);
-  };
-  setDivision = (division: Division | null) => {
-    this.currentDivision.set(division);
-  };
-  setEntry = (entry: Entry | null) => {
-    this.currentEntry.set(entry);
+  storeForm = (form: Form) => {
+    this._forms.update(forms => {
+      if (forms) {
+        forms[form.id] = form;
+        forms = extendedRecord<FormId, Form>({ ...forms });
+      } else forms = extendedRecord<FormId, Form>({ [form.id]: form });
+      return forms;
+    });
   };
 
-  updateForm() {
-    const forms = this._forms();
-    this._forms.set(forms ? Object.fromEntries(Object.entries(forms)) : null);
-  }
+  storePage = (page: Page) => {
+    this._pages.update(pages => {
+      if (pages) {
+        pages[page.id] = page;
+        pages = extendedRecord<PageId, Page>({ ...pages });
+      } else pages = extendedRecord<PageId, Page>({ [page.id]: page });
+      return pages;
+    });
+  };
+
+  storeDivision = (division: Division) => {
+    this._divisions.update(divisions => {
+      if (divisions) {
+        divisions[division.id] = division;
+        divisions = extendedRecord<DivisionId, Division>({ ...divisions });
+      } else divisions = extendedRecord<DivisionId, Division>({ [division.id]: division });
+      return divisions;
+    });
+  };
+
+  storeEntry = (page: Entry) => {
+    this._entries.update(entries => {
+      if (entries) {
+        entries[page.id] = page;
+        entries = extendedRecord<EntryId, Entry>({ ...entries });
+      } else entries = extendedRecord<EntryId, Entry>({ [page.id]: page });
+      return entries;
+    });
+  };
 }
