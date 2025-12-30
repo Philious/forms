@@ -6,7 +6,8 @@ import { IconEnum, MainTabs } from '../../helpers/enum';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { DataViewComponent } from '../components/dataView.component';
-import { openBinaryDialog } from '../components/modals/binary.dialog.component';
+
+import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ApiService } from '../services/api.service';
 import { LocaleService } from '../services/locale.service';
 import { LocalStorageService } from '../services/localStorageService';
@@ -123,6 +124,7 @@ export class MainPageComponent implements OnInit {
   store = inject(Store);
   localeService = inject(LocaleService);
   localStorage = inject(LocalStorageService);
+  binaryDialog = inject(BinaryDialog);
 
   IconEnum = IconEnum;
   MainTabs = MainTabs;
@@ -159,7 +161,8 @@ export class MainPageComponent implements OnInit {
         const form = this.store.currentForm;
         const forms = this.store.forms;
         if (form && !checkIfSaved(form, forms))
-          await openBinaryDialog('Current form is not saved', 'Continue anyway?')
+          await this.binaryDialog
+            .open({ title: 'Current form is not saved', content: 'Continue anyway?' })
             .then(() => clearCurrentifNotSaved(this.store.currentForm, this.store.forms()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
@@ -167,7 +170,8 @@ export class MainPageComponent implements OnInit {
         const page = this.store.currentPage;
         const pages = this.store.pages;
         if (page && !checkIfSaved(page, pages))
-          await openBinaryDialog('Current page is not saved', 'Continue anyway?')
+          await this.binaryDialog
+            .open({ title: 'Current page is not saved', content: 'Continue anyway?' })
             .then(() => clearCurrentifNotSaved(this.store.currentPage, this.store.pages()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
@@ -175,7 +179,8 @@ export class MainPageComponent implements OnInit {
         const division = this.store.currentPage;
         const divisions = this.store.pages;
         if (division && !checkIfSaved(division, divisions))
-          await openBinaryDialog('Current division is not saved', 'Continue anyway?')
+          await this.binaryDialog
+            .open({ title: 'Current division is not saved', content: 'Continue anyway?' })
             .then(() => clearCurrentifNotSaved(this.store.currentDivision, this.store.divisions()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
@@ -183,7 +188,8 @@ export class MainPageComponent implements OnInit {
         const entry = this.store.currentEntry;
         const entries = this.store.entries;
         if (entry && !checkIfSaved<Entry>(entry, entries))
-          await openBinaryDialog('Current entry is not saved', 'Continue anyway?')
+          await this.binaryDialog
+            .open({ title: 'Current entry is not saved', content: 'Continue anyway?' })
             .then(() => clearCurrentifNotSaved(this.store.currentEntry, this.store.entries()))
             .catch(() => this.selectedTab.set(prevSelected));
     }

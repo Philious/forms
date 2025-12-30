@@ -11,7 +11,7 @@ export function spreadTranslation(trans: Partial<Translation>, transKey?: string
     [Locale.EN]: '',
     [Locale.NB]: '',
     ...trans,
-    [Locale.XX]: transKey || trans.translationKey || '',
+    [Locale.XX]: transKey || trans?.translationKey || '',
   };
 }
 

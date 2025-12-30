@@ -1,9 +1,10 @@
-import { DialogRef } from '@angular/cdk/dialog';
+import { Dialog, DialogRef } from '@angular/cdk/dialog';
+import { ComponentType } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, Injectable, signal, TemplateRef } from '@angular/core';
 import { ActionButton } from '@src/helpers/types';
 import { DialogLayoutComponent } from './dialogLayout.component';
-import { openDialog } from './modal.utils';
+import { BinaryDialogType, openDialog } from './modal.utils';
 
 @Component({
   imports: [DialogLayoutComponent, CommonModule],
@@ -41,14 +42,16 @@ export class BinaryDialogComponent {
   }
 
   protected buttons: ActionButton[] = [
-    { id: 'cancel', label: 'Cancel', action: this.close },
-    { id: 'ok', label: 'Ok', action: this.action },
+    { id: 'cancel', label: 'Cancel', action: () => this.close() },
+    { id: 'ok', label: 'Ok', action: () => this.action() },
   ];
 }
 
-export async function openBinaryDialog(title: string, content: string) {
-  return await openDialog<BinaryDialogComponent>(BinaryDialogComponent, {
-    title,
-    content,
-  });
+@Injectable({ providedIn: 'root' })
+export class BinaryDialog {
+  dialog = inject(Dialog);
+
+  async open<C, T extends BinaryDialogType = BinaryDialogType, R = unknown>(props: T, component?: ComponentType<C> | TemplateRef<C>): Promise<R> {
+    return await openDialog<C, T, R>(this.dialog, props, component);
+  }
 }

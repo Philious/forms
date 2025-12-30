@@ -1,6 +1,6 @@
-import { DialogRef } from '@angular/cdk/dialog';
+import { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, Injectable, signal } from '@angular/core';
 import { ButtonStyleEnum } from '@src/helpers/enum';
 import { spreadTranslation } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
@@ -18,8 +18,8 @@ import { openDialog } from './modal.utils';
         <translation-input [(translations)]="value" (hasError)="this.error.set($event)" />
       </ng-content>
       <ng-content dialog-footer>
-        <button base-button class="cancel-btn btn" [buttonStyle]="ButtonStyleEnum.Filled" (click)="action()">Cancel</button>
-        <button base-button class="btn" [buttonStyle]="ButtonStyleEnum.Filled" (click)="close()">OK</button>
+        <button base-button class="cancel-btn btn" [buttonStyle]="ButtonStyleEnum.Filled" (click)="close()">Cancel</button>
+        <button base-button class="btn" [buttonStyle]="ButtonStyleEnum.Filled" (click)="action()">OK</button>
       </ng-content>
     </dialog-layout>
   `,
@@ -52,15 +52,20 @@ export class AddNewDialogComponent {
   }
 
   close() {
-    this.dialogRef?.config?.data?.action.reject?.();
     this.dialogRef?.close();
+    this.dialogRef?.config?.data?.action.reject?.();
+  }
+  constructor() {
+    console.log(this.dialogRef?.config?.data);
   }
 }
 
-export async function openAddNewDialog(title: string, content: string, initialValue?: Translation) {
-  return await openDialog<AddNewDialogComponent, { title: string; content: string; initialValue?: Translation }, Translation>(AddNewDialogComponent, {
-    title,
-    content,
-    initialValue,
-  });
+type AddDialogProps = { title: string; content: string; initialValue?: Translation };
+@Injectable({ providedIn: 'root' })
+export class AddDialog {
+  dialog = inject(Dialog);
+
+  async open(props: AddDialogProps): Promise<Translation> {
+    return await openDialog<AddNewDialogComponent, AddDialogProps, Translation>(this.dialog, props, AddNewDialogComponent);
+  }
 }

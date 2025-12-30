@@ -12,7 +12,8 @@ import { SignalInputLayoutComponent } from '../components/action/input-layout/si
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
-import { AddNewDialogComponent, openAddNewDialog } from '../components/modals/add.new.dialog.component';
+import { AddDialog } from '../components/modals/add.new.dialog.component';
+import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { ListComponent, ListItem } from '../components/reorerableList.component';
 import { ApiService } from '../services/api.service';
@@ -90,8 +91,9 @@ export class PagePageComponent {
   store = inject(Store);
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
-  addNewDialog = inject(AddNewDialogComponent);
   localStorage = inject(LocalStorageService);
+  binaryDialog = inject(BinaryDialog);
+  addDialog = inject(AddDialog);
 
   protected currentSaved: Signal<boolean>;
   protected pageList: WritableSignal<ListItem[]>;
@@ -120,11 +122,14 @@ export class PagePageComponent {
 
   protected async add() {
     this.localeService.set(Locale.XX);
-    await openAddNewDialog('Add new page', '').then(value => {
-      const page = newPage({ label: value });
-      this.pageList.update(list => mergeListItem(list, page, this.localeService.translate));
-      this.store.currentPage.set(page);
-    });
+    await this.addDialog
+      .open({ title: 'Add new page', content: '' })
+      .then(value => {
+        const page = newPage({ label: value });
+        this.pageList.update(list => mergeListItem(list, page, this.localeService.translate));
+        this.store.currentPage.set(page);
+      })
+      .catch(() => {});
   }
   /*
     this.addNewDialog.open(

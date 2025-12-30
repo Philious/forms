@@ -1,10 +1,9 @@
-import { Dialog } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { Form } from '@cs-forms/shared';
 import { TabViewComponent } from '@src/app/components/action/tab-view.component';
 import { TranslationInputComponent } from '@src/app/components/action/translation-input';
-import { openAddNewDialog } from '@src/app/components/modals/add.new.dialog.component';
+import { AddDialog } from '@src/app/components/modals/add.new.dialog.component';
 import { ApiService } from '@src/app/services/api.service';
 import { LocaleService } from '@src/app/services/locale.service';
 import { IconEnum, Locale } from '@src/helpers/enum';
@@ -13,7 +12,7 @@ import { Translation } from '@src/helpers/translationTypes';
 import { Option } from '@src/helpers/types';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
-import { openBinaryDialog } from '../components/modals/binary.dialog.component';
+import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { ListComponent, ListItem } from '../components/reorerableList.component';
 import { LocalStorageService } from '../services/localStorageService';
@@ -94,7 +93,8 @@ export class FormPageComponent {
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
   localStorage = inject(LocalStorageService);
-  dialog = inject(Dialog);
+  binaryDialog = inject(BinaryDialog);
+  addDialog = inject(AddDialog);
 
   protected currentSaved: Signal<boolean>;
   protected formList: WritableSignal<ListItem[]>;
@@ -114,15 +114,22 @@ export class FormPageComponent {
 
   protected async add() {
     this.localeService.set(Locale.XX);
-    await openAddNewDialog('Add new form', '').then(value => {
-      const form = newForm({ label: value });
-      this.formList.update(list => mergeListItem(list, form, this.localeService.translate));
-      this.store.currentForm.set(form);
-    });
+    await this.addDialog
+      .open({
+        title: 'Add new form',
+        content: '',
+      })
+      .then(value => {
+        const form = newForm({ label: value });
+        this.formList.update(list => mergeListItem(list, form, this.localeService.translate));
+        this.store.currentForm.set(form);
+      })
+      .catch(() => {});
   }
 
   protected async removeItem(id: string) {
-    await openBinaryDialog('Remove form?', 'This can not be undone')
+    await this.binaryDialog
+      .open({ title: 'Remove form?', content: 'This can not be undone' })
       .then(() => console.log('remove' + id))
       .catch(() => console.log('do not remove' + id));
   }

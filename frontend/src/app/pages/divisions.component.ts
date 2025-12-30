@@ -10,7 +10,7 @@ import { SignalInputLayoutComponent } from '../components/action/input-layout/si
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
-import { AddNewDialogComponent, openAddNewDialog } from '../components/modals/add.new.dialog.component';
+import { AddDialog } from '../components/modals/add.new.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { ListComponent, ListItem } from '../components/reorerableList.component';
 import { ApiService } from '../services/api.service';
@@ -88,7 +88,7 @@ export class DivisionPageComponent {
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
   localStorage = inject(LocalStorageService);
-  addNewDialog = inject(AddNewDialogComponent);
+  addDialog = inject(AddDialog);
 
   protected currentSaved: Signal<boolean>;
   protected divisionList: WritableSignal<ListItem[]>;
@@ -120,11 +120,14 @@ export class DivisionPageComponent {
 
   async add() {
     this.localeService.set(Locale.XX);
-    await openAddNewDialog('Add new division', '').then(value => {
-      const division = newDivision({ label: value });
-      this.divisionList.update(list => mergeListItem(list, division, this.localeService.translate));
-      this.store.currentDivision.set(division);
-    });
+    await this.addDialog
+      .open({ title: 'Add new page', content: '' })
+      .then(value => {
+        const division = newDivision({ label: value });
+        this.divisionList.update(list => mergeListItem(list, division, this.localeService.translate));
+        this.store.currentDivision.set(division);
+      })
+      .catch(() => {});
   }
 
   constructor() {
