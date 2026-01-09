@@ -21,7 +21,7 @@ let uid = 0;
     '[class.error]': 'this.control().invalid && this.control().touched',
   },
   templateUrl: './input.layout.component.html',
-  styleUrls: ['./input.layout.component.scss', './input-override.scss'],
+  styleUrls: ['./input.layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ControlInputLayoutComponent implements OnInit {
@@ -70,8 +70,8 @@ export class ControlInputLayoutComponent implements OnInit {
     if (input) {
       input.setAttribute('id', this.id());
       let styles = '';
-      if (this.sufix()) styles += 'padding-right: var(--height-input)';
-      if (this.prefix()) styles += 'padding-left: var(--height-input)';
+      if (this.sufix()) styles += 'padding-right: var(--input-height)';
+      if (this.prefix()) styles += 'padding-left: var(--input-height)';
       input.setAttribute('style', styles);
     }
   }

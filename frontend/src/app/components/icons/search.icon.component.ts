@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { svgCircleAsPath } from '@src/helpers/utils';
 
 @Component({
@@ -8,6 +8,7 @@ import { svgCircleAsPath } from '@src/helpers/utils';
       <path [attr.d]="iconPath" fill="transparent" />
     </svg>
   `,
+  encapsulation: ViewEncapsulation.None,
 })
 export class SearchIconComponent {
   protected iconPath;

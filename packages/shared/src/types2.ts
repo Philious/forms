@@ -33,6 +33,7 @@ export type Form<T extends 'set' | 'array' = 'array'> = {
 export type Page<T extends 'set' | 'array' = 'array'> = {
   id: PageId;
   label: Translation;
+  forms: T extends 'set' ? Set<FormId> : Array<FormId>;
   divisions: T extends 'set' ? Set<DivisionId> : Array<DivisionId>;
   entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
   updated: number;
@@ -41,6 +42,8 @@ export type Page<T extends 'set' | 'array' = 'array'> = {
 export type Division<T extends 'set' | 'array' = 'array'> = {
   id: DivisionId;
   label: Translation;
+  forms: T extends 'set' ? Set<FormId> : Array<FormId>;
+  pages: T extends 'set' ? Set<PageId> : Array<PageId>;
   entries: T extends 'set' ? Set<EntryId> : Array<EntryId>;
   updated: number;
 };

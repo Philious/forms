@@ -30,12 +30,12 @@ export class ApiService {
         next: this.store.setData,
       }),
     form: (formId: FormId, options?: ApiObserverOptions<Form>) =>
-      this._get(`/forms/${formId}`, {
+      this._get(`/form/${formId}`, {
         ...options,
         next: (form: Form) => this.store.currentForm.set(form),
       }),
     page: (pageId: PageId, options?: ApiObserverOptions<Page>) =>
-      this._get(`/page(${pageId})`, {
+      this._get(`/page/${pageId}`, {
         ...options,
         next: (page: Page) => this.store.currentPage.set(page),
       }),

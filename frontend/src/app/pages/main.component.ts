@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, model, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Entry } from '@cs-forms/shared';
 import { IconEnum, MainTabs } from '../../helpers/enum';
@@ -7,6 +7,7 @@ import { IconButtonComponent } from '../components/action/icon-button.component'
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { DataViewComponent } from '../components/dataView.component';
 
+import { MiniLangTabsComponent } from '../components/action/mini-lang.component';
 import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ApiService } from '../services/api.service';
 import { LocaleService } from '../services/locale.service';
@@ -33,28 +34,42 @@ import { TestPageComponent } from './test.component';
     PagePageComponent,
     DataViewComponent,
     IconButtonComponent,
+    MiniLangTabsComponent,
   ],
   template: `
-    <div class="top-section">
-      <div class="row">
-        <tab-view class="tabs" [tabs]="tabs" [(selected)]="selectedTab" (update)="tabSelect($event)" [oneWayBinding]="true" />
-        <div class="global-settings">
-          <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
-          <div class="locale">{{ locale() }}</div>
-        </div>
+    <tab-view
+      class="tabs top-section"
+      [tabs]="[
+        { label: 'Entries', template: entries },
+        { label: 'Divisions', template: division },
+        { label: 'Pages', template: page },
+        { label: 'Forms', template: form },
+        { label: 'Test', template: test },
+      ]"
+      [(selected)]="selectedTab"
+      (update)="tabSelect($event)"
+      [oneWayBinding]="true"
+    >
+      <div class="global-settings">
+        <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
+        <mini-lang [menuSelector]="true" />
       </div>
-    </div>
-    @if (selectedTab() === MainTabs.Entries) {
+    </tab-view>
+    <ng-template #entries>
       <entries-page />
-    } @else if (selectedTab() === MainTabs.Divisions) {
+    </ng-template>
+    <ng-template #division>
       <division-page />
-    } @else if (selectedTab() === MainTabs.Pages) {
+    </ng-template>
+    <ng-template #page>
       <pages-page />
-    } @else if (selectedTab() === MainTabs.Forms) {
+    </ng-template>
+    <ng-template #form>
       <forms-page />
-    } @else {
+    </ng-template>
+    <ng-template #test>
       <test-page />
-    }
+    </ng-template>
 
     <data-view label="form" [data]="store.currentForm()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
     <data-view label="page" [data]="store.pages()" [startPosition]="{ top: '33%', right: '1rem' }" />
@@ -86,6 +101,8 @@ import { TestPageComponent } from './test.component';
     .global-settings {
       display: flex;
       align-items: center;
+      flex: 1;
+      justify-content: flex-end;
     }
     .locale {
       width: 3rem;
@@ -119,7 +136,7 @@ import { TestPageComponent } from './test.component';
     }
   `,
 })
-export class MainPageComponent implements OnInit {
+export class MainPageComponent {
   apiService = inject(ApiService);
   store = inject(Store);
   localeService = inject(LocaleService);
@@ -129,35 +146,21 @@ export class MainPageComponent implements OnInit {
   IconEnum = IconEnum;
   MainTabs = MainTabs;
   selectedSurvey = signal({ label: 'Mother of all Surveys', value: 'moas' });
-  selectedTab = signal<MainTabs>(MainTabs.Entries);
+  selectedTab = signal<string>('Entries');
   showTranslations = signal<boolean>(false);
   searchFilter = model<string>('');
 
   locale = computed(() => this.localeService.activeLocale().slice(3, 5));
   props = { content: () => 'content' };
-  tabs: { label: string; value: MainTabs }[] = [
-    { label: 'Entries', value: MainTabs.Entries },
-    { label: 'Divisions', value: MainTabs.Divisions },
-    { label: 'Pages', value: MainTabs.Pages },
-    { label: 'Forms', value: MainTabs.Forms },
-    { label: 'Test', value: MainTabs.Test },
-  ];
 
-  ngOnInit() {
-    if (!this.store.forms()) this.selectedTab.set(MainTabs.Forms);
-    else if (!this.store.pages()) this.selectedTab.set(MainTabs.Pages);
-    else if (!this.store.divisions()) this.selectedTab.set(MainTabs.Divisions);
-    else this.selectedTab.set(MainTabs.Entries);
-  }
-
-  async tabSelect(tab: MainTabs) {
+  async tabSelect(tab: string) {
     const prevSelected = this.selectedTab();
 
+    this.selectedTab.set(tab);
     switch (prevSelected) {
-      case MainTabs.Test:
-        this.selectedTab.set(tab);
+      case 'Test':
         break;
-      case MainTabs.Forms:
+      case 'Forms':
         const form = this.store.currentForm;
         const forms = this.store.forms;
         if (form && !checkIfSaved(form, forms))
@@ -166,7 +169,7 @@ export class MainPageComponent implements OnInit {
             .then(() => clearCurrentifNotSaved(this.store.currentForm, this.store.forms()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
-      case MainTabs.Pages:
+      case 'Pages':
         const page = this.store.currentPage;
         const pages = this.store.pages;
         if (page && !checkIfSaved(page, pages))
@@ -175,7 +178,7 @@ export class MainPageComponent implements OnInit {
             .then(() => clearCurrentifNotSaved(this.store.currentPage, this.store.pages()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
-      case MainTabs.Divisions:
+      case 'Divisions':
         const division = this.store.currentPage;
         const divisions = this.store.pages;
         if (division && !checkIfSaved(division, divisions))
@@ -184,7 +187,7 @@ export class MainPageComponent implements OnInit {
             .then(() => clearCurrentifNotSaved(this.store.currentDivision, this.store.divisions()))
             .catch(() => this.selectedTab.set(prevSelected));
         break;
-      case MainTabs.Entries:
+      case 'Entries':
         const entry = this.store.currentEntry;
         const entries = this.store.entries;
         if (entry && !checkIfSaved<Entry>(entry, entries))
@@ -197,13 +200,18 @@ export class MainPageComponent implements OnInit {
 
   constructor() {
     Object.values(this.localStorage.clear).forEach(fn => fn());
+    effect(() => console.log(this.store.divisions()));
     const init = effect(() => {
-      if (Object.keys(this.store.forms() ?? {}).length < 1) this.tabSelect(MainTabs.Forms);
-      else if (Object.keys(this.store.pages() ?? {}).length < 1) this.tabSelect(MainTabs.Pages);
-      else if (Object.keys(this.store.divisions() ?? {}).length < 1) this.tabSelect(MainTabs.Divisions);
-      else this.tabSelect(MainTabs.Entries);
+      const forms = this.store.forms();
+      const pages = this.store.pages();
+      const divs = this.store.divisions();
 
-      init.destroy();
+      if (!forms || Object.keys(forms).length < 1) this.tabSelect('Forms');
+      else if (!pages || Object.keys(pages).length < 1) this.tabSelect('Pages');
+      else if (!divs || Object.keys(divs).length < 1) this.tabSelect('Divisions');
+      else this.tabSelect('Entries');
+
+      if (forms || pages || divs) init.destroy();
     });
   }
 }

@@ -25,7 +25,7 @@ export async function openDialog<C, T extends BinaryDialogType = BinaryDialogTyp
   component?: ComponentType<C> | TemplateRef<C>
 ): Promise<R> {
   return await binaryOptionsFn<R>((resolve, reject) => {
-    dialog.open<ComponentType<C>, T & Record<'action', DialogActions<R>>>(component || BinaryDialogComponent, {
+    dialog.open<ComponentType<C> | TemplateRef<C>, T & Record<'action', DialogActions<R>>>(component || BinaryDialogComponent, {
       disableClose: true,
       data: {
         ...props,

@@ -6,7 +6,6 @@ import { itemOptions, newDivision } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
 import { AriaDropComponent, OptionProps } from '../components/action/aria-drop.component';
 import { IconButtonComponent } from '../components/action/icon-button.component';
-import { SignalInputLayoutComponent } from '../components/action/input-layout/signal-input.layout.component';
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
@@ -31,7 +30,6 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     TranslationInputComponent,
     ListComponent,
     TabViewComponent,
-    SignalInputLayoutComponent,
     AriaDropComponent,
   ],
   template: `
@@ -49,16 +47,12 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
         </span>
       </ng-content>
       <ng-content location>
-        <signal-input-layout [type]="'text'" slim [label]="'Form'" [sufix]="IconEnum.Down">
-          <aria-drop [items]="formOptions()" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
-        </signal-input-layout>
-        <signal-input-layout [type]="'text'" slim [label]="'Page'" [sufix]="IconEnum.Down">
-          <aria-drop [items]="pageOptions()" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
-        </signal-input-layout>
+        <aria-drop [items]="formOptions()" [label]="'Form'" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
+        <aria-drop [items]="pageOptions()" [label]="'Page'" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
-        <list [(list)]="divisionList" (selectedChange)="updateSelected($event)" />
+        <list [(list)]="filteredDivisionList" (selectedChange)="updateSelected($event)" />
       </ng-content>
       <ng-content specifics>
         @let currentDivision = this.store.currentDivision();
@@ -67,10 +61,19 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
             <h2 class="h2">Active Division</h2>
             <translation-input [translations]="currentDivision.label" (translationsChange)="updateLabel($event)" />
           </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Entries</h2>
-            <tab-view [tabs]="entryViewTabs" [(selected)]="selectedEntryViewType" />
-          </div>
+          <tab-view
+            [tabs]="[
+              { label: 'List', template: list },
+              { label: 'Tree', template: tree },
+            ]"
+            [(selected)]="selectedEntryViewType"
+          />
+          <ng-template #list>
+            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
+              <h2 class="h2">Entries</h2>
+            </div>
+          </ng-template>
+          <ng-template #tree></ng-template>
         }
       </ng-content>
     </layout>
@@ -79,6 +82,9 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     :host {
       display: flex;
       flex: 1;
+    }
+    .can-save {
+      color: var(--p-500);
     }
   `,
 })
@@ -92,6 +98,11 @@ export class DivisionPageComponent {
 
   protected currentSaved: Signal<boolean>;
   protected divisionList: WritableSignal<ListItem[]>;
+  protected filteredDivisionList = linkedSignal<ListItem[]>(() =>
+    this.divisionList()
+      .filter(p => !this.store.currentForm() || this.store.currentForm()?.divisions.includes(p.id))
+      .filter(p => !this.store.currentPage() || this.store.currentPage()?.divisions.includes(p.id))
+  );
 
   protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
   protected selectedForm = linkedSignal<string[]>(() => {
@@ -100,8 +111,8 @@ export class DivisionPageComponent {
   });
   protected pageOptions = computed<OptionProps<Page>[]>(() => itemOptions<Page>(this.store.pages() ?? {}, this.localeService.translate));
   protected selectedPage = linkedSignal<string[]>(() => {
-    const translation = this.store.currentPage()?.label;
-    return translation ? [this.localeService.translate(translation)] : [];
+    const id = this.store.currentPage()?.id;
+    return id ? [id] : [];
   });
 
   protected divisionLabelOptions: Option<string>[] = [{ label: 'Change division name', value: 'changeName' }];
@@ -120,12 +131,32 @@ export class DivisionPageComponent {
 
   async add() {
     this.localeService.set(Locale.XX);
+    const pageTranslationKey = this.store.currentPage()?.label.translationKey || '';
+    const currentFormId = this.store.currentForm()?.id;
+    const currentPageId = this.store.currentPage()?.id;
+    if (!currentFormId || !currentPageId) return;
+
     await this.addDialog
-      .open({ title: 'Add new page', content: '' })
+      .open({ title: 'Add new division', content: '', initialValue: pageTranslationKey + '.' })
       .then(value => {
-        const division = newDivision({ label: value });
+        const division = newDivision({ label: value, forms: [currentFormId], pages: [currentPageId] });
+        console.log(division);
         this.divisionList.update(list => mergeListItem(list, division, this.localeService.translate));
         this.store.currentDivision.set(division);
+
+        const form = this.store.currentForm();
+        if (form) {
+          form.divisions.push(division.id);
+          this.store.currentForm.set(form);
+          this.apiService.post.form(form);
+        }
+
+        const page = this.store.currentPage();
+        if (page) {
+          page.divisions.push(division.id);
+          this.store.currentPage.set(page);
+          this.apiService.post.page(page);
+        }
       })
       .catch(() => {});
   }
@@ -145,5 +176,6 @@ export class DivisionPageComponent {
     this.updateSelected = updateSelected;
     this.save = save;
     this.updateLabel = updateLabel;
+    console.log('All divs: ', list());
   }
 }

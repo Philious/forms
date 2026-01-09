@@ -8,7 +8,7 @@ import { IconComponent } from '../icons/icon.component';
     role: 'button',
     class: 'btn',
     '[class]': '["action-animation", buttonStyle()]',
-    '[class.icn-btn]': 'iconButton()',
+    '[class.icon-btn]': 'iconButton()',
     '(click)': 'onClickButton($event)',
   },
   template: `
@@ -41,7 +41,7 @@ import { IconComponent } from '../icons/icon.component';
       height: 2.25em;
       padding: 0 1em;
       min-width: 5em;
-      color: var(--btn-clr);
+
       border-radius: 0.25em;
       border: none;
       position: relative;
@@ -58,12 +58,14 @@ import { IconComponent } from '../icons/icon.component';
       &.filled {
         background-color: var(--btn-bg-clr);
       }
-      &.icn-btn {
+      &.icon-btn {
+        background-color: transparent;
         padding: 0;
         width: 2em;
         height: 2em;
         min-width: 2em;
         &:before {
+          content: initial;
           filter: none;
         }
       }

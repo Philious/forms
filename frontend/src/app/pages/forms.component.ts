@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { Form } from '@cs-forms/shared';
-import { TabViewComponent } from '@src/app/components/action/tab-view.component';
 import { TranslationInputComponent } from '@src/app/components/action/translation-input';
 import { AddDialog } from '@src/app/components/modals/add.new.dialog.component';
 import { ApiService } from '@src/app/services/api.service';
@@ -10,8 +9,10 @@ import { IconEnum, Locale } from '@src/helpers/enum';
 import { newForm } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
 import { Option } from '@src/helpers/types';
+import { toggler } from '@src/helpers/utils';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
+import { ContentCollectionComponent } from '../components/content-collection.component';
 import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { ListComponent, ListItem } from '../components/reorerableList.component';
@@ -30,7 +31,7 @@ import { loadPageFn, mergeListItem } from './common/page.utilities';
     ListComponent,
     CommonModule,
     TranslationInputComponent,
-    TabViewComponent,
+    ContentCollectionComponent,
   ],
   template: `
     <layout [contentTitle]="'Select a form'">
@@ -59,16 +60,7 @@ import { loadPageFn, mergeListItem } from './common/page.utilities';
             <h2 class="h2">Active form</h2>
             <translation-input [translations]="currentForm.label" (translationsChange)="updateLabel($event)" />
           </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Pages</h2>
-          </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Divisions</h2>
-          </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Entries</h2>
-            <tab-view [tabs]="entryViewTabs" [(selected)]="selectedEntryViewType" />
-          </div>
+          <content-collection [mainItem]="currentForm" />
         }
       </ng-content>
     </layout>
@@ -79,11 +71,26 @@ import { loadPageFn, mergeListItem } from './common/page.utilities';
       flex: 1;
     }
     .h2 {
+      display: flex;
       white-space: nowrap;
       width: min-content;
+      font-size: 0.875rem;
+      padding-left: 0;
+      .arrow {
+        transition: rotate 0.25s;
+        rotate: -90deg;
+      }
     }
     .can-save {
       color: var(--p-500);
+    }
+    .frame {
+      padding-inline: 1.5rem;
+      box-shadow: 0 0 0 0.0625rem inset var(--n-200);
+      border-radius: 0.5rem;
+    }
+    .layout {
+      gap: 0;
     }
   `,
 })
@@ -96,6 +103,7 @@ export class FormPageComponent {
   binaryDialog = inject(BinaryDialog);
   addDialog = inject(AddDialog);
 
+  protected toggler = toggler();
   protected currentSaved: Signal<boolean>;
   protected formList: WritableSignal<ListItem[]>;
 

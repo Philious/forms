@@ -65,8 +65,8 @@ export class InputLayoutComponent implements OnInit {
     if (input) {
       input.setAttribute('id', this.id());
       let styles = '';
-      if (this.sufix()) styles += 'padding-right: var(--height-input)';
-      if (this.prefix()) styles += 'padding-left: var(--height-input)';
+      if (this.sufix()) styles += 'padding-right: var(--input-height)';
+      if (this.prefix()) styles += 'padding-left: var(--input-height)';
       input.setAttribute('style', styles);
     }
     console.dir(input);

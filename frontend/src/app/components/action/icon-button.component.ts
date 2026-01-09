@@ -9,7 +9,7 @@ import { IconComponent } from '../icons/icon.component';
   template: `
     <div class="bg" [class]="style()">
       <button class="icn-btn action-animation" (click)="emit($event)" [type]="type()" base-input>
-        <icon [icon]="icon()" class="icn" />
+        <icon [icon]="icon()" class="icon" />
       </button>
     </div>
   `,
@@ -17,6 +17,7 @@ import { IconComponent } from '../icons/icon.component';
     :host {
       display: grid;
       place-items: center;
+      font-size: 1.5rem;
     }
     .bg {
       width: 2rem;
@@ -33,7 +34,7 @@ import { IconComponent } from '../icons/icon.component';
         transition: background-color 0.15s;
       }
       &:hover {
-        .icn {
+        .icon {
           scale: 1.2;
         }
 
@@ -47,19 +48,20 @@ import { IconComponent } from '../icons/icon.component';
     }
     .filled {
       background-color: var(--icn-bg-clr);
-      color: var(--icn-clr-filled);
+      color: inherit;
     }
     .border {
       box-shadow: 0 0 0 1px inset var(--border);
     }
     .icn-btn {
+      font-size: inherit;
       color: inherit;
       cursor: pointer;
       inset: -0.5rem;
       display: grid;
       place-items: center;
     }
-    .icn {
+    .icon {
       transition: scale 0.5s;
     }
   `,

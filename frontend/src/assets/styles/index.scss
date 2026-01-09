@@ -11,8 +11,8 @@ $easeOutQuint: cubic-bezier(0.22, 1, 0.36, 1);
   font-weight: 400;
   font-size: var(--app-font-size);
   color-scheme: light dark;
-  color: var(--clr);
-  background-color: var(--bg-clr);
+  color: var(--lvl-c-0);
+  background-color: var(--lvl-0);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -20,6 +20,27 @@ $easeOutQuint: cubic-bezier(0.22, 1, 0.36, 1);
   -moz-osx-font-smoothing: grayscale;
   @include c.components;
 }
+body, button, input, select, textarea {
+  color: var(--lvl-c-0);
+}
+
+
+  input {
+      position: absolute;
+      inset: 0;
+      appearance: none;
+      border: none;
+      background-color: transparent;
+      padding: 0.75rem;
+      font-size: 13px;
+      font-weight: 600;
+      &.sufix input {
+        padding-right: var(--input-height);
+      }
+      &[disabled] {
+        cursor: not-allowed;
+      }
+    }
 
 body {
   margin: 0;

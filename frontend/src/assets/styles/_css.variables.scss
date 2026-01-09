@@ -26,6 +26,10 @@
   --txt-small: .75rem;
 
   --input-width: 100%;
+  --input-height: 2.5rem;
+  --input-height-slim: 2rem;
+  --input-font-size: var(--txt-mid);
+  --input-font-size-slim: var(--txt-small);
 
   --p-200: hsl(330, 94%, 24%);
   --p-300: hsl(330, 60%, 37%);
@@ -35,7 +39,7 @@
   --p-700: hsl(330, 65%, 96%);
   
   --black: #000;
-  --n-100: hsl(0,0%,10%);
+  --n-100: hsl(0, 0%, 10%);
   --n-200: hsl(0deg 0% 13%);
   --n-300: hsl(0deg 0% 21%);
   --n-350: hsl(0deg 0% 32%);
@@ -46,11 +50,19 @@
   --n-800: hsl(0, 0%, 95%);
   --white: #fff;
 
-  --clr: light-dark(var(--black), var(--white));
-  --bg-clr: light-dark(var(--white), var(--black));
+  --lvl-0: light-dark(var(--white), var(--black));
+  --lvl-1: light-dark(var(--n-700), var(--n-100));
+  --lvl-2: light-dark(var(--n-800), var(--n-200));
 
-  --header-color: var(--white);
-  --para-clr: var(--n-500);
+  --lvl-10: light-dark(var(--black), var(--white));
+
+  --lvl-c-0: light-dark(hsla(0, 0%, 0%, .35), hsla(0, 0%, 100%, .6));
+  --lvl-c-1: light-dark(hsla(0, 0%, 0%, .68), hsla(0, 0%, 100%, .63));
+
+  --lvl-c-2: light-dark(hsla(0, 0%, 0%, .4), hsla(0, 0%, 100%, .6));
+
+  --header-color: light-dark(var(--n-300), var(--white));
+  --para-clr: light-dark(var(--n-400), var(--n-500));
 
   --primary: var(--p-300);
   --error: hsl(0, 55%, 45%);
@@ -58,44 +70,26 @@
   --overlay-clr: var(--n-600);
   --overlay-bg-clr: var(--n-300);
 
-  --border: var(--n-300);
+  --border: light-dark(var(--n-600), var(--n-300));
   --menu-border: var(--n-400);
 
-  --input-clr: var(--n-600);
-  --input-bg-clr: hsla(0, 0%, 0%, .12);  
-  --input-border: hsla(0, 0%, 100%, .12);
-  --input-bg-clr-hover: hsla(0, 0%, 100%, .02);
-  --input-border-hover: hsla(0, 0%, 100%, .18);
+  --input-clr: light-dark(var(--n-200), var(--n-600));
+  --input-bg-clr: light-dark( hsla(0, 0%, 100%, .12), hsla(0, 0%, 0%, .12));  
+  --input-border: light-dark(hsla(0, 0%, 0%, .12), hsla(0, 0%, 100%, .12));
+  --input-bg-clr-hover: light-dark(hsla(0, 0%, 0%, .02), hsla(0, 0%, 100%, .01));
+  --input-border-hover: light-dark(hsla(0, 0%, 0%, .18), hsla(0, 0%, 100%, .18));
 
   --btn-clr: var(--n-700);
   --btn-bg-clr: hsla(0, 0%, 100%, .12);
 
-  --label: var(--n-500);
+  --label: light-dark(var(--n-400), var(--n-500));
 
   --icn-clr: var(--n-500);
   --icn-clr-filled: var(--n-100);
-  --icn-bg-clr: var(--n-500);
+  --icn-bg-clr: light-dark(var(--n-600), var(--n-500));
   
-  --hover-clr: hsla(0,0%,100%,.1);
-  --action-clr: hsla(0,0%,100%,.15);
-
-  @media (prefers-color-scheme: light) {
-
-    --header-clr: var(--n-300);
-    --para-clr: var(--n-400);
-
-    --border: var(--n-600);
-
-    --input-clr: var(--n-200);
-    --input-bg-clr: var(--n-600);
-    --input-border: var(--n-500);
-
-    --label: var(--n-400);
-
-    --icn-bg-clr: var(--n-600);
-    --hover-clr: hsla(0,0%,0%,.05);
-    --action-clr: hsla(0,0%,0%,.1);
-  }
+  --hover-clr: light-dark(hsla(0,0%,0%,.05), hsla(0,0%,100%,.1));
+  --action-clr: light-dark(hsla(0,0%,0%,.1), hsla(0,0%,100%,.15));
 
   @include mix.tabletUp {
     --toolbar-height: 3rem;

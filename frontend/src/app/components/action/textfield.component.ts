@@ -56,9 +56,10 @@ let uid = 0;
       min-width: 7rem;
       display: grid;
       gap: 0.25rem;
-      font-size: 0.8333rem;
+      font-size: var(--input-font-size);
       .input {
         font-size: inherit;
+        height: var(--input-height, 2.5rem);
       }
       &:not(.disabled) .input-wrapper:hover {
         border-color: var(--input-border);
@@ -77,7 +78,7 @@ let uid = 0;
       box-shadow: 0 0 0 0.0625rem var(--input-border) inset;
       color: var(--input-clr);
       border-radius: 0.25rem;
-      height: 2.5rem;
+      height: var(--input-height, 2.5rem);
       width: 100%;
       display: grid;
 
@@ -106,6 +107,19 @@ let uid = 0;
       color: var(--label);
       font-size: var(--txt-small);
       line-height: 1.2;
+    }
+    :host-context([slim]) {
+      --input-height: var(--input-height-slim);
+      --input-font-size: var(--input-font-size-slim);
+      .prefix,
+      .sufix {
+        font-size: var(--txt-small);
+      }
+      .sufix {
+        top: 0;
+        right: 0;
+        position: absolute;
+      }
     }
   `,
 })

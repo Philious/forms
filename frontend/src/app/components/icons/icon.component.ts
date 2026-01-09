@@ -26,15 +26,11 @@ import { ToggleIconComponent } from './toggle.icon.component';
   imports: [CommonModule],
   template: ` <ng-container *ngComponentOutlet="getComponent()" /> `,
   styles: `
-    :host {
-      display: contents;
-      color: var(--icn-clr);
-    }
     .icn {
       fill: currentColor;
       display: block;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 1em;
+      height: 1em;
     }
   `,
   encapsulation: ViewEncapsulation.None,

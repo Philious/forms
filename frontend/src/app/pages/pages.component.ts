@@ -8,7 +8,7 @@ import { Translation } from '@src/helpers/translationTypes';
 import { Option } from '@src/helpers/types';
 import { AriaDropComponent, OptionProps } from '../components/action/aria-drop.component';
 import { IconButtonComponent } from '../components/action/icon-button.component';
-import { SignalInputLayoutComponent } from '../components/action/input-layout/signal-input.layout.component';
+import { Validator } from '../components/action/input-layout/input.types';
 import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
@@ -34,7 +34,6 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     TranslationInputComponent,
     TabViewComponent,
     ListComponent,
-    SignalInputLayoutComponent,
     CommonModule,
     AriaDropComponent,
   ],
@@ -44,7 +43,8 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
         <span>Page details</span>
       </ng-content>
       <ng-content header-options>
-        <span content header-options>
+        <span content header-options
+          >{{ currentSaved() }}
           <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
           <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
           <context-menu [options]="pageLabelOptions">
@@ -53,9 +53,12 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
         </span>
       </ng-content>
       <ng-content location>
-        <signal-input-layout [type]="'text'" slim [label]="'Form'" [sufix]="IconEnum.Down">
-          <aria-drop input [items]="formOptions()" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
-        </signal-input-layout>
+        <aria-drop
+          [items]="formOptions()"
+          [selected]="selectedForm()"
+          (selectedChange)="updateSelectedForm($event)"
+          [validators]="formValidators()"
+        />
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
@@ -68,13 +71,22 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
             <h2 class="h2">Active Page</h2>
             <translation-input [translations]="currentPage.label" (translationsChange)="updateLabel($event)" />
           </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Divisions</h2>
-          </div>
-          <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-            <h2 class="h2">Entries</h2>
-            <tab-view [tabs]="entryViewTabs" [(selected)]="selectedEntryViewType" />
-          </div>
+          <tab-view
+            [tabs]="[
+              { label: 'List', template: list },
+              { label: 'Tree', template: tree },
+            ]"
+            [(selected)]="selectedEntryViewType"
+          />
+          <ng-template #list>
+            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
+              <h2 class="h2">Divisions</h2>
+            </div>
+            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
+              <h2 class="h2">Entries</h2>
+            </div>
+          </ng-template>
+          <ng-template #tree> Tree </ng-template>
         }
       </ng-content>
     </layout>
@@ -83,6 +95,9 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     :host {
       display: flex;
       flex: 1;
+    }
+    .can-save {
+      color: var(--p-500);
     }
   `,
 })
@@ -106,6 +121,7 @@ export class PagePageComponent {
     const id = this.store.currentForm()?.id;
     return id ? [id] : [];
   });
+  protected formValidators = signal<Validator[]>([]);
 
   protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
   protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
@@ -122,39 +138,29 @@ export class PagePageComponent {
 
   protected async add() {
     this.localeService.set(Locale.XX);
+    const formTranslation = this.store.currentForm()?.label.translationKey ?? '';
+    const currentFormId = this.store.currentForm()?.id;
+
+    if (!currentFormId) {
+      this.formValidators.set([(val: string) => (val ? null : 'Select a form')]);
+      return;
+    }
     await this.addDialog
-      .open({ title: 'Add new page', content: '' })
+      .open({ title: 'Add new page', content: '', initialValue: formTranslation })
       .then(value => {
-        const page = newPage({ label: value });
+        const page = newPage({ label: value, forms: [currentFormId] });
         this.pageList.update(list => mergeListItem(list, page, this.localeService.translate));
         this.store.currentPage.set(page);
+
+        const form = this.store.currentForm();
+        if (form) {
+          form.pages.push(page.id);
+          this.store.currentForm.set(form);
+          this.apiService.post.form(form);
+        }
       })
       .catch(() => {});
   }
-  /*
-    this.addNewDialog.open(
-      'Add new page',
-      '',
-      (label: Translation) => {
-        if (!!label.translationKey) {
-          const page = newPage({ label });
-          this.pageList.update(list => mergeListItem(list, page, this.localeService.translate));
-          this.store.currentPage.set(page);
-          
-          this.store.currentForm.update(form => {
-            if (form?.pages) form?.pages.push(page.id);
-            else form!['pages'] = [page.id];
-
-            return form;
-          });
-          return true;
-        }
-
-        return false;
-      },
-      this.store.currentForm()?.label.translationKey
-    );
-    */
 
   constructor() {
     const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Page>(

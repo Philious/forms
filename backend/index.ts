@@ -78,7 +78,7 @@ app.get('/api/get/all', (req: Request, res: Response<All>, next: NextFunction) =
     if (retrieved) pages[p.id] = retrieved;
   });
   divisionMap.forEach(d => {
-    const retrieved = getPage(d.id);
+    const retrieved = getDivision(d.id);
     if (retrieved) divisions[d.id] = retrieved;
   });
 
@@ -89,14 +89,27 @@ app.get('/api/get/all', (req: Request, res: Response<All>, next: NextFunction) =
   }
 });
 
-app.get('/api/get/allForms', (_: Request, res: Response<Record<FormId, Form>>, next: NextFunction) => {
-  const forms: Record<FormId, Form<'array'>> = {};
-
-  if (forms) res.status(200).json(forms);
+app.get('/api/get/all/forms', (_: Request, res: Response<Form[]>, next: NextFunction) => {
+  const forms: Form[] = [];
+  formMap.forEach(f => {
+    const retrieved = getForm(f.id);
+    if (retrieved) forms.push(retrieved);
+  });
+  if (forms.length) res.status(200).json(forms);
   else next(error(500, 'Internal server error'));
 });
 
-app.get('/api/get/forms/:formId', (req: Request<{ formId: FormId }>, res: Response<Form<'array'>>, next: NextFunction) => {
+app.get('/api/get/all/entries', (_: Request, res: Response<Entry[]>, next: NextFunction) => {
+  const entries: Entry[] = [];
+  entryMap.forEach(e => {
+    const retrieved = getEntry(e.id);
+    if (retrieved) entries.push(retrieved);
+  });
+  if (entries.length) res.status(200).json(entries);
+  else next(error(500, 'Internal server error'));
+});
+
+app.get('/api/get/form/:formId', (req: Request<{ formId: FormId }>, res: Response<Form<'array'>>, next: NextFunction) => {
   const { formId } = req.params;
   const form = getForm(formId);
 
@@ -115,7 +128,7 @@ app.get('/api/get/page/:pageId', (req: Request<{ pageId: PageId }>, res: Respons
 app.get('/api/get/division/:divisionId', (req: Request<{ divisionId: DivisionId }>, res: Response<Division<'array'>>, next: NextFunction) => {
   const { divisionId } = req.params;
   const division = getDivision(divisionId);
-
+  console.log('get div: ', req.params, division);
   if (division) res.status(200).json(division);
   else next(error(500, `No division with id ${divisionId}`));
 });
@@ -135,19 +148,9 @@ type Body = {
   entryId?: EntryId[];
 };
 
-app.post('/api/get/allEntries', (req: Request<Record<EntryId, Entry>>, res: Response, next: NextFunction) => {
-  const entries: Record<EntryId, Entry> = req.body;
-
-  if (entries) {
-    Object.values(entries).forEach(entry => setEntry(entry));
-    res.sendStatus(204);
-  } else {
-    next(error(500, `Internal server error, entries => ${entries}`));
-  }
-});
-
 app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFunction) => {
-  const entry: Entry = req.body;
+  const entry: Entry = req.body.item;
+  const parents = req.body.ids;
   console.log('entry: ', entry);
   entry.updated = new Date().valueOf();
   try {
@@ -160,7 +163,7 @@ app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFuncti
 
 app.post('/api/set/division', (req: Request<Division>, res: Response, next: NextFunction) => {
   const division = req.body;
-  console.log('save diision');
+  console.log('save division', req.body);
   try {
     setDivision(division);
     res.sendStatus(204);
@@ -191,25 +194,25 @@ app.post('/api/set/form', (req: Request<Form>, res: Response, next: NextFunction
   }
 });
 
-app.delete('/api/delete:formId', (req: Request<FormId>, res: Response): void => {
+app.delete('/api/delete/:formId', (req: Request<FormId>, res: Response): void => {
   const id = req.params;
   deleteForm(id);
   res.sendStatus(204);
 });
 
-app.delete('/api/delete:pageId', (req: Request<PageId>, res: Response): void => {
+app.delete('/api/delete/:pageId', (req: Request<PageId>, res: Response): void => {
   const id = req.params;
   deletePage(id);
   res.sendStatus(204);
 });
 
-app.delete('/api/delete:division', (req: Request<DivisionId>, res: Response): void => {
+app.delete('/api/delete/:divisionId', (req: Request<DivisionId>, res: Response): void => {
   const id = req.params;
   deleteDivision(id);
   res.sendStatus(204);
 });
 
-app.delete('/api/delete:entry', (req: Request<EntryId>, res: Response): void => {
+app.delete('/api/delete/:entryId', (req: Request<EntryId>, res: Response): void => {
   const id = req.params;
   deleteEntry(id);
   res.sendStatus(204);

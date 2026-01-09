@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'letter-size-icon',
@@ -10,5 +10,6 @@ import { Component } from '@angular/core';
       />
     </svg>
   `,
+  encapsulation: ViewEncapsulation.None,
 })
 export class LetterSizeIconComponent {}

@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { ActionButton } from '../../../helpers/types';
 import { ButtonComponent } from '../action/base-button.component';
+
+export type ActionButton = {
+  id: string;
+  label: string;
+  action: () => void;
+};
 
 @Component({
   selector: 'dialog-layout',

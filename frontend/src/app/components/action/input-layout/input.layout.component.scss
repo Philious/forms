@@ -1,8 +1,4 @@
-@use 'input.variables' as * ;
-
 :host {
-  @include input-css-variables;
-  --height-input: var(--height-input-default);
   width: var(--input-width, 100%);
   display: grid;
 
@@ -10,6 +6,10 @@
   .input-container,
   .label {
     width: inherit;
+  }
+  .input-wrapper {
+    display: flex;
+
   }
   &:not(.disabled) .input-container:hover::before {
     background-color: var(--input-bg-clr-hover);
@@ -29,21 +29,6 @@
   &.disabled {
     opacity: .75;
   }
-  &[slim] {
-    --height-input: var(--height-input-slim);
-    .input-container {
-      height: var(--height-input);
-    }
-    .prefix,
-    .sufix {
-      font-size: var(--txt-small);
-    }
-    .sufix {
-      top: 0;
-      right: 0;
-      position: absolute;
-    }
-  }
 }
 
 .label {
@@ -55,10 +40,10 @@
 
 .input-container {
   background-color: var(--input-bg-clr);
-  box-shadow: 0 0 0 0.0625rem var(--color-border-default) inset;
+  box-shadow: 0 0 0 0.0625rem var(--input-border) inset;
   color: var(--input-clr);
   border-radius: 0.25rem;
-  height: var(--height-input);
+  height: var(--input-height);
   display: grid;
   box-sizing: border-box;
   position: relative;
@@ -96,8 +81,8 @@
 .sufix {
   display: grid;
   place-content: center;
-  width: var(--height-input);
-  height: var(--height-input);
+  width: var(--input-height);
+  height: var(--input-height);
 }
 .sufix {
   margin-left: auto;
@@ -112,4 +97,15 @@
   font-size: var(--txt-small);
   line-height: 1.2;
   font-weight: 500;
+}
+
+:host-context([slim]) {
+  --input-height: var(--input-height-slim);
+  --input-font-size: var(--input-font-size-slim);
+
+  .sufix {
+    top: 0;
+    right: 0;
+    position: absolute;
+  }
 }

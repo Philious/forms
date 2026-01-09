@@ -175,19 +175,6 @@ export class DropdownComponent<T> {
     return this.selected();
   }
 
-  writeValue(items: SelectorItemWithId<T>[]): void {
-    this.selected.set(this.formatReturnValue(items));
-  }
-  registerOnChange(fn: (items: SelectorItemWithId<T>[] | T | null) => void): void {
-    this._onChange = fn;
-  }
-  registerOnTouched(fn: () => void): void {
-    this._onTouch = fn;
-  }
-  setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
-  }
-
   constructor() {
     this.uid = `dropdown-${componentIndex++}`;
   }
@@ -195,6 +182,7 @@ export class DropdownComponent<T> {
   protected toggleMenu(set?: boolean) {
     this.isOpen.update(v => (typeof set === 'boolean' ? set : !v));
   }
+
   protected isSelected(id: string): boolean {
     const selected = this.selected();
     if (Array.isArray(selected)) {
@@ -203,6 +191,7 @@ export class DropdownComponent<T> {
       return selected === id;
     }
   }
+
   protected selectOption(update: SelectorItemWithId<T>) {
     this.selected.update(arr => {
       if (Array.isArray(arr)) {
@@ -216,5 +205,18 @@ export class DropdownComponent<T> {
     if (!this.multiSelect()) this.isOpen.set(false);
     this._onChange(this.selected());
     this._onTouch();
+  }
+
+  writeValue(items: SelectorItemWithId<T>[]): void {
+    this.selected.set(this.formatReturnValue(items));
+  }
+  registerOnChange(fn: (items: SelectorItemWithId<T>[] | T | null) => void): void {
+    this._onChange = fn;
+  }
+  registerOnTouched(fn: () => void): void {
+    this._onTouch = fn;
+  }
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled = isDisabled;
   }
 }

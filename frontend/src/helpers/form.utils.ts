@@ -1,5 +1,5 @@
 import { ValidationErrors } from '@angular/forms';
-import { Division, Entry, EntryTypeEnum, Form, Page } from '@cs-forms/shared';
+import { Division, Entry, EntryTypeEnum, Form, FormId, Page, PageId } from '@cs-forms/shared';
 import { OptionProps } from '@src/app/components/action/aria-drop.component';
 import { v4 as uid } from 'uuid';
 import { Locale, noTranslation } from './enum';
@@ -26,20 +26,23 @@ export function newForm(form: Partial<Form<'array'>>): Form<'array'> {
   };
 }
 
-export function newPage(page: Partial<Page<'array'>>): Page<'array'> {
+export function newPage(page: Partial<Page<'array'>> & { label: Translation; forms: FormId[] }): Page<'array'> {
   return {
     id: page.id ?? uid(),
-    label: page.label ?? spreadTranslation({}),
+    label: page.label,
+    forms: page.forms,
     divisions: page.divisions ?? [],
     entries: page.entries ?? [],
     updated: page.updated ?? new Date().valueOf(),
   };
 }
 
-export function newDivision(page: Partial<Division<'array'>>): Division<'array'> {
+export function newDivision(page: Partial<Division<'array'>> & { label: Translation; forms: FormId[]; pages: PageId[] }): Division<'array'> {
   return {
     id: page.id ?? uid(),
-    label: page.label ?? spreadTranslation({}),
+    label: page.label,
+    forms: page.forms,
+    pages: page.pages,
     entries: page.entries ?? [],
     updated: page.updated ?? new Date().valueOf(),
   };
@@ -70,14 +73,14 @@ export function itemOptions<T extends Filters>(
   const filtered = Object.values<T>(items).filter(
     item => !filter || filter?.pages?.includes(item.id) || filter?.divisions?.includes(item.id) || filter?.entries?.includes(item.id)
   );
-  console.log(filtered);
+
   const options: OptionProps<T>[] = filtered.map(o => ({
     label: !!translate(o?.label) ? () => translate(o?.label) : () => noTranslation,
     value: o.id,
     data: o,
   }));
   options.unshift({ label: () => 'Show All', value: '' } as OptionProps<T>);
-  options.forEach(o => console.log(o.label()));
+
   return options;
 }
 

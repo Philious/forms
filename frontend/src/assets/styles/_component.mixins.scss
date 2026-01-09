@@ -13,7 +13,7 @@
 
   :where([input]) {
     box-sizing: border-box;
-    height: 2.5rem;
+    // height: 2.5rem;
     border-radius: 0.25rem;
     background-color: var(--input-bg-clr);
     color: var(--input-clr);
@@ -24,14 +24,17 @@
       background-color: var(--input-bg-clr-hover);
       border-color: var(--input-border-hover);
     }
+    /*
     &[slim] {
       height: 2rem;
       .input {
       padding: 0 .75rem;
     }
-    }
-  }
   
+    }
+        */
+  }
+  /*
   [slim] {
     min-height: auto;
     & .input-wrapper,
@@ -50,8 +53,8 @@
     .input {
       padding: 0 .75rem;
     }
-
   }
+    */
   :where([flex]) { flex: 1; }
   :where([btn]) {
     display: inline-flex;
@@ -129,9 +132,7 @@
       max-height: 100px;
     }
   }
-
-
-  }
+}
 
 
   [layout-section] {

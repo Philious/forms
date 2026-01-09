@@ -1,21 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, linkedSignal, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, Signal, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AriaDropComponent, OptionProps } from '@app/components/action/aria-drop.component';
 import { Division, Entry, Form, Option, Page } from '@cs-forms/shared';
 import { IconButtonComponent } from '@src/app/components/action/icon-button.component';
-import { SignalInputLayoutComponent } from '@src/app/components/action/input-layout/signal-input.layout.component';
 import { TextFieldComponent } from '@src/app/components/action/textfield.component';
+import { AddDialog } from '@src/app/components/modals/add.new.dialog.component';
 import { ContextMenuComponent } from '@src/app/components/modals/contextMenu.component';
-import { ListItem } from '@src/app/components/reorerableList.component';
+import { ListComponent, ListItem } from '@src/app/components/reorerableList.component';
 import { ApiService } from '@src/app/services/api.service';
 import { LocaleService } from '@src/app/services/locale.service';
 import { LocalStorageService } from '@src/app/services/localStorageService';
 import { Store } from '@src/app/store/store';
 import { IconEnum, Locale } from '@src/helpers/enum';
 import { itemOptions } from '@src/helpers/form.utils';
+import { Translation } from '@src/helpers/translationTypes';
 import { EntryTypeEnum } from '@src/helpers/types';
 import { LayoutComponent } from '../common/layout.component';
+import { loadPageFn, updateSelectedAriaOptionFn } from '../common/page.utilities';
 import { ActiveEntryComponent } from './activeEntry/activeEntry.component';
 
 export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Exclude<Entry<T>, 'id' | 'label' | 'updated'>> &
@@ -25,7 +27,6 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
   selector: 'entries-page',
   imports: [
     LayoutComponent,
-    SignalInputLayoutComponent,
     IconButtonComponent,
     ContextMenuComponent,
     TextFieldComponent,
@@ -34,34 +35,29 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
     FormsModule,
     ReactiveFormsModule,
     AriaDropComponent,
+    ListComponent,
   ],
   template: `<layout [contentTitle]="'Select an entry'">
     <span content header>Entry details</span>
     <span content header-options>
-      <icon-button [class.can-save]="canSave()" [icon]="IconEnum.Save" (clicked)="save()" />
+      <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
       <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
-      <context-menu [options]="pageLabelOptions">
+      <context-menu [options]="entryLabelOptions">
         <icon-button [icon]="IconEnum.Options" />
       </context-menu>
     </span>
     <span content location>
-      <signal-input-layout [type]="'text'" slim [label]="'Form'" [sufix]="IconEnum.Down">
-        <aria-drop [items]="formOptions()" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
-      </signal-input-layout>
-      <signal-input-layout [type]="'text'" slim [label]="'Page'" [sufix]="IconEnum.Down">
-        <aria-drop [items]="pageOptions()" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
-      </signal-input-layout>
-      <signal-input-layout [type]="'text'" slim [label]="'Page'" [sufix]="IconEnum.Down">
-        <aria-drop [items]="divisionOptions()" [selected]="selectedDivision()" (selectedChange)="updateSelectedDivision($event)" />
-      </signal-input-layout>
+      <aria-drop [items]="formOptions()" [label]="'Form'" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
+      <aria-drop [items]="pageOptions()" [label]="'Page'" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
+      <aria-drop [items]="divisionOptions()" [label]="'Division'" [selected]="selectedDivision()" (selectedChange)="updateSelectedDivision($event)" />
       <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
     </span>
     <span list>
-      <!--<list [(list)]="entryList" [findLabelFn]="listLabel(locale())" (updateSelected)="this.currentEntry.set($event)" />-->
+      <list [(list)]="filteredEntryeList" (selectedChange)="updateSelected($event)" />
     </span>
 
     <span specifics>
-      @let currentEntry = this.currentEntry();
+      @let currentEntry = this.store.currentEntry();
       @if (currentEntry) {
         <active-entry [entry]="currentEntry" />
       } @else {
@@ -77,99 +73,79 @@ export type PartialEntry<T extends EntryTypeEnum = EntryTypeEnum> = Partial<Excl
     .add-new {
       margin-right: auto;
     }
+    .can-save {
+      color: var(--p-500);
+    }
   `,
 })
 export class EntriesComponent {
+  IconEnum = IconEnum;
+  store = inject(Store);
   apiService = inject(ApiService);
   localeService = inject(LocaleService);
-  store = inject(Store);
   localStorage = inject(LocalStorageService);
-  IconEnum = IconEnum;
+  addDialog = inject(AddDialog);
 
-  currentSaved = computed<boolean>(() => {
-    const pages = this.store.entries()?.values() ?? [];
-    const ce = this.store.currentEntry();
-
-    return !ce || pages.length === 0 || (!!ce && pages.filter(e => e.id === ce.id).length !== 0);
-  });
-
-  currentEntry = this.store.currentEntry as WritableSignal<PartialEntry | null>;
-  locale = this.localeService.activeLocale;
-  canSave = signal<boolean>(false);
-
-  protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
-  protected sectionList = [{ label: 'Change section name', value: 'changeName' }];
-
-  entryList = linkedSignal<ListItem[]>(() => {
-    const entries = this.store.entries()?.values() ?? [];
-    const ce = this.store.currentEntry();
-
-    if (ce && entries.filter(e => e.id === ce.id).length === 0) {
-      entries.push(ce);
-    }
-
-    return entries.map(e => ({
-      id: e.id,
-      label: this.localeService.translate(e.label),
-      selected: e.id === ce?.id,
-      color: e.id === ce?.id && !this.currentSaved() ? { color: 'var(--p-500)', message: 'Page is not saved' } : undefined,
-    }));
-  });
-
-  protected showId = signal<boolean>(false);
-
-  selectedForm = linkedSignal<string[]>(() => {
-    const translation = this.store.currentForm()?.label;
-    if (translation) return [this.localeService.translate(translation)];
-    return [];
-  });
-  selectedPage = linkedSignal<string[]>(() => {
-    const translation = this.store.currentPage()?.label;
-    if (translation) return [this.localeService.translate(translation)];
-    return [];
-  });
-  protected selectedDivision = linkedSignal<string[]>(() => {
-    const translation = this.store.currentDivision()?.label;
-    if (translation) return [this.localeService.translate(translation)];
-    return [];
-  });
+  protected currentSaved: Signal<boolean>;
+  protected entryList: WritableSignal<ListItem[]>;
+  protected filteredEntryeList = linkedSignal<ListItem[]>(() =>
+    this.entryList()
+      .filter(p => !this.store.currentForm() || this.store.currentForm()?.entries.includes(p.id))
+      .filter(p => !this.store.currentPage() || this.store.currentPage()?.entries.includes(p.id))
+      .filter(p => !this.store.currentDivision() || this.store.currentDivision()?.entries.includes(p.id))
+  );
 
   protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
+  protected selectedForm = linkedSignal<string[]>(() => {
+    const id = this.store.currentForm()?.id;
+    return id ? [id] : [];
+  });
   protected pageOptions = computed<OptionProps<Page>[]>(() => itemOptions<Page>(this.store.pages() ?? {}, this.localeService.translate));
+  protected selectedPage = linkedSignal<string[]>(() => {
+    const id = this.store.currentPage()?.id;
+    return id ? [id] : [];
+  });
   protected divisionOptions = computed<OptionProps<Division>[]>(() =>
     itemOptions<Division>(this.store.divisions() ?? {}, this.localeService.translate)
   );
+  protected selectedDivision = linkedSignal<string[]>(() => {
+    const id = this.store.currentDivision()?.id;
+    return id ? [id] : [];
+  });
 
-  protected updateSelectedForm(event: string[]) {
-    const selectedForm = this.formOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedForm) this.store.currentForm.set(selectedForm);
-  }
-  protected updateSelectedPage(event: string[]) {
-    const selectedPage = this.pageOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedPage) this.store.currentPage.set(selectedPage);
-  }
-  protected updateSelectedDivision(event: string[]) {
-    const selectedDivision = this.divisionOptions().find(o => o.value && event.includes(o.value))?.data;
-    if (selectedDivision) this.store.currentDivision.set(selectedDivision);
-  }
+  protected entryLabelOptions: Option<string>[] = [{ label: 'Change entry name', value: 'changeName' }];
+  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
+  protected entryViewTabs = [
+    { label: 'Tree', value: 'tree' },
+    { label: 'List', value: 'list' },
+  ];
 
-  protected setActive() {}
-  protected listLabel(locale: Locale): (k: Pick<Entry, 'label'>) => string {
-    return (k: Pick<Entry, 'label'>) => k.label[locale] ?? 'No translation';
-  }
-  protected add() {}
+  protected updateSelected: (id: string | null) => void;
+  protected save: () => void;
+  protected updateLabel: (translation: Translation) => void;
 
-  protected save() {
-    const entry = this.currentEntry();
-    const keys: (keyof Entry)[] = ['id', 'type', 'label', 'updated', 'entrySpecific'];
+  protected updateSelectedForm = updateSelectedAriaOptionFn<Form>(this.formOptions, this.store.currentForm);
+  protected updateSelectedPage = updateSelectedAriaOptionFn<Page>(this.pageOptions, this.store.currentPage);
+  protected updateSelectedDivision = updateSelectedAriaOptionFn<Division>(this.divisionOptions, this.store.currentDivision);
 
-    const missingKey = keys.filter(k => !entry || !entry[k]);
-    if (missingKey.length) console.error(`${missingKey.join(', ')} missing`);
-    else {
-      this.apiService.post.entry(entry as Entry);
-      this.localStorage.clear.entry();
-    }
+  protected add() {
+    this.localeService.set(Locale.XX);
   }
 
-  constructor() {}
+  constructor() {
+    console.log('create entry component');
+    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Entry>(
+      this.store.currentEntry,
+      this.store.entries,
+      this.localeService.translate,
+      this.store.storeEntry,
+      this.apiService.post.entry
+    );
+
+    this.currentSaved = currentSaved;
+    this.entryList = list;
+    this.updateSelected = updateSelected;
+    this.save = save;
+    this.updateLabel = updateLabel;
+  }
 }

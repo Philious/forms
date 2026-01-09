@@ -3,7 +3,6 @@ import { SelectorItem, SelectorItemWithId } from './dropdown.component';
 
 export function addIds<T>(items: SelectorItem<T>[]): SelectorItemWithId<T>[] {
   return items.map(item => {
-    item['id'] = uid();
-    return item as SelectorItemWithId<T>;
+    return { id: uid(), label: item.label ?? item, value: (item.value ?? item) as T };
   });
 }

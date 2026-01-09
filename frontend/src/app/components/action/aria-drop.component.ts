@@ -3,6 +3,9 @@ import { Listbox, Option } from '@angular/aria/listbox';
 import { CdkConnectedOverlay } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, input, model, viewChild, viewChildren } from '@angular/core';
+import { SignalInputLayoutComponent } from '@app/components/action/input-layout/signal-input.layout.component';
+import { IconEnum } from '@src/helpers/enum';
+import { Validator } from './input-layout/input.types';
 
 export type OptionProps<T = unknown> = { label: () => string; value: string; disabled?: boolean; data?: T };
 
@@ -11,9 +14,20 @@ let id = 0;
 @Component({
   selector: 'aria-drop',
   template: `
-    <div ngCombobox readonly>
+    <signal-input-layout
+      [type]="'text'"
+      slim
+      [label]="label()"
+      [sufix]="IconEnum.Down"
+      [contextMessage]="contextMessage()"
+      [validators]="validators()"
+      [writeValue]="selected().join('')"
+      ngCombobox
+      readonly
+    >
       <input #origin aria-label="selector" values="" class="input" placeholder="Select..." ngComboboxInput [id]="id()" />
-      <span class="selected-label-text">{{ displayValue() }}</span>
+      <div class="selected-label-text">{{ displayValue() }}</div>
+
       <ng-template ngComboboxPopupContainer>
         <ng-template [cdkConnectedOverlay]="{ origin, usePopover: 'inline', matchWidth: true }" [cdkConnectedOverlayOpen]="true">
           <div>
@@ -30,26 +44,26 @@ let id = 0;
           </div>
         </ng-template>
       </ng-template>
-    </div>
+    </signal-input-layout>
   `,
   styles: `
-    :host {
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center start;
-      padding: 0 2rem 0 1rem;
-    }
     .selected-label-text {
-      font-size: 0.875rem;
+      font-size: var(--input-font-size);
+      font-weight: 600;
+      width: inherit;
+      height: inherit;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
     }
     .input {
       cursor: pointer;
       position: absolute;
       inset: 0;
-      padding-inline: 1rem 1rem;
+      padding: 0 2.5rem 0 1rem;
     }
     .menu {
+      font-size: var(--txt-mid);
       display: grid;
       width: 100%;
       background-color: var(--n-300);
@@ -123,8 +137,7 @@ let id = 0;
     [ngComboboxInput] {
       opacity: 0;
       cursor: pointer;
-      padding: 0 2.5rem;
-      height: 2.5rem;
+      height: inherit;
       border: none;
     }
     [ngListbox] {
@@ -151,15 +164,30 @@ let id = 0;
       // display: none;
     }
   `,
-  imports: [Combobox, ComboboxInput, ComboboxPopup, ComboboxPopupContainer, Listbox, Option, CommonModule, CdkConnectedOverlay],
+  imports: [
+    Combobox,
+    ComboboxInput,
+    ComboboxPopup,
+    ComboboxPopupContainer,
+    Listbox,
+    Option,
+    CommonModule,
+    SignalInputLayoutComponent,
+    CdkConnectedOverlay,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AriaDropComponent {
+  IconEnum = IconEnum;
   combobox = viewChild<Combobox<string>>(Combobox);
   listbox = viewChild<Listbox<string>>(Listbox);
   options = viewChildren<Option<string>>(Option);
 
   id = input<string>(`aria-drop${++id}`);
+  label = input<string>('');
+  validators = input<Validator[]>([]);
+  contextMessage = input<string>('');
+
   items = input.required<OptionProps[]>();
   multi = input<boolean>(false);
 

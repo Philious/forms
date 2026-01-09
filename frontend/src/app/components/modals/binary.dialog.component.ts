@@ -2,8 +2,7 @@ import { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { ComponentType } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, Injectable, signal, TemplateRef } from '@angular/core';
-import { ActionButton } from '@src/helpers/types';
-import { DialogLayoutComponent } from './dialogLayout.component';
+import { ActionButton, DialogLayoutComponent } from './dialogLayout.component';
 import { BinaryDialogType, openDialog } from './modal.utils';
 
 @Component({

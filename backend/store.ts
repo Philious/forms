@@ -28,32 +28,6 @@ export const entryMap = new Map<EntryId, Entry>([
 ]);
 
 const mergArr = (arr1: string[], arr2: string[]) => [...new Set(arr1.concat(arr2))];
-export const updateIds = (ids: Ids) => {
-  ids?.formIds?.forEach(fid => {
-    const form = formMap.get(fid);
-    if (form) {
-      form.pages = mergArr(form.pages, ids.pageIds ?? []);
-      form.divisions = mergArr(form.divisions, ids.divisionIds ?? []);
-      form.entries = mergArr(form.entries, ids.entryIds ?? []);
-      formMap.set(form.id, form);
-    }
-  });
-  ids.pageIds?.forEach(pid => {
-    const page = pageMap.get(pid);
-    if (page) {
-      page.divisions = mergArr(page.divisions, ids.divisionIds ?? []);
-      page.entries = mergArr(page.entries, ids.entryIds ?? []);
-      pageMap.set(page.id, page);
-    }
-  });
-  ids.divisionIds?.forEach(did => {
-    const division = divisionMap.get(did);
-    if (division) {
-      division.entries = mergArr(division.entries, ids.entryIds ?? []);
-      divisionMap.set(division.id, division);
-    }
-  });
-};
 
 export const setForm = (form: Form) => {
   const formUpdate: Form<'array'> = {
@@ -70,18 +44,9 @@ export const setPage = (page: Page) => {
     label: page.label,
     updated: new Date().valueOf(),
   };
-  pageMap.set(page.id, pageUpdate);
-  const allFormInstances: FormId[] = [...formMap.values()]
-    .flat()
-    .filter(form => form.pages.filter(pageId => pageId === page.id))
-    .map(form => form.id);
+  page.forms.forEach(id => formMap.get(id)?.pages?.push(page.id));
 
-  updateIds({
-    formIds: allFormInstances,
-    pageIds: [page.id],
-    divisionIds: page.divisions,
-    entryIds: page.entries,
-  });
+  pageMap.set(page.id, pageUpdate);
 };
 
 export const setDivision = (division: Division) => {
@@ -90,6 +55,9 @@ export const setDivision = (division: Division) => {
     label: division.label,
     updated: new Date().valueOf(),
   };
+  div.forms.forEach(id => formMap.get(id)?.divisions?.push(division.id));
+  div.pages.forEach(id => pageMap.get(id)?.divisions?.push(division.id));
+
   divisionMap.set(div.id, div);
 };
 

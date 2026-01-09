@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { Division, DivisionId, Entry, EntryId, Form, FormId, Page, PageId } from '@cs-forms/shared';
 import { ExtendedObjectType, extendedRecord } from '@src/helpers/utils';
 import { LocalStorageService } from '../services/localStorageService';
@@ -7,7 +7,7 @@ export type User = { id: string; name: string };
 type All = {
   forms: Record<FormId, Form>;
   pages: Record<PageId, Page>;
-  division: Record<DivisionId, Division>;
+  divisions: Record<DivisionId, Division>;
   entries: Record<EntryId, Entry>;
 };
 
@@ -32,6 +32,9 @@ export class Store {
   currentDivision = signal<Division | null>(null);
   currentEntry = signal<Entry | null>(null);
 
+  constructor() {
+    effect(() => console.log(this.divisions()));
+  }
   setUser = (user: User | null) => {
     this._user.set(user);
   };
@@ -39,7 +42,7 @@ export class Store {
   setData = (payload: All | null) => {
     this._forms.set(payload?.forms ? extendedRecord<FormId, Form>(payload.forms) : null);
     this._pages.set(payload?.pages ? extendedRecord<PageId, Page>(payload.pages) : null);
-    this._divisions.set(payload?.division ? extendedRecord<DivisionId, Division>(payload.division) : null);
+    this._divisions.set(payload?.divisions ? extendedRecord<DivisionId, Division>(payload.divisions) : null);
     this._entries.set(payload?.entries ? extendedRecord<EntryId, Entry>(payload.entries) : null);
   };
 

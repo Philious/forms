@@ -3,7 +3,7 @@ import { Component, input, model, output, signal, viewChild } from '@angular/cor
 import { Locale } from '@src/helpers/enum';
 import { Translation } from '@src/helpers/translationTypes';
 import { SignalInputLayoutComponent } from './input-layout/signal-input.layout.component';
-import { MiniLangTabsComponent } from './mini-lang-tabs.component';
+import { MiniLangTabsComponent } from './mini-lang.component';
 
 let id = 0;
 
@@ -12,7 +12,7 @@ let id = 0;
   template: `
     <ng-template #labelElement>
       <span>{{ label() }}</span>
-      <mini-lang-tabs (activeLocale)="activeLocale.set($event)" [translationSet]="translations()" />
+      <mini-lang (activeLocale)="activeLocale.set($event)" [translationSet]="translations()" />
     </ng-template>
     <signal-input-layout
       slim

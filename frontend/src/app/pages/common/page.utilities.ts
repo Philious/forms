@@ -53,7 +53,7 @@ export const loadPageFn = <T extends Item>(
   fpdeItem: Signal<ExtendedObjectType<string, T> | null>,
   translate: (set: Translation) => string,
   storeItem: (item: T) => void,
-  postForm: (item: T, options?: ApiObserverOptions<T>) => void
+  post: (item: T, options?: ApiObserverOptions<T>) => void
 ) => {
   const currentSaved = computed<boolean>(() => checkIfSaved(current, fpdeItem));
 
@@ -83,8 +83,9 @@ export const loadPageFn = <T extends Item>(
 
   const save = () => {
     const item = current();
+    console.log('save', item);
     if (item) {
-      postForm(item);
+      post(item);
       storeItem(item);
     }
   };

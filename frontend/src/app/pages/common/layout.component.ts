@@ -25,7 +25,7 @@ import { Component, input } from '@angular/core';
   `,
   styles: `
     :host {
-      background-color: var(--n-200);
+      background-color: var(--lvl-2);
       border-radius: 0.5rem;
       flex: 1;
       display: flex;
@@ -79,7 +79,7 @@ import { Component, input } from '@angular/core';
       border-radius: 0.25rem;
     }
     .item-specifics {
-      background-color: var(--n-100);
+      background-color: var(--lvl-1);
       margin: 0.25rem;
       padding: 1.5rem;
       border-radius: 0.25rem;

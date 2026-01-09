@@ -35,7 +35,7 @@ export type ListItem = {
               [ngStyle]="{ backgroundColor: colorMessage(entry.color).color }"
             ></div>
           }
-          <button base-button [iconButton]="IconEnum.Remove" (click)="removeId.emit(entry.id)"></button>
+          <button class="remove-btn" base-button [iconButton]="IconEnum.Remove" (click)="removeId.emit(entry.id)"></button>
         </li>
       }
     </ul>
@@ -108,6 +108,12 @@ export type ListItem = {
         border: none;
         letter-spacing: 0.025rem;
       }
+      .remove-btn {
+        font-size: 1.5rem;
+        flex: 0 0 2.5rem;
+        height: 2.5rem;
+        min-width: 0;
+      }
     }
 
     .cdk-drag-preview {
@@ -133,10 +139,12 @@ export class ListComponent {
   list = model.required<ListItem[]>();
   selected = model<ListItem['id'] | null>(null);
   removeId = output<string>();
+
   colorMessage(value: string | { color: string; message: string }): { color: string; message: string } {
     if (typeof value == 'string') return { color: value, message: '' };
     else return value;
   }
+
   protected dragItem(event: CdkDragDrop<number>) {
     if (event.previousIndex === event.currentIndex) return;
 

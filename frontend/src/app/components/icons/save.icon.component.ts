@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'save-icon',
@@ -11,5 +11,6 @@ import { Component } from '@angular/core';
       />
     </svg>
   `,
+  encapsulation: ViewEncapsulation.None,
 })
 export class SaveIconComponent {}

@@ -6,7 +6,7 @@ import { Option } from '../../../helpers/types';
   selector: 'context-menu',
   imports: [CdkMenu, CdkMenuItem, CdkMenuTrigger],
   template: `
-    <span [cdkMenuTriggerFor]="menu">
+    <span #trigger [cdkMenuTriggerFor]="menu">
       <ng-content />
     </span>
     <ng-template #menu>
@@ -44,7 +44,7 @@ import { Option } from '../../../helpers/types';
     }
   `,
 })
-export class ContextMenuComponent {
-  options = input.required<Option[]>();
-  updateSelected = output<string>();
+export class ContextMenuComponent<T extends Option> {
+  options = input.required<T[]>();
+  updateSelected = output<T['value']>();
 }

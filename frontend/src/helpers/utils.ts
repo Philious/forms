@@ -1,3 +1,4 @@
+import { signal, WritableSignal } from '@angular/core';
 import cloneDeep from 'lodash.clonedeep';
 
 export const setCookie = (name: string, value: string, hours: number): void => {
@@ -175,6 +176,23 @@ export function extendedRecord<K extends string | number | symbol, V>(object?: R
   });
 
   return object as ExtendedObjectType<K, V>;
+}
+
+export function toggler() {
+  const map = new Map<string, WritableSignal<boolean>>();
+
+  function trigger(name: string, initial = false): void {
+    console.log(name, map.has(name));
+    if (map.has(name)) map.get(name)!.update(val => !val);
+    else map.set(name, signal<boolean>(initial));
+  }
+
+  function target(name: string): WritableSignal<boolean> {
+    if (map.has(name)) return map.get(name)!;
+    else return signal(false);
+  }
+
+  return { trigger, target };
 }
 
 export function svgCircleAsPath(cx: number, cy: number, r: number) {

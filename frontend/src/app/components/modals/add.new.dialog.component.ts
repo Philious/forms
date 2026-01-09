@@ -42,7 +42,7 @@ export class AddNewDialogComponent {
   dialogRef = inject(DialogRef);
   title = computed<string>(() => this.dialogRef.config.data?.title);
   content = computed<string>(() => this.dialogRef.config.data?.content);
-  value = signal<Translation>(spreadTranslation(this.dialogRef.config.data?.initialValue));
+  value = signal<Translation>(spreadTranslation({}, this.dialogRef.config.data?.initialValue));
   error = signal<boolean>(false);
 
   action() {
@@ -60,7 +60,7 @@ export class AddNewDialogComponent {
   }
 }
 
-type AddDialogProps = { title: string; content: string; initialValue?: Translation };
+type AddDialogProps = { title: string; content: string; initialValue?: string };
 @Injectable({ providedIn: 'root' })
 export class AddDialog {
   dialog = inject(Dialog);

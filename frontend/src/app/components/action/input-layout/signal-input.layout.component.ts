@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, input, model, OnInit, output, signal, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, OnInit, output, TemplateRef } from '@angular/core';
 import { IconComponent } from '@src/app/components/icons/icon.component';
 import { IconEnum } from '@src/helpers/enum';
 import { Validator } from './input.types';
@@ -18,15 +18,12 @@ let uid = 0;
     '[class.error]': 'errorMessage()',
   },
   templateUrl: './input.layout.component.html',
-  styleUrls: ['./input.layout.component.scss', './input-override.scss'],
+  styleUrls: ['./input.layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignalInputLayoutComponent<
-  T extends 'text' | 'number',
-  S = T extends 'text' ? string : T extends 'number' ? number : never,
-> implements OnInit {
+export class SignalInputLayoutComponent implements OnInit {
   id = input(`input-${uid++}`);
-  type = input.required<T>();
+  type = input.required<'text' | 'number'>();
   label = input<string>();
   labelElement = input<TemplateRef<HTMLElement>>();
   prefix = input<IconEnum | string>();
@@ -35,20 +32,20 @@ export class SignalInputLayoutComponent<
   validators = input<Validator[]>([]);
   contextMessage = input<string>('');
   inputElement = input<HTMLInputElement>();
-  valueChanges = model<S>();
-  forceUpdate = model<boolean>(false);
 
   hasError = output<boolean>();
 
-  touched = signal<boolean>(false);
-  writeValue = signal<string>('');
-  changed = signal<boolean>(false);
+  touched = model<boolean>(false);
+  writeValue = model<string>('');
+  changed = model<boolean>(false);
 
   errorMessage = computed<string | null>(() => {
     const value = this.writeValue();
     const validators = this.validators();
+
     if (this.changed()) {
       const errors = validators.map(fn => fn(value)).filter(e => e !== null);
+
       if (errors.length) {
         this.hasError.emit(true);
         return errors.shift() + (errors.length > 0 ? `. And ${errors.length} more.` : '');
@@ -59,15 +56,6 @@ export class SignalInputLayoutComponent<
 
   isIcon(fix: unknown) {
     return Object.values(IconEnum).find(v => v === fix) ? (fix as IconEnum) : null;
-  }
-
-  constructor() {
-    effect(() => {
-      if (this.forceUpdate()) {
-        this.forceUpdate.set(true);
-        this.changed();
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -85,8 +73,8 @@ export class SignalInputLayoutComponent<
         this.changed.set(true);
       };
       let styles = '';
-      if (this.sufix()) styles += 'padding-right: var(--height-input)';
-      if (this.prefix()) styles += 'padding-left: var(--height-input)';
+      if (this.sufix()) styles += 'padding-right: var(--input-height)';
+      if (this.prefix()) styles += 'padding-left: var(--input-height)';
       input.setAttribute('style', styles);
     }
   }

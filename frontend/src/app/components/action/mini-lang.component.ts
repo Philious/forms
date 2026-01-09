@@ -1,26 +1,42 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { LocaleService } from '@src/app/services/locale.service';
-import { Locale } from '@src/helpers/enum';
+import { ButtonStyleEnum, Locale } from '@src/helpers/enum';
 import { Translation } from '@src/helpers/translationTypes';
+import { ContextMenuComponent } from '../modals/contextMenu.component';
 
 @Component({
-  selector: 'mini-lang-tabs',
+  selector: 'mini-lang',
   template: `
-    <div class="lang-selection">
-      @for (lang of langs; track lang) {
-        <button
-          text-btn
-          class="lang action-animation"
-          [class.active]="lang.langLong === active()"
-          [class.has-translation]="!!translationSet()?.[lang.langLong]"
-          (click)="setActiveLang(lang.langLong)"
-        >
-          {{ lang.langShort }}
-        </button>
-      }
-    </div>
+    @if (menuSelector()) {
+      <context-menu [options]="langs" (updateSelected)="setActiveLang($event)">
+        <div #trigger class="trigger">{{ active().slice(0, 2) }}</div>
+      </context-menu>
+    } @else {
+      <div class="lang-selection">
+        @for (lang of langs; track lang) {
+          <button
+            text-btn
+            class="lang action-animation"
+            [class.active]="lang.value === active()"
+            [class.has-translation]="!!translationSet()?.[lang.value]"
+            (click)="setActiveLang(lang.value)"
+          >
+            {{ lang.label }}
+          </button>
+        }
+      </div>
+    }
   `,
   styles: `
+    .trigger {
+      display: grid;
+      place-items: center;
+      font-size: 1.125rem;
+      line-height: 1;
+      font-weight: 500;
+      width: 3rem;
+      height: 3rem;
+    }
     .lang-selection {
       display: flex;
       gap: 0.5rem;
@@ -56,13 +72,17 @@ import { Translation } from '@src/helpers/translationTypes';
       }
     }
   `,
+  imports: [ContextMenuComponent],
 })
 export class MiniLangTabsComponent {
+  ButtonStyleEnum = ButtonStyleEnum;
   localeService = inject(LocaleService);
   translationSet = input<Translation>();
+  menuSelector = input<boolean>(false);
+
   activeLocale = output<Locale>();
   active = computed<Locale>(() => this.localeService.activeLocale());
-  langs = Object.values(Locale).map(l => ({ langShort: l.slice(0, 2), langLong: l }));
+  langs = Object.values(Locale).map(l => ({ label: l.slice(0, 2), value: l }));
 
   setActiveLang(lang: Locale) {
     this.localeService.set(lang);
