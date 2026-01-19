@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, inject, linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
 import { Form } from '@cs-forms/shared';
 import { TranslationInputComponent } from '@src/app/components/action/translation-input';
 import { AddDialog } from '@src/app/components/modals/add.new.dialog.component';
@@ -48,10 +48,10 @@ import { loadPageFn, mergeListItem } from './common/page.utilities';
       </span>
 
       <ng-content location>
-        <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
+        <text-field slim [(modelValue)]="searchString" [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
-        <list [(list)]="formList" (selectedChange)="updateSelected($event)" (removeId)="removeItem($event)" />
+        <list [(list)]="filteredList" (selectedChange)="updateSelected($event)" (removeId)="removeItem($event)" />
       </ng-content>
       <ng-content specifics>
         @let currentForm = this.store.currentForm();
@@ -103,21 +103,18 @@ export class FormPageComponent {
   binaryDialog = inject(BinaryDialog);
   addDialog = inject(AddDialog);
 
+  searchString = signal<string>('');
   protected toggler = toggler();
   protected currentSaved: Signal<boolean>;
   protected formList: WritableSignal<ListItem[]>;
-
+  protected filteredList = linkedSignal(() => {
+    return this.formList().filter(item => !this.searchString() || item.label.includes(this.searchString()));
+  });
   protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
-
-  protected entryViewTabs = [
-    { label: 'Tree', value: 'tree' },
-    { label: 'List', value: 'list' },
-  ];
-
-  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
 
   protected updateSelected: (id: string | null) => void;
   protected save: () => void;
+  protected remove: (id: string) => void;
   protected updateLabel: (translation: Translation) => void;
 
   protected async add() {
@@ -143,18 +140,20 @@ export class FormPageComponent {
   }
 
   constructor() {
-    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Form>(
+    const { currentSaved, list, updateSelected, save, updateLabel, remove } = loadPageFn<Form>(
       this.store.currentForm,
       this.store.forms,
       this.localeService.translate,
       this.store.storeForm,
-      this.apiService.post.form
+      this.apiService.post.form,
+      this.apiService.delete.form
     );
 
     this.currentSaved = currentSaved;
     this.formList = list;
     this.updateSelected = updateSelected;
     this.save = save;
+    this.remove = remove;
     this.updateLabel = updateLabel;
 
     // effect(() => console.log('current form: ', this.store.currentForm()));

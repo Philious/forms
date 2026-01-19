@@ -20,6 +20,9 @@ import { Component, input } from '@angular/core';
       </div>
     </div>
     <div list flex class="item-specifics" [attr.content-title]="contentTitle()">
+      <div class="options">
+        <ng-content select="[item-options]"></ng-content>
+      </div>
       <ng-content select="[specifics]"></ng-content>
     </div>
   `,
@@ -41,27 +44,28 @@ import { Component, input } from '@angular/core';
       width: 100%;
       align-items: center;
       justify-content: space-between;
-      .options {
-        display: flex;
-        gap: 0.5rem;
-      }
-      .can-save {
-        position: relative;
-        color: hsla(0, 0%, 100%, 0.75);
-        &:before {
-          inset: 0.25rem 0.25rem 0.375rem;
-          content: '';
-          position: absolute;
+    }
+    .options {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      color: var(--p-500);
+    }
+    .can-save {
+      position: relative;
+      color: hsla(0, 0%, 100%, 0.75);
+      &:before {
+        inset: 0.25rem 0.25rem 0.375rem;
+        content: '';
+        position: absolute;
 
-          background-color: var(--p-400);
-          filter: drop-shadow(0px 0px 0.0625rem white);
-        }
+        background-color: var(--p-400);
+        filter: drop-shadow(0px 0px 0.0625rem white);
       }
     }
-
     .container {
       display: grid;
-      gap: 1.5rem;
+      gap: 0.75rem;
     }
     .divider {
       background-color: var(--n-400);
@@ -72,13 +76,14 @@ import { Component, input } from '@angular/core';
       display: grid;
       align-items: start;
       align-content: start;
-      gap: 1rem;
+      gap: 1.5rem;
       flex: 1;
       width: 100%;
-      padding: 1.5rem;
+      padding: 1.5rem 0.75rem;
       border-radius: 0.25rem;
     }
     .item-specifics {
+      position: relative;
       background-color: var(--lvl-1);
       margin: 0.25rem;
       padding: 1.5rem;
@@ -90,6 +95,11 @@ import { Component, input } from '@angular/core';
           margin: auto;
           color: var(--n-400);
         }
+      }
+      .options {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
       }
     }
   `,

@@ -1,7 +1,7 @@
 :host {
   width: var(--input-width, 100%);
   display: grid;
-
+  box-sizing: border-box;
   .input-wrapper,
   .input-container,
   .label {
@@ -9,7 +9,7 @@
   }
   .input-wrapper {
     display: flex;
-
+    grid-area: 1 / 2 / 2 / 3;
   }
   &:not(.disabled) .input-container:hover::before {
     background-color: var(--input-bg-clr-hover);
@@ -36,6 +36,7 @@
   display: flex;
   justify-content: space-between;
   padding-bottom: .25rem;
+  &:not(:has(*)) {display: none;}
 }
 
 .input-container {
@@ -45,6 +46,7 @@
   border-radius: 0.25rem;
   height: var(--input-height);
   display: grid;
+  grid-template-columns: auto minmax(auto, 1fr) auto;
   box-sizing: border-box;
   position: relative;
   transition: border-color 0.15s;
@@ -86,6 +88,7 @@
 }
 .sufix {
   margin-left: auto;
+  grid-area: 1 / 3 / 2 / 4;
 }
 .label,
 .context-text {
@@ -102,10 +105,35 @@
 :host-context([slim]) {
   --input-height: var(--input-height-slim);
   --input-font-size: var(--input-font-size-slim);
+  --input-padding: 1rem;
+}
 
+:host-context([light]) {
+  --input-padding: 0rem;
+  --input-height: auto;
+  position: relative;
+  gap: .25rem;
+  background-color: var(--lvl-c-6);
+  padding: .5rem .75rem;
+  border-radius: 0.25rem;
+  transition: .15s background-color;
+  &:hover {
+    background-color: var(--lvl-c-8);
+  }
+  &:focus-within {
+    outline: 1px solid;
+  }
+  .input-container {
+    display: contents;
+  }
+  .label {
+    padding-bottom: 0;
+    grid-area: 1 / 1 / 2 / 3;
+  }
+  .input-wrapper {
+    grid-area: 2 / 1 / 3 / 2;
+  }
   .sufix {
-    top: 0;
-    right: 0;
-    position: absolute;
+    grid-area: 1 / 2 / 3 / 3;
   }
 }

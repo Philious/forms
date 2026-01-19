@@ -9,7 +9,7 @@ export type ExpandRecursively<T> = T extends object ? (T extends infer O ? { [K 
 export enum Locale {
   EN = 'en-US',
   NB = 'nb-NO',
-  SE = 'sv-SE',
+  SV = 'sv-SE',
   XX = 'translationKey',
 }
 
@@ -71,74 +71,70 @@ export type CheckGroup = Entry<EntryTypeEnum.CheckboxGroup>;
 export type RadioGroup = Entry<EntryTypeEnum.RadioGroup>;
 export type Texts = Entry<EntryTypeEnum.TextString>;
 
-export type ExEntry = Expand<Barometer | Text | Number | Date | TextArea | Selector | Check | CheckGroup | CheckGroup | RadioGroup | Texts>;
+export type ExEntry = Expand<Barometer | Text | Number | Date | TextArea | Selector | CheckGroup | CheckGroup | RadioGroup | Texts>;
 
 // #region Entry extended props
+
 export type Option<T extends unknown = string> = { label: string; value: T };
 
 export type BarometerSettings = {
   value: string;
 };
 
-export type TextSettings = {
-  value: string;
-};
-
-export type NumberSettings = {
-  value: number;
+export type CheckGroupSettings = {
+  options: { label: Translation; value: boolean }[];
 };
 
 export type DateSettings = {
   value: number;
 };
 
-export type TextAreaSettings = {
-  value: string;
+export type NumberSettings = {
+  value: number;
+};
+
+export type RadioGroupSettings = {
+  selected?: number;
+  options: { label: Translation; value: number }[];
 };
 
 export type SelectorSettings = {
-  options: Option[];
+  options: { label: Translation; value: number }[];
   selected?: string[];
   filterable?: boolean;
   multiselect?: boolean;
 };
 
-export type Check = {
-  translation: Translation;
-  selected: boolean;
-};
-
-export type CheckGroupSettings = {
-  selected: string[];
-  checks: Check[];
-};
-
-export type RadioGroupSettings = {
-  selected: string;
-  options: Option[];
+export type TextSettings = {
+  value: string;
 };
 
 export type TextStringSettings = {
   typographyType?: TextType;
+  value: string;
 };
 
-export type Settings<T extends EntryTypeEnum> = T extends 'barometer'
+export type TextAreaSettings = {
+  value: string;
+};
+
+export type Settings<T extends EntryTypeEnum> = T extends EntryTypeEnum.Barometer
   ? BarometerSettings
   : T extends EntryTypeEnum.Text
-  ? TextSettings
-  : T extends EntryTypeEnum.Number
-  ? NumberSettings
-  : T extends EntryTypeEnum.Number
-  ? DateSettings
-  : T extends EntryTypeEnum.Textarea
-  ? TextAreaSettings
-  : T extends EntryTypeEnum.Selector
-  ? SelectorSettings
-  : T extends EntryTypeEnum.CheckboxGroup
-  ? CheckGroupSettings
-  : T extends EntryTypeEnum.RadioGroup
-  ? RadioGroupSettings
-  : TextStringSettings;
+    ? TextSettings
+    : T extends EntryTypeEnum.Number
+      ? NumberSettings
+      : T extends EntryTypeEnum.Date
+        ? DateSettings
+        : T extends EntryTypeEnum.Textarea
+          ? TextAreaSettings
+          : T extends EntryTypeEnum.Selector
+            ? SelectorSettings
+            : T extends EntryTypeEnum.CheckboxGroup
+              ? CheckGroupSettings
+              : T extends EntryTypeEnum.RadioGroup
+                ? RadioGroupSettings
+                : TextStringSettings;
 
 // #region Condition */
 export type Operator = 'and' | 'or' | 'xand' | 'xor';

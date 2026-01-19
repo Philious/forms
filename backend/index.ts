@@ -149,10 +149,10 @@ type Body = {
 };
 
 app.post('/api/set/entry', (req: Request<Entry>, res: Response, next: NextFunction) => {
-  const entry: Entry = req.body.item;
-  const parents = req.body.ids;
-  console.log('entry: ', entry);
-  entry.updated = new Date().valueOf();
+  const entry: Entry = req.body;
+
+  console.log('save entry: ', entry);
+
   try {
     setEntry(entry);
     res.sendStatus(204);

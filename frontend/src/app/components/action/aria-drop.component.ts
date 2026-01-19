@@ -2,7 +2,7 @@ import { Combobox, ComboboxInput, ComboboxPopup, ComboboxPopupContainer } from '
 import { Listbox, Option } from '@angular/aria/listbox';
 import { CdkConnectedOverlay } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
-import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, input, model, viewChild, viewChildren } from '@angular/core';
+import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, effect, input, model, viewChild, viewChildren } from '@angular/core';
 import { SignalInputLayoutComponent } from '@app/components/action/input-layout/signal-input.layout.component';
 import { IconEnum } from '@src/helpers/enum';
 import { Validator } from './input-layout/input.types';
@@ -19,7 +19,7 @@ let id = 0;
       slim
       [label]="label()"
       [sufix]="IconEnum.Down"
-      [contextMessage]="contextMessage()"
+      [contextLabel]="contextLabel()"
       [validators]="validators()"
       [writeValue]="selected().join('')"
       ngCombobox
@@ -30,14 +30,14 @@ let id = 0;
 
       <ng-template ngComboboxPopupContainer>
         <ng-template [cdkConnectedOverlay]="{ origin, usePopover: 'inline', matchWidth: true }" [cdkConnectedOverlayOpen]="true">
-          <div>
+          <div class="list">
             <div class="menu" ngListbox [multi]="multi()" [(values)]="selected" [class.multi]="multi()">
               @for (item of items(); track item.value) {
                 <div ngOption [value]="item.value" [label]="item.label()" class="menu-item">
                   @if (multi()) {
                     <svg class="option-check" translate="no" aria-hidden="true"><path class="option-path" /></svg>
                   }
-                  <span class="option-text">{{ item.label() }}</span>
+                  <span class="option-text">{{ item.label() }} </span>
                 </div>
               }
             </div>
@@ -54,13 +54,15 @@ let id = 0;
       height: inherit;
       display: flex;
       align-items: center;
-      padding: 0 1rem;
+      padding: 0 var(--input-padding);
     }
     .input {
       cursor: pointer;
       position: absolute;
       inset: 0;
-      padding: 0 2.5rem 0 1rem;
+      padding: 0 calc(var(--input-padding) + 2rem) 0 var(--input-padding);
+    }
+    .list {
     }
     .menu {
       font-size: var(--txt-mid);
@@ -186,7 +188,7 @@ export class AriaDropComponent {
   id = input<string>(`aria-drop${++id}`);
   label = input<string>('');
   validators = input<Validator[]>([]);
-  contextMessage = input<string>('');
+  contextLabel = input<string>('');
 
   items = input.required<OptionProps[]>();
   multi = input<boolean>(false);
@@ -201,6 +203,7 @@ export class AriaDropComponent {
   });
 
   constructor() {
+    effect(() => console.log(this.selected()));
     afterRenderEffect(() => {
       const option = this.options().find(opt => opt.active());
       setTimeout(() => option?.element.scrollIntoView({ block: 'nearest' }), 50);

@@ -1,6 +1,7 @@
 import { ValidationErrors } from '@angular/forms';
 import { Division, Entry, EntryTypeEnum, Form, FormId, Page, PageId } from '@cs-forms/shared';
 import { OptionProps } from '@src/app/components/action/aria-drop.component';
+import { initialSettingsFn } from '@src/app/pages/entries/activeEntry/activeEntry.utils';
 import { v4 as uid } from 'uuid';
 import { Locale, noTranslation } from './enum';
 import { Translation } from './translationTypes';
@@ -48,11 +49,21 @@ export function newDivision(page: Partial<Division<'array'>> & { label: Translat
   };
 }
 
-export function newEntry<T extends EntryTypeEnum>(entry?: Partial<Entry<T>>): Partial<Entry> & Pick<Entry, 'id' | 'label' | 'updated'> {
+export function newEntry(entry?: Partial<Entry>): Entry {
+  const radioEntry: Pick<Entry<EntryTypeEnum.RadioGroup>, 'type' | 'entrySpecific'> = {
+    type: EntryTypeEnum.RadioGroup,
+    entrySpecific: initialSettingsFn(EntryTypeEnum.RadioGroup),
+  };
   return {
     id: entry?.id ?? uid(),
     label: entry?.label || spreadTranslation({}),
     updated: entry?.updated || new Date().valueOf(),
+    ...(!entry?.type || !entry?.entrySpecific
+      ? radioEntry
+      : {
+          type: entry.type,
+          entrySpecific: entry.entrySpecific,
+        }),
     ...(entry ?? []),
   };
 }

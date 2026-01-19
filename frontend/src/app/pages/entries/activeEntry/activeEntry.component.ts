@@ -1,39 +1,39 @@
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Settings, Translation } from '@cs-forms/shared';
-import { DropdownComponent, SelectorItem } from '@src/app/components/action/dropdown.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Condition, Entry, ExtendedCondition, Settings } from '@cs-forms/shared';
+import { AriaDropComponent } from '@src/app/components/action/aria-drop.component';
 import { TranslationInputComponent } from '@src/app/components/action/translation-input';
 import { LocaleService } from '@src/app/services/locale.service';
+import { Translation } from '@src/helpers/translationTypes';
 import { EntryTypeEnum } from '@src/helpers/types';
-import { PartialEntry } from '../entries.page';
+import { KeyMap } from './answer.static';
 import { AnswersComponent } from './answers.component';
 import { ConditionsComponent } from './conditions.component';
-import { validatiorOptions } from './validation.static';
 
 @Component({
   selector: 'active-entry',
   template: `
-    @let entry = this.entry();
-    <div>{{ entry ? '' : 'no entry' }}</div>
-    @if (entry) {
-      <div layout-section animate.enter="'enter'" animate.leave="'leave'">
+    @let label = this.label();
+    @if (label) {
+      <div class="layout-section" animate.enter="'enter'" animate.leave="'leave'">
         <h2 class="h2">Active entry</h2>
-        <translation-input [translations]="entry.label" (translations)="updateTranslation($event)" />
-      </div>
-
-      <div class="layout-section">
-        <h2 class="h2">Answers</h2>
-        <answers [(entry)]="entry!" />
-      </div>
-      <div class="layout-section">
-        <h2 class="h2">Validation</h2>
-        <drop-down [items]="validatiorOptions" [formControl]="ctrl" slim [multiSelect]="true" />
-      </div>
-      <div class="layout-section">
-        <h2 class="h2">Conditions</h2>
-        <conditions />
+        <translation-input [translations]="label" (translationsChange)="update('label', $event)" />
       </div>
     }
+    <div class="layout-section">
+      <h2 class="h2">Answers</h2>
+      <answers [entry]="entry()" [updatedAt]="updatedAt()" (update)="updateEntry.emit($event)" />
+    </div>
+    <div class="layout-section">
+      <h2 class="h2">Validation</h2>
+      <!--
+          <aria-drop [items]="validatiorOptions" [(selected)]="selectedValidation" slim [multi]="true" />
+        -->
+    </div>
+    <div class="layout-section">
+      <h2 class="h2">Conditions</h2>
+      <conditions />
+    </div>
   `,
   styles: `
     :host {
@@ -48,6 +48,9 @@ import { validatiorOptions } from './validation.static';
       transition:
         opacity 0.5s,
         translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      &:first-child {
+        padding-top: 0;
+      }
       @starting-style {
         opacity: 0;
         translate: 0 2rem;
@@ -69,7 +72,7 @@ import { validatiorOptions } from './validation.static';
     FormsModule,
     AnswersComponent,
     ConditionsComponent,
-    DropdownComponent,
+    AriaDropComponent,
     ReactiveFormsModule,
     FormsModule,
     TranslationInputComponent,
@@ -78,20 +81,45 @@ import { validatiorOptions } from './validation.static';
 })
 export class ActiveEntryComponent<T extends EntryTypeEnum> {
   localeService = inject(LocaleService);
+
+  entry = input.required<Entry<T>>();
+  updatedAt = input<number>();
+
+  updateEntry = output<Entry>();
+
+  protected label = computed<Translation>(() => {
+    this.updatedAt();
+
+    return this.entry().label;
+  });
+
+  protected settings = computed<Settings<T>>(() => {
+    this.updatedAt();
+
+    return this.entry().entrySpecific;
+  });
+
+  protected validation = computed(() => {
+    this.updatedAt();
+
+    return this.entry().validation ?? null;
+  });
+
+  protected condition = computed<Condition | ExtendedCondition | null>(() => {
+    this.updatedAt();
+
+    return this.entry().condition ?? null;
+  });
+
   locale = linkedSignal(() => this.localeService.activeLocale());
-  entry = model.required<PartialEntry<T>>();
 
-  validatiorOptions = validatiorOptions;
-  protected ctrl = new FormControl<SelectorItem[]>([]);
+  protected selectedValidation = signal<string[]>([]);
 
-  protected type = linkedSignal<T | null>(() => this.entry().type ?? null);
-  protected specificSettings = linkedSignal<Settings<T> | null>(() => this.entry()?.entrySpecific ?? null);
-
-  protected updateTranslation(set: Event) {
-    this.entry.update(e => {
-      (e.label as Translation) = set as unknown as Translation;
-
-      return e;
+  protected update<E extends KeyMap<Entry<T>>>(updateKey: keyof E, value: E[keyof E]) {
+    this.updateEntry.emit({
+      ...this.entry(),
+      ...{ [updateKey]: value },
+      updated: new Date().valueOf(),
     });
   }
 }

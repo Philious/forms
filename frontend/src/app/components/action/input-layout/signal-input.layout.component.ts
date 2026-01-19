@@ -1,5 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, model, OnInit, output, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, OnInit, output } from '@angular/core';
 import { IconComponent } from '@src/app/components/icons/icon.component';
 import { IconEnum } from '@src/helpers/enum';
 import { Validator } from './input.types';
@@ -8,14 +7,14 @@ let uid = 0;
 
 @Component({
   selector: 'signal-input-layout',
-  imports: [IconComponent, NgTemplateOutlet],
+  imports: [IconComponent],
   host: {
     class: 'input-layout',
     '[class]': '[type()]',
     '[class.prefix]': 'prefix()',
     '[class.sufix]': 'sufix()',
     '[class.disabled]': 'disabled()',
-    '[class.error]': 'errorMessage()',
+    '[class.error]': 'errorLabel()',
   },
   templateUrl: './input.layout.component.html',
   styleUrls: ['./input.layout.component.scss'],
@@ -25,12 +24,11 @@ export class SignalInputLayoutComponent implements OnInit {
   id = input(`input-${uid++}`);
   type = input.required<'text' | 'number'>();
   label = input<string>();
-  labelElement = input<TemplateRef<HTMLElement>>();
   prefix = input<IconEnum | string>();
   sufix = input<IconEnum | string>();
   disabled = input<boolean>(false);
   validators = input<Validator[]>([]);
-  contextMessage = input<string>('');
+  contextLabel = input<string>('');
   inputElement = input<HTMLInputElement>();
 
   hasError = output<boolean>();
@@ -39,7 +37,7 @@ export class SignalInputLayoutComponent implements OnInit {
   writeValue = model<string>('');
   changed = model<boolean>(false);
 
-  errorMessage = computed<string | null>(() => {
+  errorLabel = computed<string | null>(() => {
     const value = this.writeValue();
     const validators = this.validators();
 

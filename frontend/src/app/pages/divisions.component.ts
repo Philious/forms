@@ -1,4 +1,4 @@
-import { Component, computed, inject, linkedSignal, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Division, Form, Option, Page } from '@cs-forms/shared';
 import { IconEnum, Locale } from '@src/helpers/enum';
@@ -6,9 +6,9 @@ import { itemOptions, newDivision } from '@src/helpers/form.utils';
 import { Translation } from '@src/helpers/translationTypes';
 import { AriaDropComponent, OptionProps } from '../components/action/aria-drop.component';
 import { IconButtonComponent } from '../components/action/icon-button.component';
-import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
+import { ContentCollectionComponent } from '../components/content-collection.component';
 import { AddDialog } from '../components/modals/add.new.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
 import { ListComponent, ListItem } from '../components/reorerableList.component';
@@ -29,7 +29,7 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     ReactiveFormsModule,
     TranslationInputComponent,
     ListComponent,
-    TabViewComponent,
+    ContentCollectionComponent,
     AriaDropComponent,
   ],
   template: `
@@ -47,8 +47,8 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
         </span>
       </ng-content>
       <ng-content location>
-        <aria-drop [items]="formOptions()" [label]="'Form'" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
-        <aria-drop [items]="pageOptions()" [label]="'Page'" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
+        <aria-drop light [items]="formOptions()" [label]="'Form'" [selected]="selectedForm()" (selectedChange)="updateSelectedForm($event)" />
+        <aria-drop light [items]="pageOptions()" [label]="'Page'" [selected]="selectedPage()" (selectedChange)="updateSelectedPage($event)" />
         <text-field slim [label]="'Search'" [prefixIcon]="IconEnum.Search" />
       </ng-content>
       <ng-content list>
@@ -61,19 +61,7 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
             <h2 class="h2">Active Division</h2>
             <translation-input [translations]="currentDivision.label" (translationsChange)="updateLabel($event)" />
           </div>
-          <tab-view
-            [tabs]="[
-              { label: 'List', template: list },
-              { label: 'Tree', template: tree },
-            ]"
-            [(selected)]="selectedEntryViewType"
-          />
-          <ng-template #list>
-            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-              <h2 class="h2">Entries</h2>
-            </div>
-          </ng-template>
-          <ng-template #tree></ng-template>
+          <content-collection [mainItem]="currentDivision" />
         }
       </ng-content>
     </layout>
@@ -96,12 +84,18 @@ export class DivisionPageComponent {
   localStorage = inject(LocalStorageService);
   addDialog = inject(AddDialog);
 
+  protected searchString = signal<string>('');
+
   protected currentSaved: Signal<boolean>;
   protected divisionList: WritableSignal<ListItem[]>;
   protected filteredDivisionList = linkedSignal<ListItem[]>(() =>
-    this.divisionList()
-      .filter(p => !this.store.currentForm() || this.store.currentForm()?.divisions.includes(p.id))
-      .filter(p => !this.store.currentPage() || this.store.currentPage()?.divisions.includes(p.id))
+    this.divisionList().filter(
+      p =>
+        !this.store.currentForm() ||
+        (this.store.currentForm()?.divisions.includes(p.id) && !this.store.currentPage()) ||
+        (this.store.currentPage()?.divisions.includes(p.id) && !this.searchString()) ||
+        this.divisionList().filter(item => item.label.includes(this.searchString()))
+    )
   );
 
   protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
@@ -116,20 +110,16 @@ export class DivisionPageComponent {
   });
 
   protected divisionLabelOptions: Option<string>[] = [{ label: 'Change division name', value: 'changeName' }];
-  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
-  protected entryViewTabs = [
-    { label: 'Tree', value: 'tree' },
-    { label: 'List', value: 'list' },
-  ];
 
   protected updateSelected: (id: string | null) => void;
   protected save: () => void;
+  protected remove: (id: string) => void;
   protected updateLabel: (translation: Translation) => void;
 
   protected updateSelectedForm = updateSelectedAriaOptionFn<Form>(this.formOptions, this.store.currentForm);
   protected updateSelectedPage = updateSelectedAriaOptionFn<Page>(this.pageOptions, this.store.currentPage);
 
-  async add() {
+  protected async add() {
     this.localeService.set(Locale.XX);
     const pageTranslationKey = this.store.currentPage()?.label.translationKey || '';
     const currentFormId = this.store.currentForm()?.id;
@@ -140,7 +130,7 @@ export class DivisionPageComponent {
       .open({ title: 'Add new division', content: '', initialValue: pageTranslationKey + '.' })
       .then(value => {
         const division = newDivision({ label: value, forms: [currentFormId], pages: [currentPageId] });
-        console.log(division);
+
         this.divisionList.update(list => mergeListItem(list, division, this.localeService.translate));
         this.store.currentDivision.set(division);
 
@@ -162,19 +152,20 @@ export class DivisionPageComponent {
   }
 
   constructor() {
-    console.log('create divisions component');
-    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Division>(
+    const { currentSaved, list, updateSelected, save, updateLabel, remove } = loadPageFn<Division>(
       this.store.currentDivision,
       this.store.divisions,
       this.localeService.translate,
       this.store.storeDivision,
-      this.apiService.post.division
+      this.apiService.post.division,
+      this.apiService.delete.division
     );
 
     this.currentSaved = currentSaved;
     this.divisionList = list;
     this.updateSelected = updateSelected;
     this.save = save;
+    this.remove = remove;
     this.updateLabel = updateLabel;
     console.log('All divs: ', list());
   }

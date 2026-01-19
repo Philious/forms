@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output } from '@angular/core';
 import { LocaleService } from '@src/app/services/locale.service';
 import { ButtonStyleEnum, Locale } from '@src/helpers/enum';
 import { Translation } from '@src/helpers/translationTypes';
@@ -9,7 +9,7 @@ import { ContextMenuComponent } from '../modals/contextMenu.component';
   template: `
     @if (menuSelector()) {
       <context-menu [options]="langs" (updateSelected)="setActiveLang($event)">
-        <div #trigger class="trigger">{{ active().slice(0, 2) }}</div>
+        <div #trigger class="trigger action-animation">{{ active().slice(0, 2) }}</div>
       </context-menu>
     } @else {
       <div class="lang-selection">
@@ -30,12 +30,27 @@ import { ContextMenuComponent } from '../modals/contextMenu.component';
   styles: `
     .trigger {
       display: grid;
+      position: relative;
       place-items: center;
-      font-size: 1.125rem;
+      font-size: 0.875rem;
       line-height: 1;
-      font-weight: 500;
+      font-weight: 600;
       width: 3rem;
       height: 3rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      &:before {
+        content: '';
+        width: 2rem;
+        height: 2rem;
+        position: absolute;
+        border-radius: 0.25rem;
+        background-color: transparent;
+        transition: background-color 0.25s;
+      }
+      &:hover:before {
+        background-color: var(--lvl-c-12);
+      }
     }
     .lang-selection {
       display: flex;
@@ -45,7 +60,7 @@ import { ContextMenuComponent } from '../modals/contextMenu.component';
       line-height: 1;
       font-size: 0.625rem;
       font-weight: 600;
-      background-color: var(--n-300);
+      background-color: transparent;
       box-shadow: 0 0 0 1px var(--n-350);
       color: var(--n-800);
       padding: 0.0625rem 0.25rem;
@@ -57,16 +72,20 @@ import { ContextMenuComponent } from '../modals/contextMenu.component';
       min-height: min-content;
       text-transform: uppercase;
       position: relative;
+      transition:
+        background-color 0.25s,
+        border-color 0.25s;
       &.active {
-        background-color: var(--p-300);
-        box-shadow: 0 0 0 1px var(--n-400);
+        // background-color: var(--p-300);
+        box-shadow: 0 0 0 1px var(--p-700);
       }
       &.has-translation {
-        background-color: var(--n-350);
-
+        background-color: var(--p-200);
+        color: var(--p-500);
         box-shadow: 0 0 0 1px var(--p-400);
         &.active {
           background-color: var(--p-400);
+          color: var(--p-700);
           box-shadow: 0 0 0 1px var(--p-500);
         }
       }
@@ -74,7 +93,7 @@ import { ContextMenuComponent } from '../modals/contextMenu.component';
   `,
   imports: [ContextMenuComponent],
 })
-export class MiniLangTabsComponent {
+export class MiniLangTabsComponent implements OnInit {
   ButtonStyleEnum = ButtonStyleEnum;
   localeService = inject(LocaleService);
   translationSet = input<Translation>();
@@ -83,6 +102,11 @@ export class MiniLangTabsComponent {
   activeLocale = output<Locale>();
   active = computed<Locale>(() => this.localeService.activeLocale());
   langs = Object.values(Locale).map(l => ({ label: l.slice(0, 2), value: l }));
+
+  ngOnInit(): void {
+    console.log(this.active());
+    this.activeLocale.emit(this.active());
+  }
 
   setActiveLang(lang: Locale) {
     this.localeService.set(lang);

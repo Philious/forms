@@ -9,9 +9,9 @@ import { Option } from '@src/helpers/types';
 import { AriaDropComponent, OptionProps } from '../components/action/aria-drop.component';
 import { IconButtonComponent } from '../components/action/icon-button.component';
 import { Validator } from '../components/action/input-layout/input.types';
-import { TabViewComponent } from '../components/action/tab-view.component';
 import { TextFieldComponent } from '../components/action/textfield.component';
 import { TranslationInputComponent } from '../components/action/translation-input';
+import { ContentCollectionComponent } from '../components/content-collection.component';
 import { AddDialog } from '../components/modals/add.new.dialog.component';
 import { BinaryDialog } from '../components/modals/binary.dialog.component';
 import { ContextMenuComponent } from '../components/modals/contextMenu.component';
@@ -32,28 +32,30 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
     TextFieldComponent,
     ReactiveFormsModule,
     TranslationInputComponent,
-    TabViewComponent,
     ListComponent,
     CommonModule,
     AriaDropComponent,
+    ContentCollectionComponent,
   ],
   template: `
     <layout [contentTitle]="'Select a page'">
       <ng-content header>
         <span>Page details</span>
       </ng-content>
-      <ng-content header-options>
-        <span content header-options
-          >{{ currentSaved() }}
-          <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
-          <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
-          <context-menu [options]="pageLabelOptions">
-            <icon-button [icon]="IconEnum.Options" />
-          </context-menu>
-        </span>
-      </ng-content>
+
+      <span content header-options
+        >{{ currentSaved() }}
+        <icon-button [class.can-save]="!currentSaved()" [icon]="IconEnum.Save" (clicked)="save()" />
+        <icon-button [icon]="IconEnum.Add" (clicked)="add()" />
+        <context-menu [options]="pageLabelOptions">
+          <icon-button [icon]="IconEnum.Options" />
+        </context-menu>
+      </span>
+
       <ng-content location>
         <aria-drop
+          light
+          [label]="'Page'"
           [items]="formOptions()"
           [selected]="selectedForm()"
           (selectedChange)="updateSelectedForm($event)"
@@ -71,22 +73,7 @@ import { loadPageFn, mergeListItem, updateSelectedAriaOptionFn } from './common/
             <h2 class="h2">Active Page</h2>
             <translation-input [translations]="currentPage.label" (translationsChange)="updateLabel($event)" />
           </div>
-          <tab-view
-            [tabs]="[
-              { label: 'List', template: list },
-              { label: 'Tree', template: tree },
-            ]"
-            [(selected)]="selectedEntryViewType"
-          />
-          <ng-template #list>
-            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-              <h2 class="h2">Divisions</h2>
-            </div>
-            <div layout-section animate.enter="'enter'" animate.leave="'leave'">
-              <h2 class="h2">Entries</h2>
-            </div>
-          </ng-template>
-          <ng-template #tree> Tree </ng-template>
+          <content-collection [mainItem]="currentPage" />
         }
       </ng-content>
     </layout>
@@ -110,10 +97,16 @@ export class PagePageComponent {
   binaryDialog = inject(BinaryDialog);
   addDialog = inject(AddDialog);
 
+  protected searchString = signal<string>('');
   protected currentSaved: Signal<boolean>;
   protected pageList: WritableSignal<ListItem[]>;
   protected filteredPageList = linkedSignal<ListItem[]>(() =>
-    this.pageList().filter(p => !this.store.currentForm() || this.store.currentForm()?.pages.includes(p.id))
+    this.pageList().filter(
+      p =>
+        !this.store.currentForm() ||
+        (this.store.currentForm()?.pages.includes(p.id) && !this.searchString()) ||
+        this.pageList().filter(item => item.label.includes(this.searchString()))
+    )
   );
 
   protected formOptions = computed<OptionProps<Form>[]>(() => itemOptions<Form>(this.store.forms() ?? {}, this.localeService.translate));
@@ -124,21 +117,17 @@ export class PagePageComponent {
   protected formValidators = signal<Validator[]>([]);
 
   protected pageLabelOptions: Option<string>[] = [{ label: 'Change section name', value: 'changeName' }];
-  protected selectedEntryViewType = signal<'tree' | 'list'>('tree');
-  protected entryViewTabs = [
-    { label: 'Tree', value: 'tree' },
-    { label: 'List', value: 'list' },
-  ];
 
   protected updateSelected: (id: string | null) => void;
   protected save: () => void;
+  protected remove: (id: string) => void;
   protected updateLabel: (translation: Translation) => void;
 
   protected updateSelectedForm = updateSelectedAriaOptionFn<Form>(this.formOptions, this.store.currentForm);
 
   protected async add() {
     this.localeService.set(Locale.XX);
-    const formTranslation = this.store.currentForm()?.label.translationKey ?? '';
+    const formTranslation = this.store.currentForm()?.label.translationKey + '.';
     const currentFormId = this.store.currentForm()?.id;
 
     if (!currentFormId) {
@@ -163,18 +152,20 @@ export class PagePageComponent {
   }
 
   constructor() {
-    const { currentSaved, list, updateSelected, save, updateLabel } = loadPageFn<Page>(
+    const { currentSaved, list, updateSelected, save, updateLabel, remove } = loadPageFn<Page>(
       this.store.currentPage,
       this.store.pages,
       this.localeService.translate,
       this.store.storePage,
-      this.apiService.post.page
+      this.apiService.post.page,
+      this.apiService.delete.page
     );
 
     this.currentSaved = currentSaved;
     this.pageList = list;
     this.updateSelected = updateSelected;
     this.save = save;
+    this.remove = remove;
     this.updateLabel = updateLabel;
 
     // effect(() => console.log('page list: ', this.selectedForm()));

@@ -69,6 +69,7 @@ export type ListItem = {
     }
     .list-item {
       display: flex;
+      color: var(--lvl-c-0);
       align-items: center;
       overflow: hidden;
       box-shadow: 0 0 0 transparent;
@@ -78,10 +79,12 @@ export type ListItem = {
         background-color 0.25s;
       &.selected,
       &:hover {
-        background-color: hsla(0, 0%, 100%, 0.03);
+        color: var(--lvl-c-1);
+        background-color: var(--lvl-c-6);
       }
       &:active {
-        background-color: hsla(0, 0%, 100%, 0.06);
+        color: var(--lvl-c-1);
+        background-color: var(--lvl-c-8);
         box-shadow:
           0 0.3125rem 0.3125rem -0.1875rem rgba(0, 0, 0, 0.2),
           0 0.5rem 0.625rem 0.0625rem rgba(0, 0, 0, 0.14),

@@ -34,6 +34,18 @@ export function relateKeyValue<O extends object, K extends keyof O>(obj: O, key:
   return value ?? obj[key];
 }
 
+export function hasOwnProperty<O extends object, K extends PropertyKey>(obj: O, key: K): obj is O & Record<K, unknown> {
+  return Object.hasOwn(obj, key);
+}
+
+function defineOwnProperty<O extends object, K extends PropertyKey, V>(
+  obj: O,
+  key: K,
+  descriptor: TypedPropertyDescriptor<V>
+): asserts obj is O & Record<K, V> {
+  Object.defineProperty(obj, key, descriptor);
+}
+
 export const array = {
   remove: <T = unknown>(item: T, array: T[]): T[] => {
     const index = array.findIndex(storedItem => storedItem === item);
@@ -72,7 +84,7 @@ export type ExtendedArrayType<T> = T[] & {
 
 export function extendedArray<T>(array?: T[]) {
   array = array ? array : [];
-  Object.defineProperty(array, 'remove', {
+  defineOwnProperty(array, 'remove', {
     value: (item: T): T[] => {
       array.splice(array.findIndex(storedItem => storedItem === item, 1));
       return array;
@@ -80,7 +92,7 @@ export function extendedArray<T>(array?: T[]) {
     writable: false,
   });
 
-  Object.defineProperty(array, 'toggle', {
+  defineOwnProperty(array, 'toggle', {
     value: (item: T): T[] => {
       if (array.includes(item)) array.splice(array.findIndex(storedItem => storedItem === item, 1));
       else array.push(item);
@@ -89,7 +101,7 @@ export function extendedArray<T>(array?: T[]) {
     writable: false,
   });
 
-  return array as ExtendedArrayType<T>;
+  return array;
 }
 
 export class ExtendedArray<T> extends Array<T> {
@@ -132,17 +144,24 @@ export class ExtendedArray<T> extends Array<T> {
   }
 }
 
-export type ExtendedObjectType<K extends string | number | symbol, V> = Record<K, V> & {
-  has: (item: K) => boolean;
+type Entry<O> = {
+  [K in keyof O]: [K, O[K]];
+}[keyof O];
+
+export type ExtendedObjectType<O extends Record<PropertyKey, unknown>> = O & {
+  has: (item: string) => boolean;
   size: () => number;
   update: () => void;
-  values: () => V[];
-  keys: () => K[];
+  values: () => O[keyof O][];
+  keys: () => (keyof O)[];
+  entries: () => Entry<O>;
 };
-export function extendedRecord<K extends string | number | symbol, V>(object?: Record<K, V>): ExtendedObjectType<K, V> {
-  object = object ? object : ({} as Record<K, V>);
+
+export function extendedRecord<O extends Record<PropertyKey, any>>(object?: O): ExtendedObjectType<O> {
+  object = object ? object : ({} as O);
+
   Object.defineProperty(object, 'has', {
-    value: (item: K): boolean => {
+    value: (item: string): boolean => {
       return Object.keys(object).filter(o => o === item).length > 0;
     },
     writable: false,
@@ -154,35 +173,42 @@ export function extendedRecord<K extends string | number | symbol, V>(object?: R
     },
     writable: false,
   });
+
   Object.defineProperty(object, 'update', {
-    value: (): Record<K, V> => {
-      return cloneDeep<Record<K, V>>(object);
+    value: (): O => {
+      return cloneDeep<O>(object);
     },
     writable: false,
   });
 
   Object.defineProperty(object, 'values', {
-    value: (): V[] => {
+    value: (): Array<O[keyof O]> => {
       return Object.values(object);
     },
     writable: false,
   });
 
   Object.defineProperty(object, 'keys', {
-    value: (): K[] => {
-      return Object.keys(object) as K[];
+    value: (): Array<keyof O> => {
+      return Object.keys(object);
     },
     writable: false,
   });
 
-  return object as ExtendedObjectType<K, V>;
+  Object.defineProperty(object, 'entries', {
+    value: (): ArrayLike<Entry<O>> => {
+      return Object.entries(object);
+    },
+    writable: false,
+  });
+
+  return object as ExtendedObjectType<O>;
 }
 
 export function toggler() {
   const map = new Map<string, WritableSignal<boolean>>();
 
   function trigger(name: string, initial = false): void {
-    console.log(name, map.has(name));
     if (map.has(name)) map.get(name)!.update(val => !val);
     else map.set(name, signal<boolean>(initial));
   }

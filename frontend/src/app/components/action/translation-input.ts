@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, model, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, input, linkedSignal, model, output, signal, viewChild } from '@angular/core';
 import { Locale } from '@src/helpers/enum';
 import { Translation } from '@src/helpers/translationTypes';
 import { SignalInputLayoutComponent } from './input-layout/signal-input.layout.component';
@@ -10,18 +10,20 @@ let id = 0;
 @Component({
   selector: 'translation-input',
   template: `
-    <ng-template #labelElement>
-      <span>{{ label() }}</span>
-      <mini-lang (activeLocale)="activeLocale.set($event)" [translationSet]="translations()" />
-    </ng-template>
     <signal-input-layout
       slim
       (hasError)="hasError.emit($event)"
       [type]="'text'"
       [inputElement]="input"
       [validators]="[validator]"
-      [labelElement]="labelElement"
+      [contextLabel]="contextLabel()"
     >
+      <ng-content label>
+        {{ label() }}
+        @if (showTranslOptions()) {
+          <mini-lang (activeLocale)="updateLocale($event)" [translationSet]="translations()" />
+        }
+      </ng-content>
       <input
         [id]="id()"
         #input
@@ -29,7 +31,7 @@ let id = 0;
         slim
         (keydown)="updateSelectedLanguage($event)"
         class="translation-input"
-        [value]="this.translations()[this.activeLocale()]"
+        [value]="translation()"
         (input)="updateTranslation($event.target.value)"
       />
     </signal-input-layout>
@@ -53,7 +55,7 @@ let id = 0;
   imports: [MiniLangTabsComponent, CommonModule, SignalInputLayoutComponent],
 })
 export class TranslationInputComponent {
-  protected input = viewChild<HTMLInputElement>('input');
+  protected input = viewChild<ElementRef<HTMLInputElement>>('input');
   translations = model<Translation>({
     [Locale.SV]: '',
     [Locale.NB]: '',
@@ -63,18 +65,29 @@ export class TranslationInputComponent {
 
   id = input<string>(`translation-input-${id ? ++id : ''}`);
   label = input<string>('Translations');
+  contextLabel = input<string>('');
+  showTranslOptions = input<boolean>(false);
   hasError = output<boolean>();
 
   protected activeLocale = signal<Locale & string>(Locale.XX);
-
+  protected translation = linkedSignal(() => this.translations()[this.activeLocale()]);
   protected getTransKey = () => {
     return this.translations().translationKey;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected validator = (_: string) => {
     const hasError = !!this.getTransKey() ? null : 'Translation key needed';
     return hasError;
   };
+
+  protected updateLocale(event: Locale) {
+    console.log('update: ', event, this.input());
+    this.activeLocale.set(event);
+
+    (document.activeElement as HTMLElement)?.blur();
+    this.input()?.nativeElement.focus();
+  }
 
   protected updateTranslation(trans: string) {
     this.translations.update(obj => {

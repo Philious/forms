@@ -41,13 +41,11 @@ import { IconComponent } from '../icons/icon.component';
       height: 2.25em;
       padding: 0 1em;
       min-width: 5em;
-
-      border-radius: 0.25em;
+      border-radius: 99rem;
       border: none;
       position: relative;
       box-sizing: border-box;
       cursor: pointer;
-      border-radius: 0.25rem;
 
       .label {
         font-size: inherit;
@@ -69,14 +67,9 @@ import { IconComponent } from '../icons/icon.component';
           filter: none;
         }
       }
-      &:has(.icon-left) {
-        padding-left: 0.35em;
-      }
-      &:has(.icon-right) {
-        padding-right: 0.35em;
-      }
       &:before {
         content: '';
+        display: block;
         opacity: 0;
         color: inherit;
         background-color: currentColor;

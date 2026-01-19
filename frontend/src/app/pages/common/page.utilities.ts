@@ -24,7 +24,7 @@ export function mergeListItem(list: ListItem[], item: Item, translate: (set: Tra
 
 export function clearCurrentifNotSaved<T extends Record<'id', string>>(
   current: WritableSignal<T | null>,
-  list: ExtendedObjectType<string, T> | null
+  list: ExtendedObjectType<Record<string, T>> | null
 ) {
   if (list && Object.values<T>(list).find(item => item.id === current()?.id)) return;
   else current.set(null);
@@ -38,22 +38,24 @@ export const updateSelectedAriaOptionFn =
 
 export const checkIfSaved = <T extends Pick<Item, 'id' | 'updated'>>(
   current: WritableSignal<T | null>,
-  fpdeItem: Signal<ExtendedObjectType<string, T> | null>
+  fpdeItem: Signal<ExtendedObjectType<Record<string, T>> | null>
 ) => {
   const currentItem = current();
   const lastSaved = fpdeItem()
     ?.values()
     .find(item => item.id === currentItem?.id);
-
-  return !currentItem || (!!lastSaved && !!currentItem && lastSaved.updated === currentItem.updated);
+  const isSaved = !currentItem || (!!lastSaved && !!currentItem && lastSaved.updated === currentItem.updated);
+  console.log(isSaved);
+  return isSaved;
 };
 
 export const loadPageFn = <T extends Item>(
   current: WritableSignal<T | null>,
-  fpdeItem: Signal<ExtendedObjectType<string, T> | null>,
+  fpdeItem: Signal<ExtendedObjectType<Record<string, T>> | null>,
   translate: (set: Translation) => string,
   storeItem: (item: T) => void,
-  post: (item: T, options?: ApiObserverOptions<T>) => void
+  post: (item: T, options?: ApiObserverOptions<T>) => void,
+  removeItem: (id: string) => void
 ) => {
   const currentSaved = computed<boolean>(() => checkIfSaved(current, fpdeItem));
 
@@ -90,6 +92,13 @@ export const loadPageFn = <T extends Item>(
     }
   };
 
+  const remove = () => {
+    const item = current();
+    if (item) {
+      removeItem(item.id);
+    }
+  };
+
   const updateLabel = (translation: Translation) => {
     const trans = translation;
 
@@ -106,5 +115,6 @@ export const loadPageFn = <T extends Item>(
     updateSelected,
     save,
     updateLabel,
+    remove,
   };
 };

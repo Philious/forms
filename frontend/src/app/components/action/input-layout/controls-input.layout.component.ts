@@ -38,20 +38,20 @@ export class ControlInputLayoutComponent implements OnInit {
   control = input<FormControl>(new FormControl());
   controlElement = input<HTMLInputElement>();
 
-  errorMessages = input<DefaultErrorMessages, Partial<DefaultErrorMessages>>(errorMessages, {
+  errorLabels = input<DefaultErrorMessages, Partial<DefaultErrorMessages>>(errorMessages, {
     transform: messages => ({ ...errorMessages, ...messages }),
   });
-  contextMessage = input<string>('');
+  contextLabel = input<string>('');
 
   valueChanges = toSignal(this.control().valueChanges);
 
-  errorMessage = computed(() => {
+  errorLabel = computed(() => {
     this.valueChanges();
     const errors = this.control().errors;
 
     if (errors) {
       const error = Object.keys(errors).shift() as keyof DefaultErrorMessages;
-      return this.errorMessages()[error];
+      return this.errorLabels()[error];
     } else {
       return null;
     }

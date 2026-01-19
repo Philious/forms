@@ -30,13 +30,16 @@
   --input-height-slim: 2rem;
   --input-font-size: var(--txt-mid);
   --input-font-size-slim: var(--txt-small);
+--p: hsl(256, 100%, 72%);
 
-  --p-200: hsl(330, 94%, 24%);
-  --p-300: hsl(330, 60%, 37%);
-  --p-400: hsl(330, 60%, 56%);
-  --p-500: hsl(330, 65%, 76%);
-  --p-600: hsl(330, 65%, 90%);
-  --p-700: hsl(330, 65%, 96%);
+--secondary-purple: hsl(253, 91%, 79%);
+--primary-500: hsl(255, 100%, 79%);
+  --p-200: hsl(253, 94%, 24%);
+  --p-300: hsl(253, 60%, 37%);
+  --p-400: hsl(253, 60%, 56%);
+  --p-500: hsl(253, 72%, 76%);
+  --p-600: hsl(253, 72%, 90%);
+  --p-700: hsl(253, 72%, 96%);
   
   --black: #000;
   --n-100: hsl(0, 0%, 10%);
@@ -61,6 +64,10 @@
 
   --lvl-c-2: light-dark(hsla(0, 0%, 0%, .4), hsla(0, 0%, 100%, .6));
 
+  --lvl-c-6: light-dark(hsla(0, 0%, 0%, .06), hsla(0, 0%, 100%, .06));
+  --lvl-c-8: light-dark(hsla(0, 0%, 0%, .08), hsla(0, 0%, 100%, .08));
+  --lvl-c-12: light-dark(hsla(0, 0%, 0%, .08), hsla(0, 0%, 100%, .12));
+
   --header-color: light-dark(var(--n-300), var(--white));
   --para-clr: light-dark(var(--n-400), var(--n-500));
 
@@ -79,8 +86,8 @@
   --input-bg-clr-hover: light-dark(hsla(0, 0%, 0%, .02), hsla(0, 0%, 100%, .01));
   --input-border-hover: light-dark(hsla(0, 0%, 0%, .18), hsla(0, 0%, 100%, .18));
 
-  --btn-clr: var(--n-700);
-  --btn-bg-clr: hsla(0, 0%, 100%, .12);
+  --btn-clr: var(--p-700);
+  --btn-bg-clr: var(--lvl-c-12);
 
   --label: light-dark(var(--n-400), var(--n-500));
 

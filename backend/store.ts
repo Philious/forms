@@ -1,26 +1,103 @@
-import { Division, DivisionId, Entry, EntryId, EntryTypeEnum, Form, FormId, Locale, Page, PageId } from '@cs-forms/shared';
+import { Division, DivisionId, Entry, EntryId, EntryTypeEnum, Form, FormId, Locale, Page, PageId, Translation } from '@cs-forms/shared';
 import { v4 as uid } from 'uuid';
 
 type Ids = { entryIds?: EntryId[]; divisionIds?: DivisionId[]; pageIds?: PageId[]; formIds?: FormId[] };
+const formId = uid();
+const pageId = uid();
+const divisionId = uid();
+const entryId = uid();
 
-export const formMap = new Map<FormId, Form<'array'>>();
-export const pageMap = new Map<PageId, Page<'array'>>();
-export const divisionMap = new Map<DivisionId, Division<'array'>>();
+export const formMap = new Map<FormId, Form<'array'>>([
+  [
+    formId,
+    {
+      id: formId,
+      label: {
+        [Locale.SV]: 'Form1-sv',
+        [Locale.EN]: 'Form1-en',
+        [Locale.NB]: 'Form1-nb',
+        [Locale.XX]: 'form1',
+      },
+      pages: [pageId],
+      divisions: [divisionId],
+      entries: [entryId],
+      updated: new Date().valueOf(),
+    },
+  ],
+]);
+export const pageMap = new Map<PageId, Page<'array'>>([
+  [
+    pageId,
+    {
+      id: pageId,
+      forms: [formId],
+      label: {
+        [Locale.SV]: 'Page1-sv',
+        [Locale.EN]: 'Page1-en',
+        [Locale.NB]: 'Page1-nb',
+        [Locale.XX]: 'form1.page1',
+      },
+
+      divisions: [divisionId],
+      entries: [entryId],
+      updated: new Date().valueOf(),
+    },
+  ],
+]);
+export const divisionMap = new Map<DivisionId, Division<'array'>>([
+  [
+    divisionId,
+    {
+      id: divisionId,
+      forms: [formId],
+      pages: [pageId],
+      label: {
+        [Locale.SV]: 'Division1-sv',
+        [Locale.EN]: 'Division1-en',
+        [Locale.NB]: 'Division1-nb',
+        [Locale.XX]: 'form1.page1.division1',
+      },
+
+      entries: [entryId],
+      updated: new Date().valueOf(),
+    },
+  ],
+]);
+const translation: Translation = {
+  [Locale.SV]: 'Entry1-sv',
+  [Locale.EN]: 'Entry1-en',
+  [Locale.NB]: 'Entry1-nb',
+  [Locale.XX]: 'form1.page1.division1.entry1',
+};
+
 export const entryMap = new Map<EntryId, Entry>([
   [
-    'Entry 1',
+    entryId,
     {
-      id: uid(),
+      id: entryId,
       type: EntryTypeEnum.RadioGroup,
-      label: {
-        [Locale.SE]: 'Entry 1',
-        [Locale.EN]: 'Entry 1',
-        [Locale.NB]: 'Entry 1',
-        [Locale.XX]: '',
-      },
+      label: translation,
       entrySpecific: {
-        selected: '',
-        options: [],
+        options: [
+          {
+            label: {
+              [Locale.SV]: 'Ja',
+              [Locale.EN]: 'Yes',
+              [Locale.NB]: 'Greit',
+              [Locale.XX]: 'general.yes',
+            },
+            value: 1,
+          },
+          {
+            label: {
+              [Locale.SV]: 'Nej',
+              [Locale.EN]: 'No',
+              [Locale.NB]: 'Naj',
+              [Locale.XX]: 'general.no',
+            },
+            value: 2,
+          },
+        ],
       },
       updated: new Date().valueOf(),
     },

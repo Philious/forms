@@ -65,7 +65,7 @@
     text-align: inherit;
     border: none;
     background-color: transparent;
-    border-radius: 0.25rem;
+    border-radius: 99rem;
     width: fit-content;
     cursor: pointer;
     &:before {
@@ -73,6 +73,7 @@
       display: block;
       inset: 0 -.25rem;
       position: absolute;
+      border-radius: inherit;
     }
     &:hover { background-color: inherit; }
   }
@@ -162,7 +163,7 @@
   .action-animation {
     &:after {
       content: '';
-      border-radius: 999px;
+      border-radius: 99rem;
       position: absolute;
       inset: 0;
       scale: 1.2;

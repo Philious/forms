@@ -21,6 +21,12 @@ import { Component, input, model, output, TemplateRef } from '@angular/core';
     }
   `,
   styles: `
+    @start-style {
+      .active:before,
+      .active:after {
+        scale: 0;
+      }
+    }
     :host {
       display: flex;
       flex-direction: column;
@@ -40,7 +46,9 @@ import { Component, input, model, output, TemplateRef } from '@angular/core';
       height: 3rem;
       padding: 0;
       position: relative;
-      transition: padding 0.25s;
+      transition:
+        padding 0.25s,
+        background-color 0.25s;
       border-radius: 0.25rem 0.25rem 0 0;
 
       font-weight: 600;
@@ -51,28 +59,44 @@ import { Component, input, model, output, TemplateRef } from '@angular/core';
       &.active {
         padding: 0 1rem;
         background-color: var(--lvl-2);
+        --dim: 1rem;
 
         &:before,
         &:after {
           content: '';
+          animation: scale-in 0.25s 0.125s forwards;
+          display: block;
           position: absolute;
           bottom: 0;
-          height: 0.5rem;
-          width: 0.5rem;
           background-color: var(--n-200);
+          clip-path: shape(from 0 0, arc to var(--dim) var(--dim) of var(--dim) ccw, hline to 0, close);
+          height: var(--dim);
+          width: var(--dim);
+          scale: 0 0;
+          z-index: 99;
+          transition: scale 0.25s;
+          transform-origin: left bottom;
         }
         &:before {
-          left: -0.5rem;
-          mask: radial-gradient(0.5rem at 0 0, #0000 98%, #000);
+          left: 0;
+          rotate: 270deg;
         }
         &:after {
-          right: -0.5rem;
-          mask: radial-gradient(0.5rem at 100% 0, #0000 98%, #000);
+          right: calc(var(--dim) * -1);
+          height: var(--dim);
+          width: var(--dim);
         }
         &:first-child:before {
-          transform-origin: right bottom;
-          scale: -2 -2;
+          rotate: 90deg;
         }
+      }
+    }
+    @keyframes scale-in {
+      from {
+        scale: 0 0;
+      }
+      to {
+        scale: 1 1;
       }
     }
   `,
@@ -90,6 +114,5 @@ export class TabViewComponent {
     } else {
       this.selected.set(val);
     }
-    console.log(this.selected());
   }
 }

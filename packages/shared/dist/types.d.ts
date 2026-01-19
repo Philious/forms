@@ -1,13 +1,12 @@
 export declare enum EntryTypeEnum {
-    RadioGroup = "radio-group",
     Barometer = "barometer",
-    Text = "text",
-    Number = "number",
-    Textarea = "text-area",
-    Date = "date",
-    Selector = "selector",
-    Checkbox = "check-box",
     CheckboxGroup = "check-group",
+    Date = "date",
+    Number = "number",
+    RadioGroup = "radio-group",
+    Selector = "selector",
+    Text = "text",
+    Textarea = "text-area",
     TextString = "text-string"
 }
 export type SectionId = string;

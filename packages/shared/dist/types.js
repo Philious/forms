@@ -1,14 +1,13 @@
 export var EntryTypeEnum;
 (function (EntryTypeEnum) {
-    EntryTypeEnum["RadioGroup"] = "radio-group";
     EntryTypeEnum["Barometer"] = "barometer";
-    EntryTypeEnum["Text"] = "text";
-    EntryTypeEnum["Number"] = "number";
-    EntryTypeEnum["Textarea"] = "text-area";
-    EntryTypeEnum["Date"] = "date";
-    EntryTypeEnum["Selector"] = "selector";
-    EntryTypeEnum["Checkbox"] = "check-box";
     EntryTypeEnum["CheckboxGroup"] = "check-group";
+    EntryTypeEnum["Date"] = "date";
+    EntryTypeEnum["Number"] = "number";
+    EntryTypeEnum["RadioGroup"] = "radio-group";
+    EntryTypeEnum["Selector"] = "selector";
+    EntryTypeEnum["Text"] = "text";
+    EntryTypeEnum["Textarea"] = "text-area";
     EntryTypeEnum["TextString"] = "text-string";
 })(EntryTypeEnum || (EntryTypeEnum = {}));
 export var HttpStatusCode;

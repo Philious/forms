@@ -15,10 +15,10 @@ import { LocalStorageService } from '../services/localStorageService';
 import { Store } from '../store/store';
 import { checkIfSaved, clearCurrentifNotSaved } from './common/page.utilities';
 import { DivisionPageComponent } from './divisions.component';
-import { EntriesComponent } from './entries/entries.page';
+import { EntriesComponent } from './entries/entries.component';
 import { FormPageComponent } from './forms.component';
 import { PagePageComponent } from './pages.component';
-import { TestPageComponent } from './test.component';
+import { TestPageComponent } from './test/test.component';
 
 @Component({
   selector: 'main-view',
@@ -47,8 +47,6 @@ import { TestPageComponent } from './test.component';
         { label: 'Test', template: test },
       ]"
       [(selected)]="selectedTab"
-      (update)="tabSelect($event)"
-      [oneWayBinding]="true"
     >
       <div class="global-settings">
         <icon-button title="Test form" class="play" [icon]="IconEnum.Play" />
@@ -71,9 +69,11 @@ import { TestPageComponent } from './test.component';
       <test-page />
     </ng-template>
 
-    <data-view label="form" [data]="store.currentForm()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
+    <data-view label="Current entry" [data]="store.currentEntry()" [startPosition]="{ bottom: '1rem', left: '1rem' }" />
+    <!--
     <data-view label="page" [data]="store.pages()" [startPosition]="{ top: '33%', right: '1rem' }" />
     <data-view label="division" [data]="store.currentDivision()" [startPosition]="{ bottom: '1rem', right: '1rem' }" />
+    -->
   `,
   styles: `
     :host {
@@ -199,8 +199,8 @@ export class MainPageComponent {
   }
 
   constructor() {
+    // Using local storage ??
     Object.values(this.localStorage.clear).forEach(fn => fn());
-    effect(() => console.log(this.store.divisions()));
     const init = effect(() => {
       const forms = this.store.forms();
       const pages = this.store.pages();

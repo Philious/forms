@@ -2,6 +2,7 @@ import { AbstractControl, AsyncValidatorFn, Form } from '@angular/forms';
 import { Division, DivisionId, Entry, EntryId, FormId, Page, PageId } from '@cs-forms/shared';
 
 export type Exact<T> = T extends infer U ? (U extends T ? (T extends U ? U : never) : never) : never;
+
 export type GenericEvent<T> = Event & { type: T } & T;
 export type FormRecord = Record<FormId, Form> | null;
 export type PageRecord = Record<PageId, Page> | null;
@@ -16,7 +17,6 @@ export enum EntryTypeEnum {
   Textarea = 'text-area',
   Date = 'date',
   Selector = 'selector',
-  Checkbox = 'check-box',
   CheckboxGroup = 'check-group',
   TextString = 'text-string',
 }

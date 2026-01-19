@@ -9,25 +9,29 @@
   } @else if (preText) {
     <div class="prefix">{{ preText }}</div>
   }
+  <div class="input-wrapper">
+    <ng-content  />
+  </div>
     @if (sufixIcon) {
     <icon class="sufix" [icon]="sufixIcon" />
   } @else if (sufText) {
     <div class="sufix">{{ sufText }}</div>
   }
-  <div class="input-wrapper">
-    <ng-content  />
-  </div>
+
 </div>
-@if (this.label() || this.labelElement()) {
-  <label class="label" [for]="id()">
-      {{ label() }}
-      <ng-container  *ngTemplateOutlet="this.labelElement()" />
-  </label>
-}
-  @if (errorMessage() || contextMessage()) {
+  
+
+<label class="label" [for]="id()">
+  <ng-content select="[label]">
+    {{ label() }}
+  </ng-content>
+</label>
+    
+ 
+  @if (errorLabel() || contextLabel()) {
     <div class="context-text" animate.enter="enter" animate.leave="leave">
-      @if (errorMessage()) { <span class="error-message">{{ errorMessage() }}</span> }
-      @if (contextMessage()) { <span class="context-message">{{ contextMessage() }}</span> }
+      @if (errorLabel()) { <span class="error-message">{{ errorLabel() }}</span> }
+      @if (contextLabel()) { <span class="context-message">{{ contextLabel() }}</span> }
     </div>
   }
 
